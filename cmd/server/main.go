@@ -44,6 +44,25 @@ func main() {
 		log.Println("Auth features will not work until valid credentials are provided")
 	}
 
+	// Initialize Database
+	databaseURL := os.Getenv("DATABASE_URL")
+	if databaseURL != "" {
+		db, err := services.InitDB(databaseURL)
+		if err != nil {
+			log.Fatalf("Failed to connect to database: %v", err)
+		}
+
+		// Run auto-migration
+		if err := services.AutoMigrate(db); err != nil {
+			log.Fatalf("Failed to run database migrations: %v", err)
+		}
+
+		// Store db in context for handlers (optional, can be used later)
+		_ = db
+	} else {
+		log.Println("Warning: DATABASE_URL not set, database features disabled")
+	}
+
 	// Create Echo instance
 	e := echo.New()
 
