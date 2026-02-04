@@ -1,0 +1,33 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+tmp/
+
+# Go build
+*.test
+*.out
+go.work
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment
+.env
+*.local
+
+# Firebase credentials (keep this secret!)
+firebase-service-account.json
+*-service-account.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Air build logs
+build-errors.log
