@@ -1,0 +1,100 @@
+package layouts
+
+import "patungan_app_echo/web/templates/shared"
+
+// BaseProps contains props for the base layout
+type BaseProps struct {
+	Title       string
+	ActiveNav   string
+	Breadcrumbs []shared.Breadcrumb
+	UserEmail   string
+	UserUID     string
+}
+
+// Base is the main layout component
+templ Base(props BaseProps) {
+	<!DOCTYPE html>
+	<html lang="en">
+	<head>
+		<meta charset="UTF-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<title>{ props.Title } - Patungan App</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com"/>
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+		<link rel="stylesheet" href="/static/css/tailwind.css"/>
+		<script src="https://unpkg.com/lucide@latest"></script>
+	</head>
+	<body class="bg-bg-body text-text-primary font-sans flex min-h-screen">
+		@Sidebar(props.ActiveNav)
+		<div class="ml-16 flex-1 min-h-screen flex flex-col">
+			@Header(props.Breadcrumbs, props.UserEmail)
+			<main class="mx-auto p-10 w-full max-w-[1400px] lg:w-[800px]">
+				{ children... }
+			</main>
+		</div>
+		<script>
+			lucide.createIcons();
+		</script>
+	</body>
+	</html>
+}
+
+// Sidebar renders the navigation sidebar
+templ Sidebar(activeNav string) {
+	<aside class="w-16 bg-bg-card border-r border-border h-screen fixed left-0 top-0 flex flex-col items-center py-6 z-50">
+		<div class="mb-10">
+			<span class="text-2xl"><i data-lucide="wallet"></i></span>
+		</div>
+		<nav class="flex flex-col items-center">
+			<a 
+				href="/dashboard" 
+				class={ "flex items-center justify-center w-10 h-10 rounded-lg mb-4 transition-all duration-200 hover:bg-bg-hover hover:text-primary", templ.KV("bg-primary/10 text-primary", activeNav == "dashboard"), templ.KV("text-text-secondary", activeNav != "dashboard") }
+				title="Dashboard"
+			>
+				<span class="text-xl"><i data-lucide="layout-dashboard"></i></span>
+			</a>
+			<a 
+				href="/plans" 
+				class={ "flex items-center justify-center w-10 h-10 rounded-lg mb-4 transition-all duration-200 hover:bg-bg-hover hover:text-primary", templ.KV("bg-primary/10 text-primary", activeNav == "plans"), templ.KV("text-text-secondary", activeNav != "plans") }
+				title="Plans"
+			>
+				<span class="text-xl"><i data-lucide="list-todo"></i></span>
+			</a>
+		</nav>
+	</aside>
+}
+
+// Header renders the top bar with breadcrumbs
+templ Header(breadcrumbs []shared.Breadcrumb, userEmail string) {
+	<header class="bg-bg-card border-b border-border h-16 px-8 flex justify-between items-center sticky top-0 z-40">
+		<div class="flex items-center gap-2 text-sm text-text-secondary">
+			for i, crumb := range breadcrumbs {
+				if i > 0 {
+					<span class="text-text-secondary/50 text-xs">/</span>
+				}
+				<div class="flex items-center gap-2">
+					if crumb.URL != "" {
+						<a href={ templ.SafeURL(crumb.URL) } class="text-text-secondary hover:text-primary no-underline">{ crumb.Title }</a>
+					} else {
+						<span class="text-text-primary font-medium">{ crumb.Title }</span>
+					}
+				</div>
+			}
+		</div>
+		<div class="flex items-center gap-4">
+			if userEmail != "" {
+				<div class="flex items-center gap-4">
+					<span class="text-text-secondary text-sm">{ userEmail }</span>
+					<button 
+						class="px-4 py-2 bg-transparent text-text-secondary border border-border rounded-md text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-bg-hover hover:text-text-primary hover:border-text-secondary flex items-center" 
+						id="logout-btn"
+					>
+						<i data-lucide="log-out" style="width: 16px; height: 16px; margin-right: 4px;"></i>
+						Logout
+					</button>
+				</div>
+			}
+		</div>
+	</header>
+}

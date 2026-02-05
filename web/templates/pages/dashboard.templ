@@ -1,0 +1,49 @@
+package pages
+
+import (
+	"patungan_app_echo/web/templates/layouts"
+	"patungan_app_echo/web/templates/shared"
+)
+
+// DashboardProps contains props for the dashboard page
+type DashboardProps struct {
+	Title       string
+	ActiveNav   string
+	Breadcrumbs []shared.Breadcrumb
+	UserEmail   string
+	UserUID     string
+}
+
+// Dashboard renders the dashboard page
+templ Dashboard(props DashboardProps) {
+	@layouts.Base(layouts.BaseProps{
+		Title:       props.Title,
+		ActiveNav:   props.ActiveNav,
+		Breadcrumbs: props.Breadcrumbs,
+		UserEmail:   props.UserEmail,
+		UserUID:     props.UserUID,
+	}) {
+		<div class="bg-bg-card border border-border rounded-xl p-6 mb-8">
+			<a href="/plans" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border-none cursor-pointer font-medium no-underline transition-all duration-200 bg-primary text-white hover:bg-primary-hover hover:-translate-y-px">
+				Manage Plans
+			</a>
+		</div>
+		@LogoutScript()
+	}
+}
+
+// LogoutScript handles logout functionality
+templ LogoutScript() {
+	<script>
+		document.getElementById('logout-btn')?.addEventListener('click', async () => {
+			try {
+				const response = await fetch('/auth/logout', { method: 'POST' });
+				if (response.ok) {
+					window.location.href = '/login';
+				}
+			} catch (error) {
+				console.error('Logout failed:', error);
+			}
+		});
+	</script>
+}

@@ -3,11 +3,11 @@ package handlers
 import (
 	"net/http"
 	"os"
-	"strings"
-	"time"
 
 	"firebase.google.com/go/v4/auth"
 	"github.com/labstack/echo/v4"
+
+	"patungan_app_echo/web/templates/pages"
 )
 
 // AuthHandler handles authentication endpoints
@@ -22,12 +22,12 @@ func NewAuthHandler(authClient *auth.Client) *AuthHandler {
 
 // LoginPage renders the login page
 func (h *AuthHandler) LoginPage(c echo.Context) error {
-	data := map[string]interface{}{
-		"FirebaseAPIKey":     os.Getenv("FIREBASE_API_KEY"),
-		"FirebaseAuthDomain": os.Getenv("FIREBASE_AUTH_DOMAIN"),
-		"FirebaseProjectID":  os.Getenv("FIREBASE_PROJECT_ID"),
+	props := pages.LoginProps{
+		FirebaseAPIKey:     os.Getenv("FIREBASE_API_KEY"),
+		FirebaseAuthDomain: os.Getenv("FIREBASE_AUTH_DOMAIN"),
+		FirebaseProjectID:  os.Getenv("FIREBASE_PROJECT_ID"),
 	}
-	return c.Render(http.StatusOK, "login.html", data)
+	return pages.Login(props).Render(c.Request().Context(), c.Response())
 }
 
 // HandleLogin verifies the Firebase ID token and creates a session cookie
@@ -46,8 +46,10 @@ func (h *AuthHandler) HandleLogin(c echo.Context) error {
 		})
 	}
 
-	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
-	if tokenString == authHeader {
+	tokenString := authHeader
+	if len(authHeader) > 7 && authHeader[:7] == "Bearer " {
+		tokenString = authHeader[7:]
+	} else {
 		return c.JSON(http.StatusUnauthorized, map[string]string{
 			"error": "Invalid authorization format",
 		})
@@ -62,8 +64,8 @@ func (h *AuthHandler) HandleLogin(c echo.Context) error {
 	}
 
 	// Create Session Cookie (valid for 5 days)
-	expiresIn := time.Hour * 24 * 5
-	cookieValue, err := h.authClient.SessionCookie(c.Request().Context(), tokenString, expiresIn)
+	expiresIn := 5 * 24 * 60 * 60 * 1000                                                                      // 5 days in milliseconds for cookie
+	cookieValue, err := h.authClient.SessionCookie(c.Request().Context(), tokenString, 5*24*60*60*1000000000) // 5 days in nanoseconds
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			"error": "Failed to create session",
@@ -74,7 +76,7 @@ func (h *AuthHandler) HandleLogin(c echo.Context) error {
 	cookie := &http.Cookie{
 		Name:     "session",
 		Value:    cookieValue,
-		MaxAge:   int(expiresIn.Seconds()),
+		MaxAge:   expiresIn / 1000.0, // convert ms to seconds
 		HttpOnly: true,
 		Secure:   os.Getenv("ENV") == "production",
 		Path:     "/",

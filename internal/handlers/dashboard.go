@@ -1,9 +1,10 @@
 package handlers
 
 import (
-	"net/http"
-
 	"github.com/labstack/echo/v4"
+
+	"patungan_app_echo/web/templates/pages"
+	"patungan_app_echo/web/templates/shared"
 )
 
 // DashboardHandler handles dashboard endpoints
@@ -17,15 +18,28 @@ func NewDashboardHandler() *DashboardHandler {
 // Dashboard renders the dashboard page
 func (h *DashboardHandler) Dashboard(c echo.Context) error {
 	// Breadcrumbs: Home > Dashboard
-	breadcrumbs := []Breadcrumb{
+	breadcrumbs := []shared.Breadcrumb{
 		{Title: "Home", URL: "/"},
 		{Title: "Dashboard", URL: ""}, // Current page
 	}
 
-	data := map[string]interface{}{
-		"Title":       "Dashboard",
-		"ActiveNav":   "dashboard",
-		"Breadcrumbs": breadcrumbs,
+	props := pages.DashboardProps{
+		Title:       "Dashboard",
+		ActiveNav:   "dashboard",
+		Breadcrumbs: breadcrumbs,
+		UserEmail:   getStringFromContext(c, "userEmail"),
+		UserUID:     getStringFromContext(c, "userUID"),
 	}
-	return c.Render(http.StatusOK, "dashboard.html", data)
+
+	return pages.Dashboard(props).Render(c.Request().Context(), c.Response())
+}
+
+// Helper to safely get string from context
+func getStringFromContext(c echo.Context, key string) string {
+	if val := c.Get(key); val != nil {
+		if s, ok := val.(string); ok {
+			return s
+		}
+	}
+	return ""
 }

@@ -9,6 +9,8 @@ import (
 	"gorm.io/gorm"
 
 	"patungan_app_echo/internal/models"
+	"patungan_app_echo/web/templates/pages"
+	"patungan_app_echo/web/templates/shared"
 )
 
 type PlanHandler struct {
@@ -27,35 +29,43 @@ func (h *PlanHandler) ListPlans(c echo.Context) error {
 	}
 
 	// Breadcrumbs: Home > Plans
-	breadcrumbs := []Breadcrumb{
+	breadcrumbs := []shared.Breadcrumb{
 		{Title: "Home", URL: "/"},
 		{Title: "Plans", URL: ""},
 	}
 
-	return c.Render(http.StatusOK, "plans_list.html", map[string]interface{}{
-		"Plans":       plans,
-		"Title":       "Plan Management",
-		"ActiveNav":   "plans",
-		"Breadcrumbs": breadcrumbs,
-	})
+	props := pages.PlansListProps{
+		Title:       "Plan Management",
+		ActiveNav:   "plans",
+		Breadcrumbs: breadcrumbs,
+		UserEmail:   getStringFromContext(c, "userEmail"),
+		UserUID:     getStringFromContext(c, "userUID"),
+		Plans:       plans,
+	}
+
+	return pages.PlansList(props).Render(c.Request().Context(), c.Response())
 }
 
 // CreatePlanPage renders the create plan form
 func (h *PlanHandler) CreatePlanPage(c echo.Context) error {
 	// Breadcrumbs: Home > Plans > Create
-	breadcrumbs := []Breadcrumb{
+	breadcrumbs := []shared.Breadcrumb{
 		{Title: "Home", URL: "/"},
 		{Title: "Plans", URL: "/plans"},
 		{Title: "Create Plan", URL: ""},
 	}
 
-	return c.Render(http.StatusOK, "plan_form.html", map[string]interface{}{
-		"Title":              "Create New Plan",
-		"IsEdit":             false,
-		"FormattedStartDate": time.Now().Format("2006-01-02"),
-		"ActiveNav":          "plans",
-		"Breadcrumbs":        breadcrumbs,
-	})
+	props := pages.PlanFormProps{
+		Title:              "Create New Plan",
+		ActiveNav:          "plans",
+		Breadcrumbs:        breadcrumbs,
+		UserEmail:          getStringFromContext(c, "userEmail"),
+		UserUID:            getStringFromContext(c, "userUID"),
+		IsEdit:             false,
+		FormattedStartDate: time.Now().Format("2006-01-02"),
+	}
+
+	return pages.PlanForm(props).Render(c.Request().Context(), c.Response())
 }
 
 // StorePlan handles the creation of a new plan
@@ -98,20 +108,24 @@ func (h *PlanHandler) EditPlanPage(c echo.Context) error {
 	}
 
 	// Breadcrumbs: Home > Plans > Edit
-	breadcrumbs := []Breadcrumb{
+	breadcrumbs := []shared.Breadcrumb{
 		{Title: "Home", URL: "/"},
 		{Title: "Plans", URL: "/plans"},
 		{Title: "Edit Plan", URL: ""},
 	}
 
-	return c.Render(http.StatusOK, "plan_form.html", map[string]interface{}{
-		"Title":              "Edit Plan",
-		"Plan":               plan,
-		"IsEdit":             true,
-		"FormattedStartDate": plan.PlanStartDate.Format("2006-01-02"),
-		"ActiveNav":          "plans",
-		"Breadcrumbs":        breadcrumbs,
-	})
+	props := pages.PlanFormProps{
+		Title:              "Edit Plan",
+		ActiveNav:          "plans",
+		Breadcrumbs:        breadcrumbs,
+		UserEmail:          getStringFromContext(c, "userEmail"),
+		UserUID:            getStringFromContext(c, "userUID"),
+		IsEdit:             true,
+		Plan:               plan,
+		FormattedStartDate: plan.PlanStartDate.Format("2006-01-02"),
+	}
+
+	return pages.PlanForm(props).Render(c.Request().Context(), c.Response())
 }
 
 // UpdatePlan handles updating an existing plan
