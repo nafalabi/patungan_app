@@ -26,18 +26,35 @@ func (h *PlanHandler) ListPlans(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, "Failed to fetch plans")
 	}
 
+	// Breadcrumbs: Home > Plans
+	breadcrumbs := []Breadcrumb{
+		{Title: "Home", URL: "/"},
+		{Title: "Plans", URL: ""},
+	}
+
 	return c.Render(http.StatusOK, "plans_list.html", map[string]interface{}{
-		"Plans": plans,
-		"Title": "Plan Management",
+		"Plans":       plans,
+		"Title":       "Plan Management",
+		"ActiveNav":   "plans",
+		"Breadcrumbs": breadcrumbs,
 	})
 }
 
 // CreatePlanPage renders the create plan form
 func (h *PlanHandler) CreatePlanPage(c echo.Context) error {
+	// Breadcrumbs: Home > Plans > Create
+	breadcrumbs := []Breadcrumb{
+		{Title: "Home", URL: "/"},
+		{Title: "Plans", URL: "/plans"},
+		{Title: "Create Plan", URL: ""},
+	}
+
 	return c.Render(http.StatusOK, "plan_form.html", map[string]interface{}{
 		"Title":              "Create New Plan",
 		"IsEdit":             false,
 		"FormattedStartDate": time.Now().Format("2006-01-02"),
+		"ActiveNav":          "plans",
+		"Breadcrumbs":        breadcrumbs,
 	})
 }
 
@@ -80,11 +97,20 @@ func (h *PlanHandler) EditPlanPage(c echo.Context) error {
 		return c.String(http.StatusNotFound, "Plan not found")
 	}
 
+	// Breadcrumbs: Home > Plans > Edit
+	breadcrumbs := []Breadcrumb{
+		{Title: "Home", URL: "/"},
+		{Title: "Plans", URL: "/plans"},
+		{Title: "Edit Plan", URL: ""},
+	}
+
 	return c.Render(http.StatusOK, "plan_form.html", map[string]interface{}{
 		"Title":              "Edit Plan",
 		"Plan":               plan,
 		"IsEdit":             true,
 		"FormattedStartDate": plan.PlanStartDate.Format("2006-01-02"),
+		"ActiveNav":          "plans",
+		"Breadcrumbs":        breadcrumbs,
 	})
 }
 

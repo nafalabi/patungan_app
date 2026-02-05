@@ -1,22 +1,33 @@
-{{define "main-header"}}
-<header class="header">
-	<a href="/" class="logo">
-		<span class="logo-icon">💸</span>
-		<span>Patungan App</span>
-	</a>
-	{{if .UserEmail}}
-	<div class="user-info">
-		<span class="user-email">{{.UserEmail}}</span>
-		<button class="logout-btn" id="logout-btn">Logout</button>
+{{define "header"}}
+<header class="top-bar">
+	<div class="breadcrumbs">
+		{{range $index, $element := .Breadcrumbs}}
+		{{if $index}}
+		<span class="breadcrumb-separator">/</span>
+		{{end}}
+		<div class="breadcrumb-item">
+			{{if .URL}}
+			<a href="{{.URL}}" class="breadcrumb-link">{{.Title}}</a>
+			{{else}}
+			<span class="breadcrumb-current">{{.Title}}</span>
+			{{end}}
+		</div>
+		{{end}}
 	</div>
-	{{end}}
-</header>
-{{end}}
 
-{{define "back-header"}}
-<header class="header">
-	<a href="{{.BackURL}}" class="logo">
-		<span>🔙 {{.BackText}}</span>
-	</a>
+	<div class="header-actions">
+		<!--		<div class="search-bar">-->
+		<!--			<input type="text" placeholder="Search..." class="search-input">-->
+		<!--		</div>-->
+		{{if .UserEmail}}
+		<div class="user-info">
+			<span class="user-email">{{.UserEmail}}</span>
+			<button class="logout-btn" id="logout-btn">
+				<i data-lucide="log-out" style="width: 16px; height: 16px; margin-right: 4px;"></i>
+				Logout
+			</button>
+		</div>
+		{{end}}
+	</div>
 </header>
 {{end}}

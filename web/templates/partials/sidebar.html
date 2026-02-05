@@ -1,0 +1,15 @@
+{{define "sidebar"}}
+<aside class="sidebar">
+	<div class="sidebar-header">
+		<span class="logo-icon"><i data-lucide="wallet"></i></span>
+	</div>
+	<nav class="sidebar-nav">
+		<a href="/dashboard" class="nav-item {{if eq .ActiveNav " dashboard"}}active{{end}}" title="Dashboard">
+			<span class="nav-icon"><i data-lucide="layout-dashboard"></i></span>
+		</a>
+		<a href="/plans" class="nav-item {{if eq .ActiveNav " plans"}}active{{end}}" title="Plans">
+			<span class="nav-icon"><i data-lucide="list-todo"></i></span>
+		</a>
+	</nav>
+</aside>
+{{end}}

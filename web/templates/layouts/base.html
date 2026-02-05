@@ -8,15 +8,20 @@
 </head>
 
 <body>
-	{{block "header" .}}
-	{{template "main-header" .}}
-	{{end}}
+	{{template "sidebar" .}}
 
-	<main class="container {{block " container-class" .}}{{end}}">
-		{{block "content" .}}{{end}}
-	</main>
+	<div class="main-wrapper">
+		{{template "header" .}}
+
+		<main class="container {{block " container-class" .}}{{end}}">
+			{{block "content" .}}{{end}}
+		</main>
+	</div>
 
 	{{block "scripts" .}}{{end}}
+	<script>
+		lucide.createIcons();
+	</script>
 </body>
 
 </html>
