@@ -1,41 +1,29 @@
-{{define "extra-styles"}}
-<style>
-	.form-container {
-		max-width: 600px;
-		margin: 40px auto;
-		padding: 32px;
-		background: var(--bg-card);
-		border-radius: 16px;
-		border: 1px solid var(--border);
-	}
+{{define "extra-styles"}}{{end}}
 
-	.form-container h1 {
-		margin-bottom: 24px;
-	}
-</style>
-{{end}}
-
-
-{{define "container-class"}}form-container{{end}}
+{{define "container-class"}}max-w-[600px] mx-auto my-10 p-8 bg-bg-card rounded-2xl border border-border{{end}}
 
 {{define "content"}}
-<h1>{{if .IsEdit}}Edit Plan{{else}}Create New Plan{{end}}</h1>
+<h1 class="text-2xl font-bold mb-6">{{if .IsEdit}}Edit Plan{{else}}Create New Plan{{end}}</h1>
 
 <form method="POST" action="{{if .IsEdit}}/plans/{{.Plan.ID}}/update{{else}}/plans{{end}}">
-	<div class="form-group">
-		<label>Plan Name</label>
-		<input type="text" name="name" class="form-control" value="{{if .IsEdit}}{{.Plan.Name}}{{end}}" required>
+	<div class="mb-5">
+		<label class="block mb-2 text-text-secondary">Plan Name</label>
+		<input type="text" name="name"
+			class="w-full p-2.5 rounded-lg border border-border bg-input-bg text-text-primary text-base focus:outline-none focus:border-primary"
+			value="{{if .IsEdit}}{{.Plan.Name}}{{end}}" required>
 	</div>
 
-	<div class="form-group">
-		<label>Total Price (IDR)</label>
-		<input type="number" name="total_price" class="form-control" value="{{if .IsEdit}}{{.Plan.TotalPrice}}{{end}}"
-			required>
+	<div class="mb-5">
+		<label class="block mb-2 text-text-secondary">Total Price (IDR)</label>
+		<input type="number" name="total_price"
+			class="w-full p-2.5 rounded-lg border border-border bg-input-bg text-text-primary text-base focus:outline-none focus:border-primary"
+			value="{{if .IsEdit}}{{.Plan.TotalPrice}}{{end}}" required>
 	</div>
 
-	<div class="form-group">
-		<label>Payment Interval</label>
-		<select name="pay_interval" class="form-control">
+	<div class="mb-5">
+		<label class="block mb-2 text-text-secondary">Payment Interval</label>
+		<select name="pay_interval"
+			class="w-full p-2.5 rounded-lg border border-border bg-input-bg text-text-primary text-base focus:outline-none focus:border-primary">
 			<option value="monthly" {{if .IsEdit}}{{if eq .Plan.PayInterval "monthly" }}selected{{end}}{{end}}>Monthly
 			</option>
 			<option value="weekly" {{if .IsEdit}}{{if eq .Plan.PayInterval "weekly" }}selected{{end}}{{end}}>Weekly</option>
@@ -43,24 +31,31 @@
 		</select>
 	</div>
 
-	<div class="form-group">
-		<label>Start Date</label>
-		<input type="date" name="plan_start_date" class="form-control" value="{{.FormattedStartDate}}" required>
+	<div class="mb-5">
+		<label class="block mb-2 text-text-secondary">Start Date</label>
+		<input type="date" name="plan_start_date"
+			class="w-full p-2.5 rounded-lg border border-border bg-input-bg text-text-primary text-base focus:outline-none focus:border-primary"
+			value="{{.FormattedStartDate}}" required>
 	</div>
 
-	<div class="checkbox-group">
-		<input type="checkbox" name="is_active" id="is_active" {{if .IsEdit}}{{if
+	<div class="flex items-center gap-3 mb-4">
+		<input type="checkbox" name="is_active" id="is_active"
+			class="w-4 h-4 rounded border-border text-primary focus:ring-primary" {{if .IsEdit}}{{if
 			.Plan.IsActive}}checked{{end}}{{else}}checked{{end}}>
-		<label for="is_active">Is Active?</label>
+		<label for="is_active" class="text-text-primary">Is Active?</label>
 	</div>
 
-	<div class="checkbox-group">
-		<input type="checkbox" name="allow_invitation" id="allow_invitation" {{if .IsEdit}}{{if
+	<div class="flex items-center gap-3 mb-6">
+		<input type="checkbox" name="allow_invitation" id="allow_invitation"
+			class="w-4 h-4 rounded border-border text-primary focus:ring-primary" {{if .IsEdit}}{{if
 			.Plan.AllowInvitationAfterPay}}checked{{end}}{{end}}>
-		<label for="allow_invitation">Allow Invitation After Pay?</label>
+		<label for="allow_invitation" class="text-text-primary">Allow Invitation After Pay?</label>
 	</div>
 
-	<button type="submit" class="btn btn-primary btn-block">Save Plan</button>
-	<a href="/plans" class="btn btn-secondary btn-block mt-3">Cancel</a>
+	<button type="submit"
+		class="w-full inline-flex justify-center items-center gap-2 px-5 py-2.5 rounded-lg border-none cursor-pointer font-medium no-underline transition-all duration-200 bg-primary text-white hover:bg-primary-hover hover:-translate-y-px text-base">Save
+		Plan</button>
+	<a href="/plans"
+		class="w-full inline-flex justify-center items-center gap-2 px-5 py-2.5 rounded-lg border border-border cursor-pointer font-medium no-underline transition-all duration-200 bg-transparent text-text-primary hover:bg-bg-hover mt-3 text-base">Cancel</a>
 </form>
 {{end}}

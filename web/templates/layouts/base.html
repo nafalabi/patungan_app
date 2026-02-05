@@ -10,10 +10,10 @@
 <body>
 	{{template "sidebar" .}}
 
-	<div class="main-wrapper">
+	<div class="ml-16 flex-1 min-h-screen flex flex-col">
 		{{template "header" .}}
 
-		<main class="container {{block " container-class" .}}{{end}}">
+		<main class="mx-auto p-10 w-full max-w-[1400px] lg:w-[800px] {{block " container-class" .}}{{end}}">
 			{{block "content" .}}{{end}}
 		</main>
 	</div>

@@ -31,3 +31,6 @@ Thumbs.db
 
 # Air build logs
 build-errors.log
+
+# Node modules
+node_modules
