@@ -1,0 +1,23 @@
+{{define "base"}}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	{{template "head" .}}
+	{{block "extra-styles" .}}{{end}}
+</head>
+
+<body>
+	{{block "header" .}}
+	{{template "main-header" .}}
+	{{end}}
+
+	<main class="container {{block " container-class" .}}{{end}}">
+		{{block "content" .}}{{end}}
+	</main>
+
+	{{block "scripts" .}}{{end}}
+</body>
+
+</html>
+{{end}}

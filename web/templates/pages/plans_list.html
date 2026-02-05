@@ -1,0 +1,52 @@
+{{define "header"}}
+<header class="header">
+	<a href="/dashboard" class="logo">
+		<span>🔙 Dashboard</span>
+	</a>
+</header>
+{{end}}
+
+{{define "content"}}
+<div class="page-header">
+	<h1>Plans</h1>
+	<a href="/plans/create" class="btn btn-primary">+ Create New Plan</a>
+</div>
+
+<table class="table">
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>Interval</th>
+			<th>Price</th>
+			<th>Status</th>
+			<th>Actions</th>
+		</tr>
+	</thead>
+	<tbody>
+		{{range .Plans}}
+		<tr>
+			<td>{{.Name}}</td>
+			<td>{{.PayInterval}}</td>
+			<td>Rp {{.TotalPrice}}</td>
+			<td>
+				{{if .IsActive}}
+				<span class="badge badge-success">Active</span>
+				{{else}}
+				<span class="badge badge-danger">Inactive</span>
+				{{end}}
+			</td>
+			<td class="action-cell">
+				<a href="/plans/{{.ID}}/edit" class="btn btn-primary btn-sm">Edit</a>
+				<form method="POST" action="/plans/{{.ID}}/delete" onsubmit="return confirm('Are you sure?')">
+					<button type="submit" class="btn btn-danger btn-sm">Delete</button>
+				</form>
+			</td>
+		</tr>
+		{{else}}
+		<tr>
+			<td colspan="5" class="text-center text-secondary">No plans found.</td>
+		</tr>
+		{{end}}
+	</tbody>
+</table>
+{{end}}

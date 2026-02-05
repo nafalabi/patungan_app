@@ -1,0 +1,73 @@
+{{define "extra-styles"}}
+<style>
+	.form-container {
+		max-width: 600px;
+		margin: 40px auto;
+		padding: 32px;
+		background: var(--bg-card);
+		border-radius: 16px;
+		border: 1px solid var(--border);
+	}
+
+	.form-container h1 {
+		margin-bottom: 24px;
+	}
+</style>
+{{end}}
+
+{{define "header"}}
+<header class="header">
+	<a href="/plans" class="logo">
+		<span>🔙 Back to Plans</span>
+	</a>
+</header>
+{{end}}
+
+{{define "container-class"}}form-container{{end}}
+
+{{define "content"}}
+<h1>{{if .IsEdit}}Edit Plan{{else}}Create New Plan{{end}}</h1>
+
+<form method="POST" action="{{if .IsEdit}}/plans/{{.Plan.ID}}/update{{else}}/plans{{end}}">
+	<div class="form-group">
+		<label>Plan Name</label>
+		<input type="text" name="name" class="form-control" value="{{if .IsEdit}}{{.Plan.Name}}{{end}}" required>
+	</div>
+
+	<div class="form-group">
+		<label>Total Price (IDR)</label>
+		<input type="number" name="total_price" class="form-control" value="{{if .IsEdit}}{{.Plan.TotalPrice}}{{end}}"
+			required>
+	</div>
+
+	<div class="form-group">
+		<label>Payment Interval</label>
+		<select name="pay_interval" class="form-control">
+			<option value="monthly" {{if .IsEdit}}{{if eq .Plan.PayInterval "monthly" }}selected{{end}}{{end}}>Monthly
+			</option>
+			<option value="weekly" {{if .IsEdit}}{{if eq .Plan.PayInterval "weekly" }}selected{{end}}{{end}}>Weekly</option>
+			<option value="daily" {{if .IsEdit}}{{if eq .Plan.PayInterval "daily" }}selected{{end}}{{end}}>Daily</option>
+		</select>
+	</div>
+
+	<div class="form-group">
+		<label>Start Date</label>
+		<input type="date" name="plan_start_date" class="form-control" value="{{.FormattedStartDate}}" required>
+	</div>
+
+	<div class="checkbox-group">
+		<input type="checkbox" name="is_active" id="is_active" {{if .IsEdit}}{{if
+			.Plan.IsActive}}checked{{end}}{{else}}checked{{end}}>
+		<label for="is_active">Is Active?</label>
+	</div>
+
+	<div class="checkbox-group">
+		<input type="checkbox" name="allow_invitation" id="allow_invitation" {{if .IsEdit}}{{if
+			.Plan.AllowInvitationAfterPay}}checked{{end}}{{end}}>
+		<label for="allow_invitation">Allow Invitation After Pay?</label>
+	</div>
+
+	<button type="submit" class="btn btn-primary btn-block">Save Plan</button>
+	<a href="/plans" class="btn btn-secondary btn-block mt-3">Cancel</a>
+</form>
+{{end}}

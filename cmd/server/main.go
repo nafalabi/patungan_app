@@ -6,10 +6,12 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"gorm.io/gorm"
 
 	"patungan_app_echo/internal/handlers"
 	authMiddleware "patungan_app_echo/internal/middleware"
@@ -17,13 +19,59 @@ import (
 )
 
 // TemplateRenderer is a custom html/template renderer for Echo
+// Uses per-page template cloning to allow each page to define its own blocks
 type TemplateRenderer struct {
-	templates *template.Template
+	templates map[string]*template.Template
+}
+
+// NewTemplateRenderer creates a template renderer with per-page cloning
+func NewTemplateRenderer() *TemplateRenderer {
+	templates := make(map[string]*template.Template)
+
+	// Parse base layout and partials as the foundation
+	baseTemplate := template.Must(template.ParseGlob("web/templates/layouts/*.html"))
+	template.Must(baseTemplate.ParseGlob("web/templates/partials/*.html"))
+
+	// Find all page templates and clone base for each
+	pages, err := filepath.Glob("web/templates/pages/*.html")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, page := range pages {
+		pageName := filepath.Base(page)
+		// Clone the base template for this page
+		pageTemplate := template.Must(baseTemplate.Clone())
+		// Parse the page-specific template
+		template.Must(pageTemplate.ParseFiles(page))
+		templates[pageName] = pageTemplate
+	}
+
+	// Also parse standalone templates (like login) that don't use the base layout
+	standalonePages, _ := filepath.Glob("web/templates/*.html")
+	for _, page := range standalonePages {
+		pageName := filepath.Base(page)
+		if _, exists := templates[pageName]; !exists {
+			templates[pageName] = template.Must(template.ParseFiles(page))
+		}
+	}
+
+	return &TemplateRenderer{templates: templates}
 }
 
 // Render renders a template document
 func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	return t.templates.ExecuteTemplate(w, name, data)
+	tmpl, ok := t.templates[name]
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Template not found: "+name)
+	}
+	// Check if this template has a "base" definition (page templates)
+	// or should be rendered directly (standalone templates like login)
+	if tmpl.Lookup("base") != nil {
+		return tmpl.ExecuteTemplate(w, "base", data)
+	}
+	// Standalone template - execute directly
+	return tmpl.Execute(w, data)
 }
 
 func main() {
@@ -45,9 +93,11 @@ func main() {
 	}
 
 	// Initialize Database
+	var db *gorm.DB
 	databaseURL := os.Getenv("DATABASE_URL")
 	if databaseURL != "" {
-		db, err := services.InitDB(databaseURL)
+		var err error
+		db, err = services.InitDB(databaseURL)
 		if err != nil {
 			log.Fatalf("Failed to connect to database: %v", err)
 		}
@@ -56,9 +106,6 @@ func main() {
 		if err := services.AutoMigrate(db); err != nil {
 			log.Fatalf("Failed to run database migrations: %v", err)
 		}
-
-		// Store db in context for handlers (optional, can be used later)
-		_ = db
 	} else {
 		log.Println("Warning: DATABASE_URL not set, database features disabled")
 	}
@@ -70,15 +117,16 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	// Template renderer
-	renderer := &TemplateRenderer{
-		templates: template.Must(template.ParseGlob("web/templates/*.html")),
-	}
-	e.Renderer = renderer
+	// Template renderer with per-page cloning
+	e.Renderer = NewTemplateRenderer()
+
+	// Static file serving
+	e.Static("/static", "web/static")
 
 	// Initialize handlers
 	authHandler := handlers.NewAuthHandler(authClient)
 	dashboardHandler := handlers.NewDashboardHandler()
+	planHandler := handlers.NewPlanHandler(db)
 
 	// Public routes
 	e.GET("/login", authHandler.LoginPage)
@@ -89,6 +137,14 @@ func main() {
 	protected := e.Group("")
 	protected.Use(authMiddleware.RequireAuth(authClient))
 	protected.GET("/dashboard", dashboardHandler.Dashboard)
+
+	// Plan routes
+	protected.GET("/plans", planHandler.ListPlans)
+	protected.GET("/plans/create", planHandler.CreatePlanPage)
+	protected.POST("/plans", planHandler.StorePlan)
+	protected.GET("/plans/:id/edit", planHandler.EditPlanPage)
+	protected.POST("/plans/:id/update", planHandler.UpdatePlan)
+	protected.POST("/plans/:id/delete", planHandler.DeletePlan)
 
 	// Redirect root to dashboard (or login if not authenticated)
 	e.GET("/", func(c echo.Context) error {

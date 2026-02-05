@@ -21,6 +21,7 @@ func (h *DashboardHandler) Dashboard(c echo.Context) error {
 	userUID, _ := c.Get("userUID").(string)
 
 	data := map[string]interface{}{
+		"Title":     "Dashboard",
 		"UserEmail": userEmail,
 		"UserUID":   userUID,
 	}

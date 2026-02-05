@@ -1,0 +1,22 @@
+{{define "main-header"}}
+<header class="header">
+	<a href="/" class="logo">
+		<span class="logo-icon">💸</span>
+		<span>Patungan App</span>
+	</a>
+	{{if .UserEmail}}
+	<div class="user-info">
+		<span class="user-email">{{.UserEmail}}</span>
+		<button class="logout-btn" id="logout-btn">Logout</button>
+	</div>
+	{{end}}
+</header>
+{{end}}
+
+{{define "back-header"}}
+<header class="header">
+	<a href="{{.BackURL}}" class="logo">
+		<span>🔙 {{.BackText}}</span>
+	</a>
+</header>
+{{end}}
