@@ -51,6 +51,20 @@ func main() {
 		log.Println("Warning: DATABASE_URL not set, database features disabled")
 	}
 
+	// Initialize Redis
+	var cache *services.RedisCache
+	redisURL := os.Getenv("REDIS_URL")
+	if redisURL != "" {
+		var err error
+		cache, err = services.NewRedisCache(redisURL)
+		if err != nil {
+			log.Printf("Warning: Redis initialization failed: %v", err)
+			log.Println("Caching features will not work until Redis is available")
+		}
+	} else {
+		log.Println("Warning: REDIS_URL not set, caching disabled")
+	}
+
 	// Create Echo instance
 	e := echo.New()
 
@@ -58,14 +72,23 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
+	// Inject services into context
+	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			c.Set("cache", cache)
+			c.Set("db", db)
+			return next(c)
+		}
+	})
+
 	// Static file serving
 	e.Static("/static", "web/static")
 
 	// Initialize handlers
 	authHandler := handlers.NewAuthHandler(authClient)
 	dashboardHandler := handlers.NewDashboardHandler()
-	planHandler := handlers.NewPlanHandler(db)
-	userHandler := handlers.NewUserHandler(db)
+	planHandler := handlers.NewPlanHandler(db, cache)
+	userHandler := handlers.NewUserHandler(db, cache)
 
 	// Public routes
 	e.GET("/login", authHandler.LoginPage)
@@ -74,7 +97,7 @@ func main() {
 
 	// Protected routes
 	protected := e.Group("")
-	protected.Use(authMiddleware.RequireAuth(authClient))
+	protected.Use(authMiddleware.RequireAuth(authClient, db, cache))
 	protected.GET("/dashboard", dashboardHandler.Dashboard)
 
 	// Plan routes

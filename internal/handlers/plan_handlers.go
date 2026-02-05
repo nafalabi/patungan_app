@@ -9,16 +9,18 @@ import (
 	"gorm.io/gorm"
 
 	"patungan_app_echo/internal/models"
+	"patungan_app_echo/internal/services"
 	"patungan_app_echo/web/templates/pages"
 	"patungan_app_echo/web/templates/shared"
 )
 
 type PlanHandler struct {
-	db *gorm.DB
+	db    *gorm.DB
+	cache *services.RedisCache
 }
 
-func NewPlanHandler(db *gorm.DB) *PlanHandler {
-	return &PlanHandler{db: db}
+func NewPlanHandler(db *gorm.DB, cache *services.RedisCache) *PlanHandler {
+	return &PlanHandler{db: db, cache: cache}
 }
 
 // ListPlans renders the list of plans

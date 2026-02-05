@@ -106,7 +106,7 @@ templ LoginScript() {
 				});
 
 				if (response.ok) {
-					window.location.href = '/dashboard';
+					window.location.href = '/';
 				} else {
 					const data = await response.json();
 					showError(data.error || 'Login failed. Please try again.');

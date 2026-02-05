@@ -8,16 +8,18 @@ import (
 	"gorm.io/gorm"
 
 	"patungan_app_echo/internal/models"
+	"patungan_app_echo/internal/services"
 	"patungan_app_echo/web/templates/pages"
 	"patungan_app_echo/web/templates/shared"
 )
 
 type UserHandler struct {
-	db *gorm.DB
+	db    *gorm.DB
+	cache *services.RedisCache
 }
 
-func NewUserHandler(db *gorm.DB) *UserHandler {
-	return &UserHandler{db: db}
+func NewUserHandler(db *gorm.DB, cache *services.RedisCache) *UserHandler {
+	return &UserHandler{db: db, cache: cache}
 }
 
 // ListUsers renders the list of users
