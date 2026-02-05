@@ -68,6 +68,21 @@ func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c 
 	// Check if this template has a "base" definition (page templates)
 	// or should be rendered directly (standalone templates like login)
 	if tmpl.Lookup("base") != nil {
+		// Auto-inject user data from context if data is a map
+		if dataMap, ok := data.(map[string]interface{}); ok {
+			dataMap["UserEmail"] = c.Get("userEmail")
+			dataMap["UserUID"] = c.Get("userUID")
+
+			// Can also inject other common data here, e.g. current path for highlighting nav
+			// dataMap["CurrentPath"] = c.Path()
+		} else if data == nil {
+			// If data is nil, initialize it with user data
+			data = map[string]interface{}{
+				"UserEmail": c.Get("userEmail"),
+				"UserUID":   c.Get("userUID"),
+			}
+		}
+
 		return tmpl.ExecuteTemplate(w, "base", data)
 	}
 	// Standalone template - execute directly

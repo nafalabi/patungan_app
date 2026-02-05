@@ -16,10 +16,6 @@ func NewDashboardHandler() *DashboardHandler {
 
 // Dashboard renders the dashboard page
 func (h *DashboardHandler) Dashboard(c echo.Context) error {
-	// Get user info from context (set by auth middleware)
-	userEmail, _ := c.Get("userEmail").(string)
-	userUID, _ := c.Get("userUID").(string)
-
 	// Breadcrumbs: Home > Dashboard
 	breadcrumbs := []Breadcrumb{
 		{Title: "Home", URL: "/"},
@@ -30,8 +26,6 @@ func (h *DashboardHandler) Dashboard(c echo.Context) error {
 		"Title":       "Dashboard",
 		"ActiveNav":   "dashboard",
 		"Breadcrumbs": breadcrumbs,
-		"UserEmail":   userEmail,
-		"UserUID":     userUID,
 	}
 	return c.Render(http.StatusOK, "dashboard.html", data)
 }
