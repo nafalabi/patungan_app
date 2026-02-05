@@ -17,6 +17,8 @@ type PlanFormProps struct {
 	IsEdit             bool
 	Plan               models.Plan
 	FormattedStartDate string
+	AllUsers           []models.User      // Available users to select
+	SelectedUserIDs    map[uint]bool      // Pre-selected user IDs
 }
 
 // PlanForm renders the plan create/edit form
@@ -74,6 +76,31 @@ templ PlanForm(props PlanFormProps) {
 						value={ props.FormattedStartDate }
 						required
 					/>
+				</div>
+				<!-- Participants Section -->
+				<div class="mb-5">
+					<label class="block mb-2 text-text-secondary">Participants</label>
+					<div class="border border-border rounded-lg p-3 max-h-48 overflow-y-auto bg-input-bg">
+						if len(props.AllUsers) == 0 {
+							<p class="text-text-secondary text-sm">No users available. Add users first.</p>
+						} else {
+							for _, user := range props.AllUsers {
+								<label class="flex items-center gap-3 p-2 hover:bg-bg-hover rounded cursor-pointer">
+									<input 
+										type="checkbox" 
+										name="participants" 
+										value={ fmt.Sprintf("%d", user.ID) }
+										class="w-4 h-4 rounded border-border text-primary focus:ring-primary"
+										checked?={ props.SelectedUserIDs[user.ID] }
+									/>
+									<div class="flex flex-col">
+										<span class="text-text-primary text-sm">{ user.Name }</span>
+										<span class="text-text-secondary text-xs">{ user.Email }</span>
+									</div>
+								</label>
+							}
+						}
+					</div>
 				</div>
 				<div class="flex items-center gap-3 mb-4">
 					<input 

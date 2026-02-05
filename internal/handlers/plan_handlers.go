@@ -48,6 +48,10 @@ func (h *PlanHandler) ListPlans(c echo.Context) error {
 
 // CreatePlanPage renders the create plan form
 func (h *PlanHandler) CreatePlanPage(c echo.Context) error {
+	// Fetch all users for participant selection
+	var users []models.User
+	h.db.Find(&users)
+
 	// Breadcrumbs: Home > Plans > Create
 	breadcrumbs := []shared.Breadcrumb{
 		{Title: "Home", URL: "/"},
@@ -63,6 +67,8 @@ func (h *PlanHandler) CreatePlanPage(c echo.Context) error {
 		UserUID:            getStringFromContext(c, "userUID"),
 		IsEdit:             false,
 		FormattedStartDate: time.Now().Format("2006-01-02"),
+		AllUsers:           users,
+		SelectedUserIDs:    make(map[uint]bool),
 	}
 
 	return pages.PlanForm(props).Render(c.Request().Context(), c.Response())
@@ -96,6 +102,21 @@ func (h *PlanHandler) StorePlan(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, "Failed to create plan")
 	}
 
+	// Handle participants
+	participantIDs := c.Request().Form["participants"]
+	if len(participantIDs) > 0 {
+		var users []models.User
+		for _, idStr := range participantIDs {
+			id, err := strconv.ParseUint(idStr, 10, 32)
+			if err == nil {
+				users = append(users, models.User{ID: uint(id)})
+			}
+		}
+		if len(users) > 0 {
+			h.db.Model(&plan).Association("Users").Replace(users)
+		}
+	}
+
 	return c.Redirect(http.StatusSeeOther, "/plans")
 }
 
@@ -103,8 +124,18 @@ func (h *PlanHandler) StorePlan(c echo.Context) error {
 func (h *PlanHandler) EditPlanPage(c echo.Context) error {
 	id := c.Param("id")
 	var plan models.Plan
-	if err := h.db.First(&plan, id).Error; err != nil {
+	if err := h.db.Preload("Users").First(&plan, id).Error; err != nil {
 		return c.String(http.StatusNotFound, "Plan not found")
+	}
+
+	// Fetch all users for participant selection
+	var allUsers []models.User
+	h.db.Find(&allUsers)
+
+	// Build selected user IDs map
+	selectedUserIDs := make(map[uint]bool)
+	for _, user := range plan.Users {
+		selectedUserIDs[user.ID] = true
 	}
 
 	// Breadcrumbs: Home > Plans > Edit
@@ -123,6 +154,8 @@ func (h *PlanHandler) EditPlanPage(c echo.Context) error {
 		IsEdit:             true,
 		Plan:               plan,
 		FormattedStartDate: plan.PlanStartDate.Format("2006-01-02"),
+		AllUsers:           allUsers,
+		SelectedUserIDs:    selectedUserIDs,
 	}
 
 	return pages.PlanForm(props).Render(c.Request().Context(), c.Response())
@@ -152,6 +185,17 @@ func (h *PlanHandler) UpdatePlan(c echo.Context) error {
 	if err := h.db.Save(&plan).Error; err != nil {
 		return c.String(http.StatusInternalServerError, "Failed to update plan")
 	}
+
+	// Handle participants update
+	participantIDs := c.Request().Form["participants"]
+	var users []models.User
+	for _, idStr := range participantIDs {
+		uid, err := strconv.ParseUint(idStr, 10, 32)
+		if err == nil {
+			users = append(users, models.User{ID: uint(uid)})
+		}
+	}
+	h.db.Model(&plan).Association("Users").Replace(users)
 
 	return c.Redirect(http.StatusSeeOther, "/plans")
 }

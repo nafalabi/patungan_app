@@ -65,6 +65,7 @@ func main() {
 	authHandler := handlers.NewAuthHandler(authClient)
 	dashboardHandler := handlers.NewDashboardHandler()
 	planHandler := handlers.NewPlanHandler(db)
+	userHandler := handlers.NewUserHandler(db)
 
 	// Public routes
 	e.GET("/login", authHandler.LoginPage)
@@ -83,6 +84,14 @@ func main() {
 	protected.GET("/plans/:id/edit", planHandler.EditPlanPage)
 	protected.POST("/plans/:id/update", planHandler.UpdatePlan)
 	protected.POST("/plans/:id/delete", planHandler.DeletePlan)
+
+	// User routes
+	protected.GET("/users", userHandler.ListUsers)
+	protected.GET("/users/create", userHandler.CreateUserPage)
+	protected.POST("/users", userHandler.StoreUser)
+	protected.GET("/users/:id/edit", userHandler.EditUserPage)
+	protected.POST("/users/:id/update", userHandler.UpdateUser)
+	protected.POST("/users/:id/delete", userHandler.DeleteUser)
 
 	// Redirect root to dashboard (or login if not authenticated)
 	e.GET("/", func(c echo.Context) error {
