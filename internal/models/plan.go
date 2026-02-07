@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 
+	"github.com/teambition/rrule-go"
 	"gorm.io/gorm"
 )
 
@@ -25,4 +26,25 @@ type Plan struct {
 	// Relationships
 	Users       []User       `gorm:"many2many:plan_user;" json:"users,omitempty"`
 	PaymentDues []PaymentDue `gorm:"foreignKey:PlanID" json:"payment_dues,omitempty"`
+}
+
+// NextDue calculates the next due date for the plan
+func (p Plan) NextDue() time.Time {
+	if p.PaymentType == "onetime" {
+		return p.PlanStartDate
+	}
+
+	if p.RecurringInterval != nil && *p.RecurringInterval != "" {
+		rule, err := rrule.StrToRRule(*p.RecurringInterval)
+		if err == nil {
+			rule.DTStart(p.PlanStartDate)
+			// Find next occurrence after now (or include today)
+			next := rule.After(time.Now().Add(-24*time.Hour), true)
+			if !next.IsZero() {
+				return next
+			}
+		}
+	}
+	// Fallback to start date if parsing fails or no future date found
+	return p.PlanStartDate
 }

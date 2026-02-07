@@ -39,6 +39,7 @@ templ PlansList(props PlansListProps) {
 						<th class="p-4 font-semibold text-text-secondary text-sm uppercase tracking-wider">Name</th>
 						<th class="p-4 font-semibold text-text-secondary text-sm uppercase tracking-wider">Interval</th>
 						<th class="p-4 font-semibold text-text-secondary text-sm uppercase tracking-wider">Price</th>
+						<th class="p-4 font-semibold text-text-secondary text-sm uppercase tracking-wider">Next Due</th>
 						<th class="p-4 font-semibold text-text-secondary text-sm uppercase tracking-wider">Status</th>
 						<th class="p-4 font-semibold text-text-secondary text-sm uppercase tracking-wider">Actions</th>
 					</tr>
@@ -66,6 +67,7 @@ templ PlanRow(plan models.Plan) {
 		<td class="p-4 text-text-primary">{ plan.Name }</td>
 		<td class="p-4 text-text-primary capitalize">{ plan.PaymentType }</td>
 		<td class="p-4 text-text-primary">Rp { fmt.Sprintf("%.0f", plan.TotalPrice) }</td>
+		<td class="p-4 text-text-primary">{ plan.NextDue().Format("02 Jan 2006") }</td>
 		<td class="p-4">
 			if plan.IsActive {
 				<span class="px-2 py-1 rounded text-xs font-medium bg-success/20 text-success">Active</span>
