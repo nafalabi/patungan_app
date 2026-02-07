@@ -20,7 +20,6 @@ type Plan struct {
 	PaymentType       string    `gorm:"type:varchar(50);default:'onetime'" json:"payment_type"` // 'onetime' or 'recurring'
 	RecurringInterval *string   `gorm:"type:text" json:"recurring_interval"`                    // RFC 5545 RRULE string
 
-	IsActive                bool `gorm:"default:true" json:"is_active"`
 	AllowInvitationAfterPay bool `gorm:"default:false" json:"allow_invitation_after_pay"`
 
 	// Relationships

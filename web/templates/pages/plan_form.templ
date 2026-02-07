@@ -181,16 +181,6 @@ templ PlanForm(props PlanFormProps) {
 					</div>
 					<p class="mt-2 text-xs text-text-secondary">Select users who will share this plan. Default portion is 1. Increase it if a user pays for multiple people.</p>
 				</div>
-				<div class="flex items-center gap-3 mb-4">
-					<input 
-						type="checkbox" 
-						name="is_active" 
-						id="is_active" 
-						class="w-4 h-4 rounded border-border text-primary focus:ring-primary"
-						checked?={ props.Plan.IsActive || !props.IsEdit }
-					/>
-					<label for="is_active" class="text-text-primary">Is Active?</label>
-				</div>
 				<div class="flex items-center gap-3 mb-6">
 					<input 
 						type="checkbox" 

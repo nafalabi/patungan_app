@@ -106,7 +106,6 @@ func (h *PlanHandler) StorePlan(c echo.Context) error {
 		PaymentType:             paymentType,
 		RecurringInterval:       recurringIntervalPtr,
 		PlanStartDate:           planStartDate,
-		IsActive:                c.FormValue("is_active") == "on",
 		AllowInvitationAfterPay: c.FormValue("allow_invitation") == "on",
 	}
 
@@ -214,7 +213,6 @@ func (h *PlanHandler) UpdatePlan(c echo.Context) error {
 		plan.PlanStartDate, _ = timeFromForm(startDateStr)
 	}
 
-	plan.IsActive = c.FormValue("is_active") == "on"
 	plan.AllowInvitationAfterPay = c.FormValue("allow_invitation") == "on"
 
 	if err := h.db.Save(&plan).Error; err != nil {
