@@ -107,6 +107,9 @@ func main() {
 	protected.GET("/plans/:id/edit", planHandler.EditPlanPage)
 	protected.POST("/plans/:id/update", planHandler.UpdatePlan)
 	protected.POST("/plans/:id/delete", planHandler.DeletePlan)
+	protected.GET("/plans/:id/schedule-popup", planHandler.GetSchedulePopup)
+	protected.POST("/plans/:id/schedule", planHandler.SchedulePlan)
+	protected.POST("/plans/:id/disable-schedule", planHandler.DisableSchedulePlan)
 
 	// User routes
 	protected.GET("/users", userHandler.ListUsers)

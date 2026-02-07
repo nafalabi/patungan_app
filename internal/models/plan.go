@@ -26,6 +26,10 @@ type Plan struct {
 	// Relationships
 	Participants []PlanParticipant `gorm:"foreignKey:PlanID" json:"participants,omitempty"`
 	PaymentDues  []PaymentDue      `gorm:"foreignKey:PlanID" json:"payment_dues,omitempty"`
+
+	// Scheduled Task
+	ScheduledTaskID *uint          `json:"scheduled_task_id"`
+	ScheduledTask   *ScheduledTask `gorm:"foreignKey:ScheduledTaskID;constraint:OnDelete:SET NULL" json:"scheduled_task,omitempty"`
 }
 
 // NextDue calculates the next due date for the plan

@@ -46,6 +46,8 @@ func AutoMigrate(db *gorm.DB) error {
 		&models.UserPayment{},
 		&models.Refund{},
 		&models.PlanParticipant{},
+		&models.ScheduledTask{},
+		&models.ScheduledTaskHistory{},
 	)
 	if err != nil {
 		return err

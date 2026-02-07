@@ -26,7 +26,7 @@ func NewPlanHandler(db *gorm.DB, cache *services.RedisCache) *PlanHandler {
 // ListPlans renders the list of plans
 func (h *PlanHandler) ListPlans(c echo.Context) error {
 	var plans []models.Plan
-	if err := h.db.Find(&plans).Error; err != nil {
+	if err := h.db.Preload("ScheduledTask").Find(&plans).Error; err != nil {
 		return c.String(http.StatusInternalServerError, "Failed to fetch plans")
 	}
 
@@ -274,4 +274,94 @@ func (h *PlanHandler) DeletePlan(c echo.Context) error {
 // Helper to parse date from HTML input type="date"
 func timeFromForm(value string) (time.Time, error) {
 	return time.Parse("2006-01-02", value)
+}
+
+// GetSchedulePopup renders the schedule popup for a plan
+func (h *PlanHandler) GetSchedulePopup(c echo.Context) error {
+	id := c.Param("id")
+	var plan models.Plan
+	if err := h.db.Preload("ScheduledTask").First(&plan, id).Error; err != nil {
+		return c.String(http.StatusNotFound, "Plan not found")
+	}
+
+	return pages.SchedulePopup(plan).Render(c.Request().Context(), c.Response())
+}
+
+// SchedulePlan handles scheduling a plan
+func (h *PlanHandler) SchedulePlan(c echo.Context) error {
+	id := c.Param("id")
+	var plan models.Plan
+	if err := h.db.Preload("ScheduledTask").First(&plan, id).Error; err != nil {
+		return c.String(http.StatusNotFound, "Plan not found")
+	}
+
+	taskName := "process_plan_schedule"
+	arguments := map[string]interface{}{"plan_id": plan.ID}
+	due := plan.NextDue()
+
+	status := models.ScheduledTaskStatusActive
+
+	var taskType models.ScheduledTaskType
+	if plan.PaymentType == "recurring" {
+		taskType = models.ScheduledTaskTypeRecurring
+	} else {
+		taskType = models.ScheduledTaskTypeOneTime
+	}
+
+	if plan.ScheduledTaskID == nil {
+		// Create new task
+		task := models.ScheduledTask{
+			TaskName:          taskName,
+			Arguments:         arguments,
+			Due:               due,
+			RecurringInterval: plan.RecurringInterval,
+			Status:            status,
+			TaskType:          taskType,
+			MaxAttempt:        3,
+		}
+		if err := h.db.Create(&task).Error; err != nil {
+			return c.String(http.StatusInternalServerError, "Failed to create scheduled task")
+		}
+
+		// Update plan
+		plan.ScheduledTaskID = &task.ID
+		if err := h.db.Save(&plan).Error; err != nil {
+			return c.String(http.StatusInternalServerError, "Failed to update plan")
+		}
+	} else {
+		// Update existing task
+		task := plan.ScheduledTask
+		task.TaskName = taskName
+		task.Arguments = arguments
+		task.Due = due
+		task.RecurringInterval = plan.RecurringInterval
+		task.Status = status
+		task.TaskType = taskType
+		task.MaxAttempt = 3
+		task.LastRun = nil // Reset last run
+
+		if err := h.db.Save(task).Error; err != nil {
+			return c.String(http.StatusInternalServerError, "Failed to update scheduled task")
+		}
+	}
+
+	return c.Redirect(http.StatusSeeOther, "/plans")
+}
+
+// DisableSchedulePlan handles disabling a plan's schedule
+func (h *PlanHandler) DisableSchedulePlan(c echo.Context) error {
+	id := c.Param("id")
+	var plan models.Plan
+	if err := h.db.Preload("ScheduledTask").First(&plan, id).Error; err != nil {
+		return c.String(http.StatusNotFound, "Plan not found")
+	}
+
+	if plan.ScheduledTaskID != nil && plan.ScheduledTask != nil {
+		plan.ScheduledTask.Status = models.ScheduledTaskStatusDisabled
+		if err := h.db.Save(plan.ScheduledTask).Error; err != nil {
+			return c.String(http.StatusInternalServerError, "Failed to disable schedule")
+		}
+	}
+
+	return c.Redirect(http.StatusSeeOther, "/plans")
 }
