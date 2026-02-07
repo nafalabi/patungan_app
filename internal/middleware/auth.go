@@ -48,41 +48,39 @@ func RequireAuth(authClient *auth.Client, db *gorm.DB, cache *services.RedisCach
 			email, _ := decodedToken.Claims["email"].(string)
 			name, _ := decodedToken.Claims["name"].(string)
 
+			if db == nil || cache == nil {
+				return c.String(http.StatusInternalServerError, "Internal server error")
+			}
+
+			// Lookup user in database by email (with caching)
+			cacheKey := fmt.Sprintf("user:email:%s", email)
+
+			// Use GetOrSet for cached lookup
+			user, err := services.GetOrSet(cache, c.Request().Context(), cacheKey, 5*time.Minute, func() (models.User, error) {
+				var user models.User
+				err := db.Where("email = ?", email).First(&user).Error
+				return user, err
+			})
+
+			if err != nil || user.ID == 0 {
+				clearCookie := &http.Cookie{
+					Name:     "session",
+					Value:    "",
+					MaxAge:   -1,
+					HttpOnly: true,
+					Path:     "/",
+				}
+				c.SetCookie(clearCookie)
+				return c.Redirect(http.StatusTemporaryRedirect, "/login?error=user_not_recognized")
+			}
+
 			// Set basic user info from token
 			c.Set("userUID", decodedToken.UID)
 			c.Set("userEmail", email)
 			c.Set("userName", name)
-
-			// Lookup user in database by email (with caching)
-			if db != nil && email != "" {
-				cacheKey := fmt.Sprintf("user:email:%s", email)
-
-				if cache != nil {
-					// Use GetOrSet for cached lookup
-					user, err := services.GetOrSet(cache, c.Request().Context(), cacheKey, 5*time.Minute, func() (models.User, error) {
-						var user models.User
-						err := db.Where("email = ?", email).First(&user).Error
-						return user, err
-					})
-					if err == nil {
-						c.Set("user", user)
-						c.Set("userType", user.UserType)
-						c.Set("userID", user.ID)
-					} else {
-						c.Set("userType", models.UserTypeMember)
-					}
-				} else {
-					// No cache - direct DB lookup
-					var user models.User
-					if err := db.Where("email = ?", email).First(&user).Error; err == nil {
-						c.Set("user", user)
-						c.Set("userType", user.UserType)
-						c.Set("userID", user.ID)
-					} else {
-						c.Set("userType", models.UserTypeMember)
-					}
-				}
-			}
+			c.Set("user", user)
+			c.Set("userType", user.UserType)
+			c.Set("userID", user.ID)
 
 			return next(c)
 		}

@@ -108,6 +108,8 @@ templ LoginScript() {
 				if (response.ok) {
 					window.location.href = '/';
 				} else {
+					// Sign out from Firebase if backend rejects session
+					await auth.signOut();
 					const data = await response.json();
 					showError(data.error || 'Login failed. Please try again.');
 					setLoading(false);

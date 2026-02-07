@@ -85,7 +85,7 @@ func main() {
 	e.Static("/static", "web/static")
 
 	// Initialize handlers
-	authHandler := handlers.NewAuthHandler(authClient)
+	authHandler := handlers.NewAuthHandler(authClient, db)
 	dashboardHandler := handlers.NewDashboardHandler()
 	planHandler := handlers.NewPlanHandler(db, cache)
 	userHandler := handlers.NewUserHandler(db, cache)

@@ -6,18 +6,21 @@ import (
 
 	"firebase.google.com/go/v4/auth"
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 
+	"patungan_app_echo/internal/models"
 	"patungan_app_echo/web/templates/pages"
 )
 
 // AuthHandler handles authentication endpoints
 type AuthHandler struct {
 	authClient *auth.Client
+	db         *gorm.DB
 }
 
 // NewAuthHandler creates a new AuthHandler
-func NewAuthHandler(authClient *auth.Client) *AuthHandler {
-	return &AuthHandler{authClient: authClient}
+func NewAuthHandler(authClient *auth.Client, db *gorm.DB) *AuthHandler {
+	return &AuthHandler{authClient: authClient, db: db}
 }
 
 // LoginPage renders the login page
@@ -56,10 +59,19 @@ func (h *AuthHandler) HandleLogin(c echo.Context) error {
 	}
 
 	// Verify ID Token
-	_, err := h.authClient.VerifyIDToken(c.Request().Context(), tokenString)
+	decodedToken, err := h.authClient.VerifyIDToken(c.Request().Context(), tokenString)
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, map[string]string{
 			"error": "Invalid token",
+		})
+	}
+
+	// Check if user exists in database
+	email, _ := decodedToken.Claims["email"].(string)
+	var user models.User
+	if err := h.db.Where("email = ?", email).First(&user).Error; err != nil {
+		return c.JSON(http.StatusForbidden, map[string]string{
+			"error": "User not registered in the system",
 		})
 	}
 

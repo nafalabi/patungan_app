@@ -8,6 +8,9 @@ RUN apk add --no-cache git
 # Install air for hot reload
 RUN go install github.com/air-verse/air@v1.62.0
 
+# Install templ
+RUN go install github.com/a-h/templ/cmd/templ@v0.3.977
+
 # Copy go mod and sum files
 COPY go.mod go.sum ./
 
