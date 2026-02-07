@@ -64,7 +64,7 @@ templ PlansList(props PlansListProps) {
 templ PlanRow(plan models.Plan) {
 	<tr class="hover:bg-bg-hover transition-colors">
 		<td class="p-4 text-text-primary">{ plan.Name }</td>
-		<td class="p-4 text-text-primary capitalize">{ plan.PayInterval }</td>
+		<td class="p-4 text-text-primary capitalize">{ plan.PaymentType }</td>
 		<td class="p-4 text-text-primary">Rp { fmt.Sprintf("%.0f", plan.TotalPrice) }</td>
 		<td class="p-4">
 			if plan.IsActive {

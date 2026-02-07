@@ -117,140 +117,127 @@ func PlanForm(props PlanFormProps) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\" required></div><div class=\"mb-5\"><label class=\"block mb-2 text-text-secondary\">Payment Interval</label> <select name=\"pay_interval\" class=\"w-full p-2.5 rounded-lg border border-border bg-input-bg text-text-primary text-base focus:outline-none focus:border-primary\"><option value=\"monthly\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if props.Plan.PayInterval == "monthly" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, " selected")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, ">Monthly</option> <option value=\"weekly\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if props.Plan.PayInterval == "weekly" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, " selected")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, ">Weekly</option> <option value=\"daily\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if props.Plan.PayInterval == "daily" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, " selected")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, ">Daily</option></select></div><div class=\"mb-5\"><label class=\"block mb-2 text-text-secondary\">Start Date</label> <input type=\"date\" name=\"plan_start_date\" class=\"w-full p-2.5 rounded-lg border border-border bg-input-bg text-text-primary text-base focus:outline-none focus:border-primary\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\" required></div><!-- Payment Type & Recurring Options (Alpine.js) --><div class=\"mb-5\" x-data=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var6 string
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(props.FormattedStartDate)
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("recurringForm('%s', '%s')", props.Plan.PaymentType, derefString(props.Plan.RecurringInterval)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/plan_form.templ`, Line: 76, Col: 38}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/plan_form.templ`, Line: 65, Col: 121}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" required></div><!-- Participants Section --><div class=\"mb-5\"><label class=\"block mb-2 text-text-secondary\">Participants</label><div class=\"border border-border rounded-lg p-3 max-h-48 overflow-y-auto bg-input-bg\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\"><div class=\"mb-5\"><label class=\"block mb-2 text-text-secondary\">Payment Type</label><div class=\"flex items-center gap-4\"><label class=\"flex items-center gap-2 cursor-pointer\"><input type=\"radio\" name=\"payment_type\" value=\"onetime\" x-model=\"paymentType\" @change=\"updateRRule\" class=\"text-primary focus:ring-primary\"> <span class=\"text-text-primary\">One-time</span></label> <label class=\"flex items-center gap-2 cursor-pointer\"><input type=\"radio\" name=\"payment_type\" value=\"recurring\" x-model=\"paymentType\" @change=\"updateRRule\" class=\"text-primary focus:ring-primary\"> <span class=\"text-text-primary\">Recurring</span></label></div></div><!-- Recurring Options --><div x-show=\"paymentType === 'recurring'\" class=\"mb-5 p-4 border border-border rounded-lg bg-bg-body space-y-4\"><div><label class=\"block mb-2 text-text-secondary\">Frequency</label> <select x-model=\"frequency\" @change=\"updateRRule\" class=\"w-full p-2.5 rounded-lg border border-border bg-input-bg text-text-primary text-base focus:outline-none focus:border-primary\"><option value=\"DAILY\">Daily</option> <option value=\"WEEKLY\">Weekly</option> <option value=\"MONTHLY\">Monthly</option> <option value=\"YEARLY\">Yearly</option></select></div><div><label class=\"block mb-2 text-text-secondary\">Interval</label><div class=\"flex items-center gap-2\"><span class=\"text-text-primary\">Every</span> <input type=\"number\" min=\"1\" x-model=\"interval\" @input=\"updateRRule\" class=\"w-20 p-2.5 rounded-lg border border-border bg-input-bg text-text-primary text-base focus:outline-none focus:border-primary\"> <span class=\"text-text-primary\" x-text=\"frequency.toLowerCase().replace('ly', '(s)')\"></span></div></div><!-- Hidden Input for RRULE --><input type=\"hidden\" name=\"recurring_interval\" x-model=\"rruleString\"></div><div class=\"mb-5\"><label class=\"block mb-2 text-text-secondary\">Start Date</label> <input type=\"date\" name=\"plan_start_date\" class=\"w-full p-2.5 rounded-lg border border-border bg-input-bg text-text-primary text-base focus:outline-none focus:border-primary\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var7 string
+			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(props.FormattedStartDate)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/plan_form.templ`, Line: 134, Col: 39}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\" required></div></div><!-- Participants Section --><div class=\"mb-5\"><label class=\"block mb-2 text-text-secondary\">Participants</label><div class=\"border border-border rounded-lg p-3 max-h-48 overflow-y-auto bg-input-bg\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(props.AllUsers) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<p class=\"text-text-secondary text-sm\">No users available. Add users first.</p>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<p class=\"text-text-secondary text-sm\">No users available. Add users first.</p>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
 				for _, user := range props.AllUsers {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<label class=\"flex items-center gap-3 p-2 hover:bg-bg-hover rounded cursor-pointer\"><input type=\"checkbox\" name=\"participants\" value=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var7 string
-					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", user.ID))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/plan_form.templ`, Line: 92, Col: 44}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\" class=\"w-4 h-4 rounded border-border text-primary focus:ring-primary\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if props.SelectedUserIDs[user.ID] {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, " checked")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "><div class=\"flex flex-col\"><span class=\"text-text-primary text-sm\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<label class=\"flex items-center gap-3 p-2 hover:bg-bg-hover rounded cursor-pointer\"><input type=\"checkbox\" name=\"participants\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var8 string
-					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(user.Name)
+					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", user.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/plan_form.templ`, Line: 97, Col: 61}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/plan_form.templ`, Line: 151, Col: 44}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</span> <span class=\"text-text-secondary text-xs\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" class=\"w-4 h-4 rounded border-border text-primary focus:ring-primary\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					if props.SelectedUserIDs[user.ID] {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, " checked")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "><div class=\"flex flex-col\"><span class=\"text-text-primary text-sm\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var9 string
-					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(user.Email)
+					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(user.Name)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/plan_form.templ`, Line: 98, Col: 64}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/plan_form.templ`, Line: 156, Col: 61}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</span></div></label>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</span> <span class=\"text-text-secondary text-xs\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var10 string
+					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(user.Email)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/plan_form.templ`, Line: 157, Col: 64}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</span></div></label>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div></div><div class=\"flex items-center gap-3 mb-4\"><input type=\"checkbox\" name=\"is_active\" id=\"is_active\" class=\"w-4 h-4 rounded border-border text-primary focus:ring-primary\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</div></div><div class=\"flex items-center gap-3 mb-4\"><input type=\"checkbox\" name=\"is_active\" id=\"is_active\" class=\"w-4 h-4 rounded border-border text-primary focus:ring-primary\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if props.Plan.IsActive || !props.IsEdit {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, " checked")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, " checked")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "> <label for=\"is_active\" class=\"text-text-primary\">Is Active?</label></div><div class=\"flex items-center gap-3 mb-6\"><input type=\"checkbox\" name=\"allow_invitation\" id=\"allow_invitation\" class=\"w-4 h-4 rounded border-border text-primary focus:ring-primary\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "> <label for=\"is_active\" class=\"text-text-primary\">Is Active?</label></div><div class=\"flex items-center gap-3 mb-6\"><input type=\"checkbox\" name=\"allow_invitation\" id=\"allow_invitation\" class=\"w-4 h-4 rounded border-border text-primary focus:ring-primary\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if props.Plan.AllowInvitationAfterPay {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, " checked")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, " checked")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "> <label for=\"allow_invitation\" class=\"text-text-primary\">Allow Invitation After Pay?</label></div><button type=\"submit\" class=\"w-full inline-flex justify-center items-center gap-2 px-5 py-2.5 rounded-lg border-none cursor-pointer font-medium no-underline transition-all duration-200 bg-primary text-white hover:bg-primary-hover hover:-translate-y-px text-base\">Save Plan</button> <a href=\"/plans\" class=\"w-full inline-flex justify-center items-center gap-2 px-5 py-2.5 rounded-lg border border-border cursor-pointer font-medium no-underline transition-all duration-200 bg-transparent text-text-primary hover:bg-bg-hover mt-3 text-base\">Cancel</a></form></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "> <label for=\"allow_invitation\" class=\"text-text-primary\">Allow Invitation After Pay?</label></div><button type=\"submit\" class=\"w-full inline-flex justify-center items-center gap-2 px-5 py-2.5 rounded-lg border-none cursor-pointer font-medium no-underline transition-all duration-200 bg-primary text-white hover:bg-primary-hover hover:-translate-y-px text-base\">Save Plan</button> <a href=\"/plans\" class=\"w-full inline-flex justify-center items-center gap-2 px-5 py-2.5 rounded-lg border border-border cursor-pointer font-medium no-underline transition-all duration-200 bg-transparent text-text-primary hover:bg-bg-hover mt-3 text-base\">Cancel</a></form></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = LogoutScript().Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, " <script>\n\t\t\tdocument.addEventListener('alpine:init', () => {\n\t\t\t\tAlpine.data('recurringForm', (initialType, initialRRule) => ({\n\t\t\t\t\tpaymentType: initialType || 'onetime',\n\t\t\t\t\tfrequency: 'WEEKLY',\n\t\t\t\t\tinterval: 1,\n\t\t\t\t\trruleString: initialRRule || '',\n\t\t\t\t\tinit() {\n\t\t\t\t\t\t// Use a timeout to ensure rrule is loaded if deferred\n\t\t\t\t\t\tsetTimeout(() => {\n\t\t\t\t\t\t\tif (this.paymentType === 'recurring' && this.rruleString && typeof rrule !== 'undefined') {\n\t\t\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\t\t\tconst rule = rrule.rrulestr(this.rruleString);\n\t\t\t\t\t\t\t\t\tconst options = rule.options;\n\t\t\t\t\t\t\t\t\tconst freqMap = {};\n\t\t\t\t\t\t\t\t\tfreqMap[rrule.RRule.DAILY] = 'DAILY';\n\t\t\t\t\t\t\t\t\tfreqMap[rrule.RRule.WEEKLY] = 'WEEKLY';\n\t\t\t\t\t\t\t\t\tfreqMap[rrule.RRule.MONTHLY] = 'MONTHLY';\n\t\t\t\t\t\t\t\t\tfreqMap[rrule.RRule.YEARLY] = 'YEARLY';\n\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\tif (freqMap[options.freq]) {\n\t\t\t\t\t\t\t\t\t\tthis.frequency = freqMap[options.freq];\n\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t\tif (options.interval) {\n\t\t\t\t\t\t\t\t\t\tthis.interval = options.interval;\n\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\t\t\t\tconsole.error(\"Failed to parse RRULE:\", e);\n\t\t\t\t\t\t\t\t\tthis.updateRRule();\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\tthis.updateRRule();\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}, 100);\n\t\t\t\t\t},\n\t\t\t\t\tupdateRRule() {\n\t\t\t\t\t\tif (this.paymentType !== 'recurring' || typeof rrule === 'undefined') {\n\t\t\t\t\t\t\tthis.rruleString = '';\n\t\t\t\t\t\t\treturn;\n\t\t\t\t\t\t}\n\t\t\t\t\t\tconst freqMap = {\n\t\t\t\t\t\t\t'DAILY': rrule.RRule.DAILY,\n\t\t\t\t\t\t\t'WEEKLY': rrule.RRule.WEEKLY,\n\t\t\t\t\t\t\t'MONTHLY': rrule.RRule.MONTHLY,\n\t\t\t\t\t\t\t'YEARLY': rrule.RRule.YEARLY\n\t\t\t\t\t\t};\n\t\t\t\t\t\tconst rule = new rrule.RRule({\n\t\t\t\t\t\t\tfreq: freqMap[this.frequency],\n\t\t\t\t\t\t\tinterval: parseInt(this.interval)\n\t\t\t\t\t\t});\n\t\t\t\t\t\tthis.rruleString = rule.toString();\n\t\t\t\t\t}\n\t\t\t\t}))\n\t\t\t})\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -276,6 +263,13 @@ func formAction(isEdit bool, planID uint) templ.SafeURL {
 		return templ.SafeURL(fmt.Sprintf("/plans/%d/update", planID))
 	}
 	return templ.SafeURL("/plans")
+}
+
+func derefString(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
 }
 
 var _ = templruntime.GeneratedTemplate

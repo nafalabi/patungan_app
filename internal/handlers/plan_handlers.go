@@ -80,7 +80,7 @@ func (h *PlanHandler) CreatePlanPage(c echo.Context) error {
 func (h *PlanHandler) StorePlan(c echo.Context) error {
 	name := c.FormValue("name")
 	priceStr := c.FormValue("total_price")
-	interval := c.FormValue("pay_interval")
+
 	startDateStr := c.FormValue("plan_start_date")
 
 	totalPrice, _ := strconv.ParseFloat(priceStr, 64)
@@ -91,10 +91,19 @@ func (h *PlanHandler) StorePlan(c echo.Context) error {
 		// handle error appropriately, maybe re-render form with error
 	}
 
+	paymentType := c.FormValue("payment_type")
+	recurringInterval := c.FormValue("recurring_interval")
+
+	var recurringIntervalPtr *string
+	if paymentType == "recurring" && recurringInterval != "" {
+		recurringIntervalPtr = &recurringInterval
+	}
+
 	plan := models.Plan{
 		Name:                    name,
 		TotalPrice:              totalPrice,
-		PayInterval:             interval,
+		PaymentType:             paymentType,
+		RecurringInterval:       recurringIntervalPtr,
 		PlanStartDate:           planStartDate,
 		IsActive:                c.FormValue("is_active") == "on",
 		AllowInvitationAfterPay: c.FormValue("allow_invitation") == "on",
@@ -174,7 +183,14 @@ func (h *PlanHandler) UpdatePlan(c echo.Context) error {
 	plan.Name = c.FormValue("name")
 	priceStr := c.FormValue("total_price")
 	plan.TotalPrice, _ = strconv.ParseFloat(priceStr, 64)
-	plan.PayInterval = c.FormValue("pay_interval")
+	plan.PaymentType = c.FormValue("payment_type")
+	recurringInterval := c.FormValue("recurring_interval")
+
+	if plan.PaymentType == "recurring" && recurringInterval != "" {
+		plan.RecurringInterval = &recurringInterval
+	} else {
+		plan.RecurringInterval = nil
+	}
 
 	startDateStr := c.FormValue("plan_start_date")
 	if startDateStr != "" {

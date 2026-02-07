@@ -59,23 +59,82 @@ templ PlanForm(props PlanFormProps) {
 						required
 					/>
 				</div>
-				<div class="mb-5">
-					<label class="block mb-2 text-text-secondary">Payment Interval</label>
-					<select name="pay_interval" class="w-full p-2.5 rounded-lg border border-border bg-input-bg text-text-primary text-base focus:outline-none focus:border-primary">
-						<option value="monthly" selected?={ props.Plan.PayInterval == "monthly" }>Monthly</option>
-						<option value="weekly" selected?={ props.Plan.PayInterval == "weekly" }>Weekly</option>
-						<option value="daily" selected?={ props.Plan.PayInterval == "daily" }>Daily</option>
-					</select>
-				</div>
-				<div class="mb-5">
-					<label class="block mb-2 text-text-secondary">Start Date</label>
-					<input 
-						type="date" 
-						name="plan_start_date" 
-						class="w-full p-2.5 rounded-lg border border-border bg-input-bg text-text-primary text-base focus:outline-none focus:border-primary" 
-						value={ props.FormattedStartDate }
-						required
-					/>
+				<!-- Payment Type & Recurring Options (Alpine.js) -->
+				<div 
+					class="mb-5"
+					x-data={ fmt.Sprintf("recurringForm('%s', '%s')", props.Plan.PaymentType, derefString(props.Plan.RecurringInterval)) }
+				>
+					<div class="mb-5">
+						<label class="block mb-2 text-text-secondary">Payment Type</label>
+						<div class="flex items-center gap-4">
+							<label class="flex items-center gap-2 cursor-pointer">
+								<input 
+									type="radio" 
+									name="payment_type" 
+									value="onetime" 
+									x-model="paymentType" 
+									@change="updateRRule"
+									class="text-primary focus:ring-primary"
+								/>
+								<span class="text-text-primary">One-time</span>
+							</label>
+							<label class="flex items-center gap-2 cursor-pointer">
+								<input 
+									type="radio" 
+									name="payment_type" 
+									value="recurring" 
+									x-model="paymentType" 
+									@change="updateRRule"
+									class="text-primary focus:ring-primary"
+								/>
+								<span class="text-text-primary">Recurring</span>
+							</label>
+						</div>
+					</div>
+
+					<!-- Recurring Options -->
+					<div x-show="paymentType === 'recurring'" class="mb-5 p-4 border border-border rounded-lg bg-bg-body space-y-4">
+						<div>
+							<label class="block mb-2 text-text-secondary">Frequency</label>
+							<select 
+								x-model="frequency" 
+								@change="updateRRule"
+								class="w-full p-2.5 rounded-lg border border-border bg-input-bg text-text-primary text-base focus:outline-none focus:border-primary"
+							>
+								<option value="DAILY">Daily</option>
+								<option value="WEEKLY">Weekly</option>
+								<option value="MONTHLY">Monthly</option>
+								<option value="YEARLY">Yearly</option>
+							</select>
+						</div>
+						<div>
+							<label class="block mb-2 text-text-secondary">Interval</label>
+							<div class="flex items-center gap-2">
+								<span class="text-text-primary">Every</span>
+								<input 
+									type="number" 
+									min="1" 
+									x-model="interval" 
+									@input="updateRRule"
+									class="w-20 p-2.5 rounded-lg border border-border bg-input-bg text-text-primary text-base focus:outline-none focus:border-primary" 
+								/>
+								<span class="text-text-primary" x-text="frequency.toLowerCase().replace('ly', '(s)')"></span>
+							</div>
+						</div>
+						<!-- Hidden Input for RRULE -->
+						<input type="hidden" name="recurring_interval" x-model="rruleString" />
+					</div>
+
+					<div class="mb-5">
+						<label class="block mb-2 text-text-secondary">Start Date</label>
+						<input 
+							type="date" 
+							name="plan_start_date" 
+							class="w-full p-2.5 rounded-lg border border-border bg-input-bg text-text-primary text-base focus:outline-none focus:border-primary" 
+							value={ props.FormattedStartDate }
+							required
+						/>
+					</div>
 				</div>
 				<!-- Participants Section -->
 				<div class="mb-5">
@@ -131,6 +190,61 @@ templ PlanForm(props PlanFormProps) {
 			</form>
 		</div>
 		@LogoutScript()
+		<script>
+			document.addEventListener('alpine:init', () => {
+				Alpine.data('recurringForm', (initialType, initialRRule) => ({
+					paymentType: initialType || 'onetime',
+					frequency: 'WEEKLY',
+					interval: 1,
+					rruleString: initialRRule || '',
+					init() {
+						// Use a timeout to ensure rrule is loaded if deferred
+						setTimeout(() => {
+							if (this.paymentType === 'recurring' && this.rruleString && typeof rrule !== 'undefined') {
+								try {
+									const rule = rrule.rrulestr(this.rruleString);
+									const options = rule.options;
+									const freqMap = {};
+									freqMap[rrule.RRule.DAILY] = 'DAILY';
+									freqMap[rrule.RRule.WEEKLY] = 'WEEKLY';
+									freqMap[rrule.RRule.MONTHLY] = 'MONTHLY';
+									freqMap[rrule.RRule.YEARLY] = 'YEARLY';
+									
+									if (freqMap[options.freq]) {
+										this.frequency = freqMap[options.freq];
+									}
+									if (options.interval) {
+										this.interval = options.interval;
+									}
+								} catch (e) {
+									console.error("Failed to parse RRULE:", e);
+									this.updateRRule();
+								}
+							} else {
+								this.updateRRule();
+							}
+						}, 100);
+					},
+					updateRRule() {
+						if (this.paymentType !== 'recurring' || typeof rrule === 'undefined') {
+							this.rruleString = '';
+							return;
+						}
+						const freqMap = {
+							'DAILY': rrule.RRule.DAILY,
+							'WEEKLY': rrule.RRule.WEEKLY,
+							'MONTHLY': rrule.RRule.MONTHLY,
+							'YEARLY': rrule.RRule.YEARLY
+						};
+						const rule = new rrule.RRule({
+							freq: freqMap[this.frequency],
+							interval: parseInt(this.interval)
+						});
+						this.rruleString = rule.toString();
+					}
+				}))
+			})
+		</script>
 	}
 }
 
@@ -140,4 +254,11 @@ func formAction(isEdit bool, planID uint) templ.SafeURL {
 		return templ.SafeURL(fmt.Sprintf("/plans/%d/update", planID))
 	}
 	return templ.SafeURL("/plans")
+}
+
+func derefString(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
 }
