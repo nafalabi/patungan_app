@@ -70,7 +70,8 @@ func (h *PlanHandler) CreatePlanPage(c echo.Context) error {
 		IsEdit:             false,
 		FormattedStartDate: time.Now().Format("2006-01-02"),
 		AllUsers:           users,
-		SelectedUserIDs:    make(map[uint]bool),
+
+		ParticipantPortions: make(map[uint]int),
 	}
 
 	return pages.PlanForm(props).Render(c.Request().Context(), c.Response())
@@ -114,17 +115,31 @@ func (h *PlanHandler) StorePlan(c echo.Context) error {
 	}
 
 	// Handle participants
+	// Handle participants
 	participantIDs := c.Request().Form["participants"]
 	if len(participantIDs) > 0 {
-		var users []models.User
+		var participants []models.PlanParticipant
 		for _, idStr := range participantIDs {
-			id, err := strconv.ParseUint(idStr, 10, 32)
+			uid, err := strconv.ParseUint(idStr, 10, 32)
 			if err == nil {
-				users = append(users, models.User{ID: uint(id)})
+				// Parse portion specific for this user
+				portionStr := c.FormValue("portion_" + idStr)
+				portion := 1
+				if p, err := strconv.Atoi(portionStr); err == nil && p >= 0 {
+					portion = p
+				}
+
+				participants = append(participants, models.PlanParticipant{
+					UserID:  uint(uid),
+					Portion: portion,
+				})
 			}
 		}
-		if len(users) > 0 {
-			h.db.Model(&plan).Association("Users").Replace(users)
+		if len(participants) > 0 {
+			plan.Participants = participants
+			if err := h.db.Save(&plan).Error; err != nil {
+				// log error but continue
+			}
 		}
 	}
 
@@ -135,7 +150,7 @@ func (h *PlanHandler) StorePlan(c echo.Context) error {
 func (h *PlanHandler) EditPlanPage(c echo.Context) error {
 	id := c.Param("id")
 	var plan models.Plan
-	if err := h.db.Preload("Users").First(&plan, id).Error; err != nil {
+	if err := h.db.Preload("Participants.User").First(&plan, id).Error; err != nil {
 		return c.String(http.StatusNotFound, "Plan not found")
 	}
 
@@ -143,10 +158,11 @@ func (h *PlanHandler) EditPlanPage(c echo.Context) error {
 	var allUsers []models.User
 	h.db.Find(&allUsers)
 
-	// Build selected user IDs map
-	selectedUserIDs := make(map[uint]bool)
-	for _, user := range plan.Users {
-		selectedUserIDs[user.ID] = true
+	// Build selected participants map
+	// Map from UserID -> Portion
+	participantPortions := make(map[uint]int)
+	for _, p := range plan.Participants {
+		participantPortions[p.UserID] = p.Portion
 	}
 
 	// Breadcrumbs: Home > Plans > Edit
@@ -166,7 +182,8 @@ func (h *PlanHandler) EditPlanPage(c echo.Context) error {
 		Plan:               plan,
 		FormattedStartDate: plan.PlanStartDate.Format("2006-01-02"),
 		AllUsers:           allUsers,
-		SelectedUserIDs:    selectedUserIDs,
+
+		ParticipantPortions: participantPortions,
 	}
 
 	return pages.PlanForm(props).Render(c.Request().Context(), c.Response())
@@ -205,15 +222,42 @@ func (h *PlanHandler) UpdatePlan(c echo.Context) error {
 	}
 
 	// Handle participants update
+	// Handle participants update
 	participantIDs := c.Request().Form["participants"]
-	var users []models.User
+	var newParticipants []models.PlanParticipant
+
 	for _, idStr := range participantIDs {
 		uid, err := strconv.ParseUint(idStr, 10, 32)
 		if err == nil {
-			users = append(users, models.User{ID: uint(uid)})
+			// Parse portion specific for this user
+			portionStr := c.FormValue("portion_" + idStr)
+			portion := 1
+			if p, err := strconv.Atoi(portionStr); err == nil && p >= 0 {
+				portion = p
+			}
+
+			newParticipants = append(newParticipants, models.PlanParticipant{
+				PlanID:  plan.ID,
+				UserID:  uint(uid),
+				Portion: portion,
+			})
 		}
 	}
-	h.db.Model(&plan).Association("Users").Replace(users)
+
+	// Transaction to replace participants
+	h.db.Transaction(func(tx *gorm.DB) error {
+		// Remove existing participants
+		if err := tx.Where("plan_id = ?", plan.ID).Delete(&models.PlanParticipant{}).Error; err != nil {
+			return err
+		}
+		// Add new ones
+		if len(newParticipants) > 0 {
+			if err := tx.Create(&newParticipants).Error; err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 
 	return c.Redirect(http.StatusSeeOther, "/plans")
 }

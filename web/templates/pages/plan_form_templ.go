@@ -26,7 +26,8 @@ type PlanFormProps struct {
 	Plan               models.Plan
 	FormattedStartDate string
 	AllUsers           []models.User // Available users to select
-	SelectedUserIDs    map[uint]bool // Pre-selected user IDs
+	// key: UserID, value: Portion (default 1)
+	ParticipantPortions map[uint]int
 }
 
 // PlanForm renders the plan create/edit form
@@ -85,7 +86,7 @@ func PlanForm(props PlanFormProps) templ.Component {
 			var templ_7745c5c3_Var3 templ.SafeURL
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinURLErrs(formAction(props.IsEdit, props.Plan.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/plan_form.templ`, Line: 41, Col: 71}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/plan_form.templ`, Line: 42, Col: 71}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -98,7 +99,7 @@ func PlanForm(props PlanFormProps) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(props.Plan.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/plan_form.templ`, Line: 48, Col: 29}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/plan_form.templ`, Line: 49, Col: 29}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -111,7 +112,7 @@ func PlanForm(props PlanFormProps) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.0f", props.Plan.TotalPrice))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/plan_form.templ`, Line: 58, Col: 56}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/plan_form.templ`, Line: 59, Col: 56}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -124,7 +125,7 @@ func PlanForm(props PlanFormProps) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("recurringForm('%s', '%s')", props.Plan.PaymentType, derefString(props.Plan.RecurringInterval)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/plan_form.templ`, Line: 65, Col: 121}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/plan_form.templ`, Line: 66, Col: 121}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -137,13 +138,13 @@ func PlanForm(props PlanFormProps) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(props.FormattedStartDate)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/plan_form.templ`, Line: 134, Col: 39}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/plan_form.templ`, Line: 135, Col: 39}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\" required></div></div><!-- Participants Section --><div class=\"mb-5\"><label class=\"block mb-2 text-text-secondary\">Participants</label><div class=\"border border-border rounded-lg p-3 max-h-48 overflow-y-auto bg-input-bg\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\" required></div></div><!-- Participants & Portions --><div class=\"mb-5\"><label class=\"block mb-2 text-text-secondary\">Participants</label><div class=\"space-y-2 border border-border rounded-lg p-4 max-h-60 overflow-y-auto bg-input-bg\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -154,39 +155,55 @@ func PlanForm(props PlanFormProps) templ.Component {
 				}
 			} else {
 				for _, user := range props.AllUsers {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<label class=\"flex items-center gap-3 p-2 hover:bg-bg-hover rounded cursor-pointer\"><input type=\"checkbox\" name=\"participants\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div class=\"flex flex-col p-2 hover:bg-bg-hover rounded border border-transparent hover:border-border transition-all\" x-data=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var8 string
-					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", user.ID))
+					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("{ selected: %v, portion: %d }", props.ParticipantPortions[user.ID] > 0, max(1, props.ParticipantPortions[user.ID])))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/plan_form.templ`, Line: 151, Col: 44}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/plan_form.templ`, Line: 150, Col: 146}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" class=\"w-4 h-4 rounded border-border text-primary focus:ring-primary\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if props.SelectedUserIDs[user.ID] {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, " checked")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "><div class=\"flex flex-col\"><span class=\"text-text-primary text-sm\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\"><label class=\"flex items-center cursor-pointer\"><input type=\"checkbox\" name=\"participants\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var9 string
-					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(user.Name)
+					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", user.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/plan_form.templ`, Line: 156, Col: 61}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/plan_form.templ`, Line: 156, Col: 45}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\" id=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var10 string
+					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("user-%d", user.ID))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/plan_form.templ`, Line: 157, Col: 47}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" class=\"mr-3 h-4 w-4 rounded border-border bg-bg-card text-primary focus:ring-primary\" x-model=\"selected\"><div class=\"flex flex-col select-none\"><span class=\"text-text-primary font-medium\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var11 string
+					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(user.Name)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/plan_form.templ`, Line: 162, Col: 66}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -194,42 +211,81 @@ func PlanForm(props PlanFormProps) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var10 string
-					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(user.Email)
+					var templ_7745c5c3_Var12 string
+					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(user.Email)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/plan_form.templ`, Line: 157, Col: 64}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/plan_form.templ`, Line: 163, Col: 65}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</span></div></label>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</span></div></label><div class=\"mt-2 ml-7 flex items-center gap-2\" x-show=\"selected\" x-transition><label for=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var13 string
+					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("portion-%d", user.ID))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/plan_form.templ`, Line: 168, Col: 57}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\" class=\"text-xs text-text-secondary font-medium uppercase tracking-wide\">Portion:</label> <input type=\"number\" name=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var14 string
+					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("portion_%d", user.ID))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/plan_form.templ`, Line: 171, Col: 52}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\" id=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var15 string
+					templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("portion-%d", user.ID))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/plan_form.templ`, Line: 172, Col: 50}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" x-model=\"portion\" min=\"1\" class=\"w-20 px-2 py-1 bg-bg-body border border-border rounded text-text-primary text-sm focus:outline-none focus:border-primary\"></div></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</div></div><div class=\"flex items-center gap-3 mb-4\"><input type=\"checkbox\" name=\"is_active\" id=\"is_active\" class=\"w-4 h-4 rounded border-border text-primary focus:ring-primary\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div><p class=\"mt-2 text-xs text-text-secondary\">Select users who will share this plan. Default portion is 1. Increase it if a user pays for multiple people.</p></div><div class=\"flex items-center gap-3 mb-4\"><input type=\"checkbox\" name=\"is_active\" id=\"is_active\" class=\"w-4 h-4 rounded border-border text-primary focus:ring-primary\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if props.Plan.IsActive || !props.IsEdit {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, " checked")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, " checked")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "> <label for=\"is_active\" class=\"text-text-primary\">Is Active?</label></div><div class=\"flex items-center gap-3 mb-6\"><input type=\"checkbox\" name=\"allow_invitation\" id=\"allow_invitation\" class=\"w-4 h-4 rounded border-border text-primary focus:ring-primary\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "> <label for=\"is_active\" class=\"text-text-primary\">Is Active?</label></div><div class=\"flex items-center gap-3 mb-6\"><input type=\"checkbox\" name=\"allow_invitation\" id=\"allow_invitation\" class=\"w-4 h-4 rounded border-border text-primary focus:ring-primary\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if props.Plan.AllowInvitationAfterPay {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, " checked")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, " checked")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "> <label for=\"allow_invitation\" class=\"text-text-primary\">Allow Invitation After Pay?</label></div><button type=\"submit\" class=\"w-full inline-flex justify-center items-center gap-2 px-5 py-2.5 rounded-lg border-none cursor-pointer font-medium no-underline transition-all duration-200 bg-primary text-white hover:bg-primary-hover hover:-translate-y-px text-base\">Save Plan</button> <a href=\"/plans\" class=\"w-full inline-flex justify-center items-center gap-2 px-5 py-2.5 rounded-lg border border-border cursor-pointer font-medium no-underline transition-all duration-200 bg-transparent text-text-primary hover:bg-bg-hover mt-3 text-base\">Cancel</a></form></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "> <label for=\"allow_invitation\" class=\"text-text-primary\">Allow Invitation After Pay?</label></div><button type=\"submit\" class=\"w-full inline-flex justify-center items-center gap-2 px-5 py-2.5 rounded-lg border-none cursor-pointer font-medium no-underline transition-all duration-200 bg-primary text-white hover:bg-primary-hover hover:-translate-y-px text-base\">Save Plan</button> <a href=\"/plans\" class=\"w-full inline-flex justify-center items-center gap-2 px-5 py-2.5 rounded-lg border border-border cursor-pointer font-medium no-underline transition-all duration-200 bg-transparent text-text-primary hover:bg-bg-hover mt-3 text-base\">Cancel</a></form></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -237,7 +293,7 @@ func PlanForm(props PlanFormProps) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, " <script>\n\t\t\tdocument.addEventListener('alpine:init', () => {\n\t\t\t\tAlpine.data('recurringForm', (initialType, initialRRule) => ({\n\t\t\t\t\tpaymentType: initialType || 'onetime',\n\t\t\t\t\tfrequency: 'WEEKLY',\n\t\t\t\t\tinterval: 1,\n\t\t\t\t\trruleString: initialRRule || '',\n\t\t\t\t\tinit() {\n\t\t\t\t\t\t// Use a timeout to ensure rrule is loaded if deferred\n\t\t\t\t\t\tsetTimeout(() => {\n\t\t\t\t\t\t\tif (this.paymentType === 'recurring' && this.rruleString && typeof rrule !== 'undefined') {\n\t\t\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\t\t\tconst rule = rrule.rrulestr(this.rruleString);\n\t\t\t\t\t\t\t\t\tconst options = rule.options;\n\t\t\t\t\t\t\t\t\tconst freqMap = {};\n\t\t\t\t\t\t\t\t\tfreqMap[rrule.RRule.DAILY] = 'DAILY';\n\t\t\t\t\t\t\t\t\tfreqMap[rrule.RRule.WEEKLY] = 'WEEKLY';\n\t\t\t\t\t\t\t\t\tfreqMap[rrule.RRule.MONTHLY] = 'MONTHLY';\n\t\t\t\t\t\t\t\t\tfreqMap[rrule.RRule.YEARLY] = 'YEARLY';\n\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\tif (freqMap[options.freq]) {\n\t\t\t\t\t\t\t\t\t\tthis.frequency = freqMap[options.freq];\n\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t\tif (options.interval) {\n\t\t\t\t\t\t\t\t\t\tthis.interval = options.interval;\n\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\t\t\t\tconsole.error(\"Failed to parse RRULE:\", e);\n\t\t\t\t\t\t\t\t\tthis.updateRRule();\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\tthis.updateRRule();\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}, 100);\n\t\t\t\t\t},\n\t\t\t\t\tupdateRRule() {\n\t\t\t\t\t\tif (this.paymentType !== 'recurring' || typeof rrule === 'undefined') {\n\t\t\t\t\t\t\tthis.rruleString = '';\n\t\t\t\t\t\t\treturn;\n\t\t\t\t\t\t}\n\t\t\t\t\t\tconst freqMap = {\n\t\t\t\t\t\t\t'DAILY': rrule.RRule.DAILY,\n\t\t\t\t\t\t\t'WEEKLY': rrule.RRule.WEEKLY,\n\t\t\t\t\t\t\t'MONTHLY': rrule.RRule.MONTHLY,\n\t\t\t\t\t\t\t'YEARLY': rrule.RRule.YEARLY\n\t\t\t\t\t\t};\n\t\t\t\t\t\tconst rule = new rrule.RRule({\n\t\t\t\t\t\t\tfreq: freqMap[this.frequency],\n\t\t\t\t\t\t\tinterval: parseInt(this.interval)\n\t\t\t\t\t\t});\n\t\t\t\t\t\tthis.rruleString = rule.toString();\n\t\t\t\t\t}\n\t\t\t\t}))\n\t\t\t})\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, " <script>\n\t\t\tdocument.addEventListener('alpine:init', () => {\n\t\t\t\tAlpine.data('recurringForm', (initialType, initialRRule) => ({\n\t\t\t\t\tpaymentType: initialType || 'onetime',\n\t\t\t\t\tfrequency: 'WEEKLY',\n\t\t\t\t\tinterval: 1,\n\t\t\t\t\trruleString: initialRRule || '',\n\t\t\t\t\tinit() {\n\t\t\t\t\t\t// Use a timeout to ensure rrule is loaded if deferred\n\t\t\t\t\t\tsetTimeout(() => {\n\t\t\t\t\t\t\tif (this.paymentType === 'recurring' && this.rruleString && typeof rrule !== 'undefined') {\n\t\t\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\t\t\tconst rule = rrule.rrulestr(this.rruleString);\n\t\t\t\t\t\t\t\t\tconst options = rule.options;\n\t\t\t\t\t\t\t\t\tconst freqMap = {};\n\t\t\t\t\t\t\t\t\tfreqMap[rrule.RRule.DAILY] = 'DAILY';\n\t\t\t\t\t\t\t\t\tfreqMap[rrule.RRule.WEEKLY] = 'WEEKLY';\n\t\t\t\t\t\t\t\t\tfreqMap[rrule.RRule.MONTHLY] = 'MONTHLY';\n\t\t\t\t\t\t\t\t\tfreqMap[rrule.RRule.YEARLY] = 'YEARLY';\n\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\tif (freqMap[options.freq]) {\n\t\t\t\t\t\t\t\t\t\tthis.frequency = freqMap[options.freq];\n\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t\tif (options.interval) {\n\t\t\t\t\t\t\t\t\t\tthis.interval = options.interval;\n\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\t\t\t\tconsole.error(\"Failed to parse RRULE:\", e);\n\t\t\t\t\t\t\t\t\tthis.updateRRule();\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\tthis.updateRRule();\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}, 100);\n\t\t\t\t\t},\n\t\t\t\t\tupdateRRule() {\n\t\t\t\t\t\tif (this.paymentType !== 'recurring' || typeof rrule === 'undefined') {\n\t\t\t\t\t\t\tthis.rruleString = '';\n\t\t\t\t\t\t\treturn;\n\t\t\t\t\t\t}\n\t\t\t\t\t\tconst freqMap = {\n\t\t\t\t\t\t\t'DAILY': rrule.RRule.DAILY,\n\t\t\t\t\t\t\t'WEEKLY': rrule.RRule.WEEKLY,\n\t\t\t\t\t\t\t'MONTHLY': rrule.RRule.MONTHLY,\n\t\t\t\t\t\t\t'YEARLY': rrule.RRule.YEARLY\n\t\t\t\t\t\t};\n\t\t\t\t\t\tconst rule = new rrule.RRule({\n\t\t\t\t\t\t\tfreq: freqMap[this.frequency],\n\t\t\t\t\t\t\tinterval: parseInt(this.interval)\n\t\t\t\t\t\t});\n\t\t\t\t\t\tthis.rruleString = rule.toString();\n\t\t\t\t\t}\n\t\t\t\t}))\n\t\t\t})\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -270,6 +326,13 @@ func derefString(s *string) string {
 		return ""
 	}
 	return *s
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }
 
 var _ = templruntime.GeneratedTemplate

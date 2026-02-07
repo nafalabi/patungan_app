@@ -24,8 +24,8 @@ type Plan struct {
 	AllowInvitationAfterPay bool `gorm:"default:false" json:"allow_invitation_after_pay"`
 
 	// Relationships
-	Users       []User       `gorm:"many2many:plan_user;" json:"users,omitempty"`
-	PaymentDues []PaymentDue `gorm:"foreignKey:PlanID" json:"payment_dues,omitempty"`
+	Participants []PlanParticipant `gorm:"foreignKey:PlanID" json:"participants,omitempty"`
+	PaymentDues  []PaymentDue      `gorm:"foreignKey:PlanID" json:"payment_dues,omitempty"`
 }
 
 // NextDue calculates the next due date for the plan
