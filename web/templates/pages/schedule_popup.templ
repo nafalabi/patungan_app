@@ -32,7 +32,7 @@ templ SchedulePopup(plan models.Plan) {
                             <span class="text-text-primary font-medium">{ plan.ScheduledTask.Due.Format("02 Jan 2006, 15:04") }</span>
                         </div>
                      }
-                     if plan.ScheduledTask.Status == models.ScheduledTaskStatusFailure || plan.ScheduledTask.Status == models.ScheduledTaskStatusDisabled {
+                     if plan.ScheduledTask != nil && (plan.ScheduledTask.Status == models.ScheduledTaskStatusFailure || plan.ScheduledTask.Status == models.ScheduledTaskStatusDisabled) {
                         <div class="flex justify-between items-center">
                             <span class="text-sm text-text-secondary">New Due</span>
                             <span class="text-text-primary font-medium">{ plan.NextDue().Format("02 Jan 2006, 15:04") }</span>

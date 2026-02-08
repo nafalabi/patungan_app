@@ -86,7 +86,7 @@ func SchedulePopup(plan models.Plan) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		if plan.ScheduledTask.Status == models.ScheduledTaskStatusFailure || plan.ScheduledTask.Status == models.ScheduledTaskStatusDisabled {
+		if plan.ScheduledTask != nil && (plan.ScheduledTask.Status == models.ScheduledTaskStatusFailure || plan.ScheduledTask.Status == models.ScheduledTaskStatusDisabled) {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"flex justify-between items-center\"><span class=\"text-sm text-text-secondary\">New Due</span> <span class=\"text-text-primary font-medium\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
