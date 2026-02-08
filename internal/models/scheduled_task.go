@@ -52,7 +52,7 @@ func (t ScheduledTask) NextDue() time.Time {
 		rule, err := rrule.StrToRRule(*t.RecurringInterval)
 		if err == nil {
 			rule.DTStart(t.Due)
-			next := rule.After(time.Now(), false)
+			next := rule.After(time.Now(), true)
 			if !next.IsZero() {
 				return next
 			}

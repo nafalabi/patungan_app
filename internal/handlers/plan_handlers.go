@@ -10,6 +10,7 @@ import (
 
 	"patungan_app_echo/internal/models"
 	"patungan_app_echo/internal/services"
+	"patungan_app_echo/internal/tasks"
 	"patungan_app_echo/web/templates/pages"
 	"patungan_app_echo/web/templates/shared"
 )
@@ -293,7 +294,7 @@ func (h *PlanHandler) SchedulePlan(c echo.Context) error {
 		return c.String(http.StatusNotFound, "Plan not found")
 	}
 
-	taskName := "process_plan_schedule"
+	taskName := tasks.TaskProcessPlanSchedule
 	arguments := map[string]interface{}{"plan_id": plan.ID}
 	due := plan.NextDue()
 

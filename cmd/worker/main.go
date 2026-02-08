@@ -190,9 +190,15 @@ func executeTask(ctx context.Context, db *gorm.DB, task models.ScheduledTask, cu
 		case models.ScheduledTaskTypeOneTime:
 			taskUpdates["status"] = models.ScheduledTaskStatusDone
 		case models.ScheduledTaskTypeRecurring:
-			taskUpdates["status"] = models.ScheduledTaskStatusActive
-			// Calculate next due date
-			taskUpdates["due"] = task.NextDue()
+			nextDue := task.NextDue()
+			// check if the next due is a future date, to avoid the task from being executed repeatedly
+			isNextDueFuture := nextDue.After(task.Due)
+			if isNextDueFuture {
+				taskUpdates["status"] = models.ScheduledTaskStatusActive
+				taskUpdates["due"] = nextDue
+			} else {
+				taskUpdates["status"] = models.ScheduledTaskStatusDone
+			}
 		}
 	}
 
