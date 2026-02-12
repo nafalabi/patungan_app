@@ -34,11 +34,11 @@ func (h *PaymentDueHandler) ListPaymentDues(c echo.Context) error {
 	filterUserStr := c.QueryParam("filter_user")
 	sortBy := c.QueryParam("sort_by")
 	if sortBy == "" {
-		sortBy = "plan"
+		sortBy = "due_date"
 	}
 	sortOrder := c.QueryParam("sort_order")
 	if sortOrder == "" {
-		sortOrder = "asc"
+		sortOrder = "desc"
 	}
 
 	// Parse pagination parameters
