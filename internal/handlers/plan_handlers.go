@@ -70,7 +70,7 @@ func (h *PlanHandler) ListPlans(c echo.Context) error {
 	// Get total count
 	var totalCount int64
 	if err := query.Count(&totalCount).Error; err != nil {
-		return c.String(http.StatusInternalServerError, "Failed to count plans")
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to count plans")
 	}
 
 	// Calculate pagination
@@ -102,7 +102,7 @@ func (h *PlanHandler) ListPlans(c echo.Context) error {
 
 	var plans []models.Plan
 	if err := query.Find(&plans).Error; err != nil {
-		return c.String(http.StatusInternalServerError, "Failed to fetch plans")
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to fetch plans")
 	}
 
 	// Fetch all users for filter dropdown
@@ -202,7 +202,7 @@ func (h *PlanHandler) StorePlan(c echo.Context) error {
 	}
 
 	if err := h.db.Create(&plan).Error; err != nil {
-		return c.String(http.StatusInternalServerError, "Failed to create plan")
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create plan")
 	}
 
 	// Handle participants
@@ -242,7 +242,7 @@ func (h *PlanHandler) EditPlanPage(c echo.Context) error {
 	id := c.Param("id")
 	var plan models.Plan
 	if err := h.db.Preload("Participants.User").First(&plan, id).Error; err != nil {
-		return c.String(http.StatusNotFound, "Plan not found")
+		return echo.NewHTTPError(http.StatusNotFound, "Plan not found")
 	}
 
 	// Fetch all users for participant selection
@@ -285,7 +285,7 @@ func (h *PlanHandler) UpdatePlan(c echo.Context) error {
 	id := c.Param("id")
 	var plan models.Plan
 	if err := h.db.First(&plan, id).Error; err != nil {
-		return c.String(http.StatusNotFound, "Plan not found")
+		return echo.NewHTTPError(http.StatusNotFound, "Plan not found")
 	}
 
 	plan.Name = c.FormValue("name")
@@ -308,7 +308,7 @@ func (h *PlanHandler) UpdatePlan(c echo.Context) error {
 	plan.AllowInvitationAfterPay = c.FormValue("allow_invitation") == "on"
 
 	if err := h.db.Save(&plan).Error; err != nil {
-		return c.String(http.StatusInternalServerError, "Failed to update plan")
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to update plan")
 	}
 
 	// Handle participants update
@@ -357,7 +357,7 @@ func (h *PlanHandler) DeletePlan(c echo.Context) error {
 	id := c.Param("id")
 	planID, err := strconv.ParseUint(id, 10, 32)
 	if err != nil {
-		return c.String(http.StatusBadRequest, "Invalid plan ID")
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid plan ID")
 	}
 
 	// Use transaction for cascade operations
@@ -408,7 +408,7 @@ func (h *PlanHandler) DeletePlan(c echo.Context) error {
 	})
 
 	if err != nil {
-		return c.String(http.StatusInternalServerError, "Failed to delete plan: "+err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to delete plan: "+err.Error())
 	}
 
 	return c.Redirect(http.StatusSeeOther, "/plans")
@@ -424,7 +424,7 @@ func (h *PlanHandler) GetSchedulePopup(c echo.Context) error {
 	id := c.Param("id")
 	var plan models.Plan
 	if err := h.db.Preload("ScheduledTask").First(&plan, id).Error; err != nil {
-		return c.String(http.StatusNotFound, "Plan not found")
+		return echo.NewHTTPError(http.StatusNotFound, "Plan not found")
 	}
 
 	return pages.SchedulePopup(plan).Render(c.Request().Context(), c.Response())
@@ -435,7 +435,7 @@ func (h *PlanHandler) SchedulePlan(c echo.Context) error {
 	id := c.Param("id")
 	var plan models.Plan
 	if err := h.db.Preload("ScheduledTask").First(&plan, id).Error; err != nil {
-		return c.String(http.StatusNotFound, "Plan not found")
+		return echo.NewHTTPError(http.StatusNotFound, "Plan not found")
 	}
 
 	taskName := tasks.TaskProcessPlanSchedule
@@ -463,13 +463,13 @@ func (h *PlanHandler) SchedulePlan(c echo.Context) error {
 			MaxAttempt:        3,
 		}
 		if err := h.db.Create(&task).Error; err != nil {
-			return c.String(http.StatusInternalServerError, "Failed to create scheduled task")
+			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create scheduled task")
 		}
 
 		// Update plan
 		plan.ScheduledTaskID = &task.ID
 		if err := h.db.Save(&plan).Error; err != nil {
-			return c.String(http.StatusInternalServerError, "Failed to update plan")
+			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to update plan")
 		}
 	} else {
 		// Update existing task
@@ -484,7 +484,7 @@ func (h *PlanHandler) SchedulePlan(c echo.Context) error {
 		task.LastRun = nil // Reset last run
 
 		if err := h.db.Save(task).Error; err != nil {
-			return c.String(http.StatusInternalServerError, "Failed to update scheduled task")
+			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to update scheduled task")
 		}
 	}
 
@@ -496,13 +496,13 @@ func (h *PlanHandler) DisableSchedulePlan(c echo.Context) error {
 	id := c.Param("id")
 	var plan models.Plan
 	if err := h.db.Preload("ScheduledTask").First(&plan, id).Error; err != nil {
-		return c.String(http.StatusNotFound, "Plan not found")
+		return echo.NewHTTPError(http.StatusNotFound, "Plan not found")
 	}
 
 	if plan.ScheduledTaskID != nil && plan.ScheduledTask != nil {
 		plan.ScheduledTask.Status = models.ScheduledTaskStatusDisabled
 		if err := h.db.Save(plan.ScheduledTask).Error; err != nil {
-			return c.String(http.StatusInternalServerError, "Failed to disable schedule")
+			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to disable schedule")
 		}
 	}
 

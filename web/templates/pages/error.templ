@@ -1,0 +1,76 @@
+package pages
+
+import (
+	"patungan_app_echo/web/templates/layouts"
+	"patungan_app_echo/web/templates/shared"
+)
+
+// ErrorPageProps contains props for error pages
+type ErrorPageProps struct {
+	Title       string
+	ActiveNav   string
+	Breadcrumbs []shared.Breadcrumb
+	UserEmail   string
+	UserUID     string
+	
+	// Error details
+	ErrorTitle   string
+	ErrorMessage string
+	BackLink     string
+	BackText     string
+}
+
+// ErrorPage renders a generic error page with the base layout
+templ ErrorPage(props ErrorPageProps) {
+	@layouts.Base(layouts.BaseProps{
+		Title:       props.Title,
+		ActiveNav:   props.ActiveNav,
+		Breadcrumbs: props.Breadcrumbs,
+		UserEmail:   props.UserEmail,
+		UserUID:     props.UserUID,
+	}) {
+		<div class="flex items-center justify-center min-h-[60vh]">
+			<div class="bg-bg-card rounded-xl border border-border p-8 max-w-md w-full text-center">
+				<!-- Error Icon -->
+				<div class="mb-4 flex justify-center">
+					<div class="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center">
+						<i data-lucide="alert-circle" style="width: 32px; height: 32px;" class="text-danger"></i>
+					</div>
+				</div>
+				
+				<!-- Error Title -->
+				<h1 class="text-2xl font-bold text-text-primary mb-2">
+					{ props.ErrorTitle }
+				</h1>
+				
+				<!-- Error Message -->
+				<p class="text-text-secondary mb-6">
+					{ props.ErrorMessage }
+				</p>
+				
+				<!-- Actions -->
+				<div class="flex gap-3 justify-center">
+					if props.BackLink != "" {
+						<a 
+							href={ templ.SafeURL(props.BackLink) }
+							class="px-4 py-2 bg-bg-body text-text-secondary border border-border rounded-lg font-medium hover:bg-bg-hover transition-all duration-200"
+						>
+							if props.BackText != "" {
+								{ props.BackText }
+							} else {
+								Go Back
+							}
+						</a>
+					}
+					<a 
+						href="/"
+						class="px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-hover transition-all duration-200"
+					>
+						Go to Dashboard
+					</a>
+				</div>
+			</div>
+		</div>
+		@LogoutScript()
+	}
+}

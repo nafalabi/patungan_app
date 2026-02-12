@@ -725,6 +725,10 @@ body {
   min-height: 100vh;
 }
 
+.min-h-\[60vh\] {
+  min-height: 60vh;
+}
+
 .w-10 {
   width: 2.5rem;
 }

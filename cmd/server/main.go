@@ -68,6 +68,9 @@ func main() {
 	// Create Echo instance
 	e := echo.New()
 
+	// Set custom error handler
+	e.HTTPErrorHandler = authMiddleware.CustomErrorHandler
+
 	// Middleware
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())

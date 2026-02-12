@@ -82,7 +82,7 @@ func (h *PaymentDueHandler) ListPaymentDues(c echo.Context) error {
 	// Get total count for pagination
 	var totalCount int64
 	if err := query.Count(&totalCount).Error; err != nil {
-		return c.String(http.StatusInternalServerError, "Failed to count payment dues")
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to count payment dues")
 	}
 
 	// Calculate pagination values
@@ -116,7 +116,7 @@ func (h *PaymentDueHandler) ListPaymentDues(c echo.Context) error {
 
 	var paymentDues []models.PaymentDue
 	if err := query.Find(&paymentDues).Error; err != nil {
-		return c.String(http.StatusInternalServerError, "Failed to fetch payment dues")
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to fetch payment dues")
 	}
 
 	// Fetch all plans and users for filter dropdowns

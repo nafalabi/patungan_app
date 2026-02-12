@@ -26,7 +26,7 @@ func NewUserHandler(db *gorm.DB, cache *services.RedisCache) *UserHandler {
 func (h *UserHandler) ListUsers(c echo.Context) error {
 	var users []models.User
 	if err := h.db.Find(&users).Error; err != nil {
-		return c.String(http.StatusInternalServerError, "Failed to fetch users")
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to fetch users")
 	}
 
 	breadcrumbs := []shared.Breadcrumb{
@@ -80,7 +80,7 @@ func (h *UserHandler) StoreUser(c echo.Context) error {
 	}
 
 	if err := h.db.Create(&user).Error; err != nil {
-		return c.String(http.StatusInternalServerError, "Failed to create user")
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create user")
 	}
 
 	return c.Redirect(http.StatusSeeOther, "/users")
@@ -91,7 +91,7 @@ func (h *UserHandler) EditUserPage(c echo.Context) error {
 	id := c.Param("id")
 	var user models.User
 	if err := h.db.First(&user, id).Error; err != nil {
-		return c.String(http.StatusNotFound, "User not found")
+		return echo.NewHTTPError(http.StatusNotFound, "User not found")
 	}
 
 	breadcrumbs := []shared.Breadcrumb{
@@ -118,7 +118,7 @@ func (h *UserHandler) UpdateUser(c echo.Context) error {
 	id := c.Param("id")
 	var user models.User
 	if err := h.db.First(&user, id).Error; err != nil {
-		return c.String(http.StatusNotFound, "User not found")
+		return echo.NewHTTPError(http.StatusNotFound, "User not found")
 	}
 
 	user.Name = c.FormValue("name")
@@ -127,7 +127,7 @@ func (h *UserHandler) UpdateUser(c echo.Context) error {
 	user.UserType = models.UserType(c.FormValue("user_type"))
 
 	if err := h.db.Save(&user).Error; err != nil {
-		return c.String(http.StatusInternalServerError, "Failed to update user")
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to update user")
 	}
 
 	return c.Redirect(http.StatusSeeOther, "/users")
@@ -142,7 +142,7 @@ func (h *UserHandler) DeleteUser(c echo.Context) error {
 	h.db.Model(&models.User{ID: uint(idUint)}).Association("Plans").Clear()
 
 	if err := h.db.Delete(&models.User{}, id).Error; err != nil {
-		return c.String(http.StatusInternalServerError, "Failed to delete user")
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to delete user")
 	}
 	return c.Redirect(http.StatusSeeOther, "/users")
 }
