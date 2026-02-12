@@ -26,7 +26,7 @@ func ProcessPlanScheduleHandler(ctx context.Context, db *gorm.DB, args map[strin
 	planID := uint(planIDFloat)
 
 	var plan models.Plan
-	if err := db.Preload("Participants").First(&plan, planID).Error; err != nil {
+	if err := db.Preload("Participants").Preload("ScheduledTask").First(&plan, planID).Error; err != nil {
 		return nil, fmt.Errorf("failed to fetch plan: %w", err)
 	}
 
@@ -55,6 +55,7 @@ func ProcessPlanScheduleHandler(ctx context.Context, db *gorm.DB, args map[strin
 			Portion:             p.Portion,
 			CalculatedPayAmount: amount,
 			PaymentStatus:       "pending",
+			DueDate:             plan.ScheduledTask.Due,
 		}
 		if err := db.Create(&due).Error; err != nil {
 			log.Printf("Failed to create PaymentDue for user %d: %v", p.UserID, err)
