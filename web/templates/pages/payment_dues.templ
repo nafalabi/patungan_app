@@ -32,11 +32,12 @@ type PaymentDuesProps struct {
 	UserWithDues []UserWithDues
 
 	// Filter/Sort state
-	ViewMode   string
-	FilterPlan uint
-	FilterUser uint
-	SortBy     string
-	SortOrder  string
+	ViewMode     string
+	FilterPlan   uint
+	FilterUser   uint
+	ShowCanceled bool
+	SortBy       string
+	SortOrder    string
 
 	// For dropdowns
 	AllPlans []models.Plan
@@ -129,6 +130,20 @@ templ PaymentDues(props PaymentDuesProps) {
 							<option value="asc" selected?={ props.SortOrder == "asc" }>Ascending</option>
 							<option value="desc" selected?={ props.SortOrder == "desc" }>Descending</option>
 						</select>
+					</div>
+					<!-- Show canceled checkbox -->
+					<div class="flex items-center gap-2 self-end pb-2">
+						<input 
+							type="checkbox" 
+							id="show-canceled"
+							name="show_canceled"
+							value="true"
+							checked?={props.ShowCanceled}
+							class="w-4 h-4 rounded border-border text-primary focus:ring-2 focus:ring-primary"
+						/>
+						<label for="show-canceled" class="text-sm text-text-secondary cursor-pointer">
+							Show canceled
+						</label>
 					</div>
 					<!-- Actions -->
 					<div class="flex gap-2">

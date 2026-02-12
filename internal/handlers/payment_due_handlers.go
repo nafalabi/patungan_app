@@ -32,6 +32,7 @@ func (h *PaymentDueHandler) ListPaymentDues(c echo.Context) error {
 
 	filterPlanStr := c.QueryParam("filter_plan")
 	filterUserStr := c.QueryParam("filter_user")
+	showCanceled := c.QueryParam("show_canceled") == "true"
 	sortBy := c.QueryParam("sort_by")
 	if sortBy == "" {
 		sortBy = "due_date"
@@ -72,6 +73,10 @@ func (h *PaymentDueHandler) ListPaymentDues(c echo.Context) error {
 	}
 	if filterUser > 0 {
 		query = query.Where("user_id = ?", filterUser)
+	}
+	// Hide canceled dues by default
+	if !showCanceled {
+		query = query.Where("payment_status != ?", models.PaymentStatusCanceled)
 	}
 
 	// Get total count for pagination
@@ -177,6 +182,7 @@ func (h *PaymentDueHandler) ListPaymentDues(c echo.Context) error {
 		ViewMode:     viewMode,
 		FilterPlan:   filterPlan,
 		FilterUser:   filterUser,
+		ShowCanceled: showCanceled,
 		SortBy:       sortBy,
 		SortOrder:    sortOrder,
 		AllPlans:     allPlans,
