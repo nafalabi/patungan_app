@@ -24,12 +24,90 @@ func NewPlanHandler(db *gorm.DB, cache *services.RedisCache) *PlanHandler {
 	return &PlanHandler{db: db, cache: cache}
 }
 
-// ListPlans renders the list of plans
+// ListPlans renders the list of plans with pagination, filtering, and sorting
 func (h *PlanHandler) ListPlans(c echo.Context) error {
+	// Parse query parameters
+	filterOwnerStr := c.QueryParam("filter_owner")
+	filterType := c.QueryParam("filter_type")
+	sortBy := c.QueryParam("sort_by")
+	if sortBy == "" {
+		sortBy = "created"
+	}
+	sortOrder := c.QueryParam("sort_order")
+	if sortOrder == "" {
+		sortOrder = "desc"
+	}
+
+	// Parse pagination
+	pageStr := c.QueryParam("page")
+	page := 1
+	if pageStr != "" {
+		if p, err := strconv.Atoi(pageStr); err == nil && p > 0 {
+			page = p
+		}
+	}
+	pageSize := 15
+
+	// Parse filter values
+	var filterOwner uint
+	if filterOwnerStr != "" {
+		if val, err := strconv.ParseUint(filterOwnerStr, 10, 32); err == nil {
+			filterOwner = uint(val)
+		}
+	}
+
+	// Build base query
+	query := h.db.Model(&models.Plan{}).Preload("Owner").Preload("ScheduledTask").Preload("Participants")
+
+	// Apply filters
+	if filterOwner > 0 {
+		query = query.Where("owner_id = ?", filterOwner)
+	}
+	if filterType != "" {
+		query = query.Where("payment_type = ?", filterType)
+	}
+
+	// Get total count
+	var totalCount int64
+	if err := query.Count(&totalCount).Error; err != nil {
+		return c.String(http.StatusInternalServerError, "Failed to count plans")
+	}
+
+	// Calculate pagination
+	totalPages := int((totalCount + int64(pageSize) - 1) / int64(pageSize))
+	if totalPages == 0 {
+		totalPages = 1
+	}
+	if page > totalPages {
+		page = totalPages
+	}
+	offset := (page - 1) * pageSize
+
+	// Apply sorting
+	switch sortBy {
+	case "name":
+		query = query.Order("name " + sortOrder)
+	case "date":
+		query = query.Order("plan_start_date " + sortOrder)
+	case "price":
+		query = query.Order("total_price " + sortOrder)
+	case "created":
+		query = query.Order("created_at " + sortOrder)
+	default:
+		query = query.Order("created_at " + sortOrder)
+	}
+
+	// Apply pagination
+	query = query.Limit(pageSize).Offset(offset)
+
 	var plans []models.Plan
-	if err := h.db.Preload("ScheduledTask").Find(&plans).Error; err != nil {
+	if err := query.Find(&plans).Error; err != nil {
 		return c.String(http.StatusInternalServerError, "Failed to fetch plans")
 	}
+
+	// Fetch all users for filter dropdown
+	var allUsers []models.User
+	h.db.Find(&allUsers)
 
 	// Breadcrumbs: Home > Plans
 	breadcrumbs := []shared.Breadcrumb{
@@ -44,6 +122,15 @@ func (h *PlanHandler) ListPlans(c echo.Context) error {
 		UserEmail:   getStringFromContext(c, "userEmail"),
 		UserUID:     getStringFromContext(c, "userUID"),
 		Plans:       plans,
+		FilterOwner: filterOwner,
+		FilterType:  filterType,
+		SortBy:      sortBy,
+		SortOrder:   sortOrder,
+		CurrentPage: page,
+		TotalPages:  totalPages,
+		TotalCount:  int(totalCount),
+		PageSize:    pageSize,
+		AllUsers:    allUsers,
 	}
 
 	return pages.PlansList(props).Render(c.Request().Context(), c.Response())
@@ -101,8 +188,12 @@ func (h *PlanHandler) StorePlan(c echo.Context) error {
 		recurringIntervalPtr = &recurringInterval
 	}
 
+	// Get current user ID for owner
+	ownerID := getUintFromContext(c, "userID")
+
 	plan := models.Plan{
 		Name:                    name,
+		OwnerID:                 ownerID,
 		TotalPrice:              totalPrice,
 		PaymentType:             paymentType,
 		RecurringInterval:       recurringIntervalPtr,

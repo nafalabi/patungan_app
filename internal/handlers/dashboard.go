@@ -36,10 +36,25 @@ func (h *DashboardHandler) Dashboard(c echo.Context) error {
 
 // Helper to safely get string from context
 func getStringFromContext(c echo.Context, key string) string {
-	if val := c.Get(key); val != nil {
-		if s, ok := val.(string); ok {
-			return s
-		}
+	val := c.Get(key)
+	if val == nil {
+		return ""
 	}
-	return ""
+	strVal, ok := val.(string)
+	if !ok {
+		return ""
+	}
+	return strVal
+}
+
+func getUintFromContext(c echo.Context, key string) uint {
+	val := c.Get(key)
+	if val == nil {
+		return 0
+	}
+	uintVal, ok := val.(uint)
+	if !ok {
+		return 0
+	}
+	return uintVal
 }

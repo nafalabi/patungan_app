@@ -15,9 +15,26 @@ type PlansListProps struct {
 	UserEmail   string
 	UserUID     string
 	Plans       []models.Plan
+
+	// Filtering
+	FilterOwner uint
+	FilterType  string
+
+	// Sorting
+	SortBy    string
+	SortOrder string
+
+	// Pagination
+	CurrentPage int
+	TotalPages  int
+	TotalCount  int
+	PageSize    int
+
+	// For dropdowns
+	AllUsers []models.User
 }
 
-// PlansList renders the plans list page
+// PlansList renders the plans list page with improved card-based UI
 templ PlansList(props PlansListProps) {
 	@layouts.Base(layouts.BaseProps{
 		Title:       props.Title,
@@ -26,68 +43,259 @@ templ PlansList(props PlansListProps) {
 		UserEmail:   props.UserEmail,
 		UserUID:     props.UserUID,
 	}) {
+		<!-- Header -->
 		<div class="flex justify-between items-center mb-6">
-			<h1 class="text-2xl font-bold text-text-primary">Plans</h1>
+			<div>
+				<h1 class="text-2xl font-bold text-text-primary">Plans</h1>
+				<p class="text-sm text-text-secondary mt-1">
+					Showing { fmt.Sprintf("%d", props.TotalCount) } total plans
+				</p>
+			</div>
 			<a href="/plans/create" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border-none cursor-pointer font-medium no-underline transition-all duration-200 bg-primary text-white hover:bg-primary-hover hover:-translate-y-px">
-				+ Create New Plan
+				<i data-lucide="plus" style="width: 18px; height: 18px;"></i>
+				Create New Plan
 			</a>
 		</div>
-		<div class="w-full bg-bg-card rounded-xl border border-border overflow-hidden">
-			<table class="w-full border-collapse">
-				<thead>
-					<tr class="bg-bg-body border-b border-border text-left">
-						<th class="p-4 font-semibold text-text-secondary text-sm uppercase tracking-wider">Name</th>
-						<th class="p-4 font-semibold text-text-secondary text-sm uppercase tracking-wider">Interval</th>
-						<th class="p-4 font-semibold text-text-secondary text-sm uppercase tracking-wider">Price</th>
-						<th class="p-4 font-semibold text-text-secondary text-sm uppercase tracking-wider">Next Due</th>
-						<th class="p-4 font-semibold text-text-secondary text-sm uppercase tracking-wider">Scheduled Status</th>
-						<th class="p-4 font-semibold text-text-secondary text-sm uppercase tracking-wider">Actions</th>
-					</tr>
-				</thead>
-				<tbody class="divide-y divide-border">
-					if len(props.Plans) == 0 {
-						<tr>
-							<td colspan="7" class="p-8 text-center text-text-secondary">No plans found.</td>
-						</tr>
-					} else {
-						for _, plan := range props.Plans {
-							@PlanRow(plan)
-						}
-					}
-				</tbody>
-			</table>
+		<!-- Filters and Sorting -->
+		<div class="bg-bg-card rounded-xl border border-border p-4 mb-6">
+			<form id="filter-form" method="get" action="/plans">
+				<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+					<!-- Filter by Owner -->
+					<div>
+						<label class="block text-sm font-medium text-text-secondary mb-2">Owner</label>
+						<select 
+							name="filter_owner"
+							class="w-full px-3 py-2 bg-bg-body border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
+							onchange="this.form.submit()"
+						>
+							<option value="">All Owners</option>
+							for _, user := range props.AllUsers {
+								<option value={ fmt.Sprintf("%d", user.ID) } selected?={ props.FilterOwner == user.ID }>
+									{ user.Name }
+								</option>
+							}
+						</select>
+					</div>
+					<!-- Filter by Type -->
+					<div>
+						<label class="block text-sm font-medium text-text-secondary mb-2">Payment Type</label>
+						<select 
+							name="filter_type"
+							class="w-full px-3 py-2 bg-bg-body border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
+							onchange="this.form.submit()"
+						>
+							<option value="">All Types</option>
+							<option value="onetime" selected?={ props.FilterType == "onetime" }>One-time</option>
+							<option value="recurring" selected?={ props.FilterType == "recurring" }>Recurring</option>
+						</select>
+					</div>
+					<!-- Sort By -->
+					<div>
+						<label class="block text-sm font-medium text-text-secondary mb-2">Sort By</label>
+						<select 
+							name="sort_by"
+							class="w-full px-3 py-2 bg-bg-body border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
+							onchange="this.form.submit()"
+						>
+							<option value="created" selected?={ props.SortBy == "created" }>Created Date</option>
+							<option value="name" selected?={ props.SortBy == "name" }>Name</option>
+							<option value="date" selected?={ props.SortBy == "date" }>Start Date</option>
+							<option value="price" selected?={ props.SortBy == "price" }>Price</option>
+						</select>
+					</div>
+					<!-- Sort Order -->
+					<div>
+						<label class="block text-sm font-medium text-text-secondary mb-2">Order</label>
+						<select 
+							name="sort_order"
+							class="w-full px-3 py-2 bg-bg-body border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
+							onchange="this.form.submit()"
+						>
+							<option value="asc" selected?={ props.SortOrder == "asc" }>Ascending</option>
+							<option value="desc" selected?={ props.SortOrder == "desc" }>Descending</option>
+						</select>
+					</div>
+				</div>
+				<!-- Hidden inputs to preserve state -->
+				<input type="hidden" name="page" value="1"/>
+			</form>
+			if props.FilterOwner > 0 || props.FilterType != "" {
+				<div class="mt-4">
+					<a 
+						href="/plans"
+						class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border text-text-secondary hover:bg-bg-hover transition-all duration-200 text-sm"
+					>
+						<i data-lucide="x" style="width: 14px; height: 14px;"></i>
+						Clear Filters
+					</a>
+				</div>
+			}
 		</div>
+		<!-- Plans Grid -->
+		if len(props.Plans) == 0 {
+			<div class="bg-bg-card rounded-xl border border-border p-12 text-center">
+				<i data-lucide="inbox" class="mx-auto mb-4" style="width: 48px; height: 48px; color: var(--text-secondary);"></i>
+				<p class="text-text-secondary text-lg">No plans found.</p>
+				<a href="/plans/create" class="inline-flex items-center gap-2 px-4 py-2 mt-4 rounded-lg bg-primary text-white hover:bg-primary-hover transition-all duration-200">
+					Create your first plan
+				</a>
+			</div>
+		} else {
+			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+				for _, plan := range props.Plans {
+					@PlanCard(plan)
+				}
+			</div>
+		}
+		<!-- Pagination -->
+		if props.TotalPages > 1 {
+			<div class="mt-6 flex justify-between items-center">
+				<div class="text-sm text-text-secondary">
+					Page { fmt.Sprintf("%d", props.CurrentPage) } of { fmt.Sprintf("%d", props.TotalPages) }
+				</div>
+				<div class="flex gap-2">
+					if props.CurrentPage > 1 {
+						<a 
+							href={ templ.SafeURL(buildPlanURL("/plans", props.FilterOwner, props.FilterType, props.SortBy, props.SortOrder, props.CurrentPage-1)) }
+							class="px-3 py-2 bg-bg-card text-text-primary border border-border rounded-lg font-medium hover:bg-bg-hover transition-all duration-200"
+						>
+							Previous
+						</a>
+					}
+					<div class="flex gap-1">
+						for i := 1; i <= props.TotalPages; i++ {
+							if i == props.CurrentPage {
+								<span class="px-3 py-2 bg-primary text-white rounded-lg font-medium">
+									{ fmt.Sprintf("%d", i) }
+								</span>
+							} else if i == 1 || i == props.TotalPages || (i >= props.CurrentPage-2 && i <= props.CurrentPage+2) {
+								<a 
+									href={ templ.SafeURL(buildPlanURL("/plans", props.FilterOwner, props.FilterType, props.SortBy, props.SortOrder, i)) }
+									class="px-3 py-2 bg-bg-card text-text-primary border border-border rounded-lg font-medium hover:bg-bg-hover transition-all duration-200"
+								>
+									{ fmt.Sprintf("%d", i) }
+								</a>
+							} else if i == props.CurrentPage-3 || i == props.CurrentPage+3 {
+								<span class="px-3 py-2 text-text-secondary">...</span>
+							}
+						}
+					</div>
+					if props.CurrentPage < props.TotalPages {
+						<a 
+							href={ templ.SafeURL(buildPlanURL("/plans", props.FilterOwner, props.FilterType, props.SortBy, props.SortOrder, props.CurrentPage+1)) }
+							class="px-3 py-2 bg-bg-card text-text-primary border border-border rounded-lg font-medium hover:bg-bg-hover transition-all duration-200"
+						>
+							Next
+						</a>
+					}
+				</div>
+			</div>
+		}
 		<div id="global-modal"></div>
 		@LogoutScript()
 	}
 }
 
-// PlanRow renders a single plan row
-templ PlanRow(plan models.Plan) {
-	<tr class="hover:bg-bg-hover transition-colors">
-		<td class="p-4 text-text-primary">{ plan.Name }</td>
-		<td class="p-4 text-text-primary capitalize">{ plan.PaymentType }</td>
-		<td class="p-4 text-text-primary">Rp { fmt.Sprintf("%.0f", plan.TotalPrice) }</td>
-		<td class="p-4 text-text-primary">{ plan.NextDue().Format("02 Jan 2006") }</td>
-		<td class="p-4">
-			if plan.ScheduledTask == nil {
-                 <span class="px-2 py-1 rounded text-xs font-medium bg-gray-500/20 text-gray-500">Not Scheduled</span>
-            } else {
-                @StatusBadge(string(plan.ScheduledTask.Status))
-            }
-		</td>
-		<td class="p-4 flex gap-2">
-			<button hx-get={ fmt.Sprintf("/plans/%d/schedule-popup", plan.ID) } hx-target="#global-modal" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border-none cursor-pointer font-medium no-underline transition-all duration-200 bg-slate-500 text-white hover:bg-secondary-hover hover:-translate-y-px text-sm">
-				Update Schedule
+// PlanCard renders a single plan as a card
+templ PlanCard(plan models.Plan) {
+	<div class="bg-bg-card rounded-xl border border-border overflow-hidden hover:shadow-lg transition-all duration-200">
+		<!-- Card Header -->
+		<div class="p-5 border-b border-border">
+			<div class="flex justify-between items-start mb-3">
+				<div class="flex-1">
+					<h3 class="text-lg font-semibold text-text-primary mb-1">{ plan.Name }</h3>
+					<div class="flex items-center gap-1 text-xs text-text-secondary">
+						<i data-lucide="user" style="width: 12px; height: 12px;"></i>
+						if plan.Owner.Name != "" {
+							<span class="font-medium">{ plan.Owner.Name }</span>
+						} else {
+							<span class="italic">No owner assigned</span>
+						}
+					</div>
+				</div>
+				@PaymentTypeBadge(plan.PaymentType)
+			</div>
+		</div>
+		<!-- Card Body -->
+		<div class="p-5 space-y-3">
+			<!-- Price & Date -->
+			<div class="grid grid-cols-2 gap-4">
+				<div>
+					<p class="text-xs text-text-secondary mb-1">Total Price</p>
+					<p class="text-lg font-bold text-primary">Rp { fmt.Sprintf("%.0f", plan.TotalPrice) }</p>
+				</div>
+				<div>
+					<p class="text-xs text-text-secondary mb-1">Next Due</p>
+					<p class="text-sm font-medium text-text-primary">{ plan.NextDue().Format("02 Jan 2006") }</p>
+				</div>
+			</div>
+			<!-- Participants Count -->
+			<div class="flex items-center gap-2 text-sm text-text-secondary">
+				<i data-lucide="users" style="width: 16px; height: 16px;"></i>
+				<span>{ fmt.Sprintf("%d", len(plan.Participants)) } participant(s)</span>
+			</div>
+			<!-- Schedule Status -->
+			<div>
+				if plan.ScheduledTask == nil {
+					<span class="inline-flex px-2 py-1 rounded text-xs font-medium bg-gray-500/20 text-gray-500">
+						Not Scheduled
+					</span>
+				} else {
+					@StatusBadge(string(plan.ScheduledTask.Status))
+				}
+			</div>
+		</div>
+		<!-- Card Actions -->
+		<div class="p-4 bg-bg-body border-t border-border flex gap-2">
+			<button 
+				hx-get={ fmt.Sprintf("/plans/%d/schedule-popup", plan.ID) }
+				hx-target="#global-modal"
+				class="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-border cursor-pointer font-medium transition-all duration-200 bg-bg-card text-text-primary hover:bg-bg-hover text-sm"
+			>
+				<i data-lucide="calendar" style="width: 14px; height: 14px;"></i>
+				Schedule
 			</button>
-			<a href={ templ.SafeURL(fmt.Sprintf("/plans/%d/edit", plan.ID)) } class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border-none cursor-pointer font-medium no-underline transition-all duration-200 bg-primary text-white hover:bg-primary-hover hover:-translate-y-px text-sm">
+			<a 
+				href={ templ.SafeURL(fmt.Sprintf("/plans/%d/edit", plan.ID)) }
+				class="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg border-none cursor-pointer font-medium no-underline transition-all duration-200 bg-primary text-white hover:bg-primary-hover text-sm"
+			>
 				Edit
 			</a>
-			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/plans/%d/delete", plan.ID)) } onsubmit="return confirm('Are you sure?')">
-				<button type="submit" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border-none cursor-pointer font-medium no-underline transition-all duration-200 bg-danger text-white hover:bg-red-600 hover:-translate-y-px text-sm">
-					Delete
+			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/plans/%d/delete", plan.ID)) } onsubmit="return confirm('Are you sure?')" class="flex-1">
+				<button 
+					type="submit"
+					class="w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg border-none cursor-pointer font-medium transition-all duration-200 bg-danger text-white hover:bg-red-600 text-sm"
+				>
+					<i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>
 				</button>
 			</form>
-		</td>
-	</tr>
+		</div>
+	</div>
+}
+
+// PaymentTypeBadge renders a badge for payment type
+templ PaymentTypeBadge(paymentType string) {
+	if paymentType == "recurring" {
+		<span class="px-2 py-1 rounded text-xs font-medium bg-blue-500/20 text-blue-500">Recurring</span>
+	} else {
+		<span class="px-2 py-1 rounded text-xs font-medium bg-green-500/20 text-green-500">One-time</span>
+	}
+}
+
+// buildPlanURL is a helper function to build plan list URLs with query parameters
+func buildPlanURL(base string, filterOwner uint, filterType string, sortBy string, sortOrder string, page int) string {
+	url := fmt.Sprintf("%s?page=%d", base, page)
+	if filterOwner > 0 {
+		url += fmt.Sprintf("&filter_owner=%d", filterOwner)
+	}
+	if filterType != "" {
+		url += fmt.Sprintf("&filter_type=%s", filterType)
+	}
+	if sortBy != "" {
+		url += fmt.Sprintf("&sort_by=%s", sortBy)
+	}
+	if sortOrder != "" {
+		url += fmt.Sprintf("&sort_order=%s", sortOrder)
+	}
+	return url
 }

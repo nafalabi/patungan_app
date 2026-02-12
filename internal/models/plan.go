@@ -15,6 +15,7 @@ type Plan struct {
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"deleted_at,omitempty"`
 
 	Name              string    `gorm:"type:varchar(255)" json:"name"`
+	OwnerID           uint      `gorm:"index" json:"owner_id"`
 	TotalPrice        float64   `gorm:"type:decimal(15,2)" json:"total_price"`
 	PlanStartDate     time.Time `json:"plan_start_date"`
 	PaymentType       string    `gorm:"type:varchar(50);default:'onetime'" json:"payment_type"` // 'onetime' or 'recurring'
@@ -23,6 +24,7 @@ type Plan struct {
 	AllowInvitationAfterPay bool `gorm:"default:false" json:"allow_invitation_after_pay"`
 
 	// Relationships
+	Owner        User              `gorm:"foreignKey:OwnerID" json:"owner,omitempty"`
 	Participants []PlanParticipant `gorm:"foreignKey:PlanID" json:"participants,omitempty"`
 	PaymentDues  []PaymentDue      `gorm:"foreignKey:PlanID" json:"payment_dues,omitempty"`
 
