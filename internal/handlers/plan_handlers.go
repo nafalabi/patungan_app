@@ -352,12 +352,65 @@ func (h *PlanHandler) UpdatePlan(c echo.Context) error {
 	return c.Redirect(http.StatusSeeOther, "/plans")
 }
 
-// DeletePlan handles deleting a plan
+// DeletePlan handles deleting a plan with proper cascade handling
 func (h *PlanHandler) DeletePlan(c echo.Context) error {
 	id := c.Param("id")
-	if err := h.db.Delete(&models.Plan{}, id).Error; err != nil {
-		return c.String(http.StatusInternalServerError, "Failed to delete plan")
+	planID, err := strconv.ParseUint(id, 10, 32)
+	if err != nil {
+		return c.String(http.StatusBadRequest, "Invalid plan ID")
 	}
+
+	// Use transaction for cascade operations
+	err = h.db.Transaction(func(tx *gorm.DB) error {
+		// 1. Get the plan first to check it exists
+		var plan models.Plan
+		if err := tx.Preload("ScheduledTask").First(&plan, planID).Error; err != nil {
+			return err
+		}
+
+		// 2. Handle payment dues
+		var paymentDues []models.PaymentDue
+		tx.Preload("UserPayment").Where("plan_id = ?", planID).Find(&paymentDues)
+
+		for _, due := range paymentDues {
+			if due.PaymentStatus == models.PaymentStatusPaid {
+				// Create refund record if payment was made
+				if due.UserPayment != nil {
+					refund := models.Refund{
+						PlanID:         uint(planID),
+						PaymentDueID:   due.ID,
+						UserPaymentID:  due.UserPayment.ID,
+						UserID:         due.UserID,
+						TotalRefund:    due.UserPayment.TotalPay,
+						ChannelPayment: due.UserPayment.ChannelPayment,
+						RefundDate:     time.Now(),
+					}
+					if err := tx.Create(&refund).Error; err != nil {
+						return err
+					}
+				}
+			}
+			// Cancel the payment due regardless
+			if err := tx.Model(&due).Update("payment_status", models.PaymentStatusCanceled).Error; err != nil {
+				return err
+			}
+		}
+
+		// 3. Disable scheduled task if exists
+		if plan.ScheduledTask != nil {
+			if err := tx.Model(&plan.ScheduledTask).Update("status", models.ScheduledTaskStatusDisabled).Error; err != nil {
+				return err
+			}
+		}
+
+		// 4. Delete the plan
+		return tx.Delete(&plan).Error
+	})
+
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "Failed to delete plan: "+err.Error())
+	}
+
 	return c.Redirect(http.StatusSeeOther, "/plans")
 }
 

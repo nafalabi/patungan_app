@@ -6,6 +6,14 @@ import (
 	"gorm.io/gorm"
 )
 
+// Payment status constants
+const (
+	PaymentStatusPending  = "pending"
+	PaymentStatusPaid     = "paid"
+	PaymentStatusOverdue  = "overdue"
+	PaymentStatusCanceled = "canceled"
+)
+
 // PaymentDue represents a scheduled payment period for a plan
 type PaymentDue struct {
 	ID        uint           `gorm:"primarykey" json:"id"`
