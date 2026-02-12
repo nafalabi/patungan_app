@@ -1,0 +1,339 @@
+package pages
+
+import (
+	"fmt"
+	"patungan_app_echo/internal/models"
+	"patungan_app_echo/web/templates/layouts"
+	"patungan_app_echo/web/templates/shared"
+)
+
+// PlanWithDues groups a plan with its payment dues
+type PlanWithDues struct {
+	Plan models.Plan
+	Dues []models.PaymentDue
+}
+
+// UserWithDues groups a user with their payment dues
+type UserWithDues struct {
+	User models.User
+	Dues []models.PaymentDue
+}
+
+// PaymentDuesProps contains props for the payment dues page
+type PaymentDuesProps struct {
+	Title       string
+	ActiveNav   string
+	Breadcrumbs []shared.Breadcrumb
+	UserEmail   string
+	UserUID     string
+
+	// Data
+	PlanWithDues []PlanWithDues
+	UserWithDues []UserWithDues
+
+	// Filter/Sort state
+	ViewMode   string
+	FilterPlan uint
+	FilterUser uint
+	SortBy     string
+	SortOrder  string
+
+	// For dropdowns
+	AllPlans []models.Plan
+	AllUsers []models.User
+
+	// Pagination
+	CurrentPage int
+	TotalPages  int
+	TotalCount  int
+	PageSize    int
+}
+
+// PaymentDues renders the payment dues page
+templ PaymentDues(props PaymentDuesProps) {
+	@layouts.Base(layouts.BaseProps{
+		Title:       props.Title,
+		ActiveNav:   props.ActiveNav,
+		Breadcrumbs: props.Breadcrumbs,
+		UserEmail:   props.UserEmail,
+		UserUID:     props.UserUID,
+	}) {
+		<div class="mb-6">
+			<div class="flex justify-between items-center mb-4">
+				<h1 class="text-2xl font-bold text-text-primary">Payment Dues</h1>
+				<!-- View mode toggle -->
+				<div class="flex gap-2">
+					<a
+						href={ templ.SafeURL(buildURL("/payment-dues", "plans", props.FilterPlan, props.FilterUser, props.SortBy, props.SortOrder)) }
+						class={
+							"px-4 py-2 rounded-lg font-medium transition-all duration-200",
+							templ.KV("bg-primary text-white", props.ViewMode == "plans"),
+							templ.KV("bg-bg-card text-text-secondary border border-border hover:bg-bg-hover", props.ViewMode != "plans"),
+						}
+					>
+						View by Plans
+					</a>
+					<a
+						href={ templ.SafeURL(buildURL("/payment-dues", "users", props.FilterPlan, props.FilterUser, props.SortBy, props.SortOrder)) }
+						class={
+							"px-4 py-2 rounded-lg font-medium transition-all duration-200",
+							templ.KV("bg-primary text-white", props.ViewMode == "users"),
+							templ.KV("bg-bg-card text-text-secondary border border-border hover:bg-bg-hover", props.ViewMode != "users"),
+						}
+					>
+						View by Users
+					</a>
+				</div>
+			</div>
+			<!-- Filters and sorting -->
+			<div class="bg-bg-card rounded-xl border border-border p-4 mb-4">
+				<form method="GET" action="/payment-dues" class="flex flex-wrap gap-4 items-end">
+					<input type="hidden" name="view" value={ props.ViewMode }/>
+					<!-- Filter by Plan -->
+					<div class="flex-1 min-w-[200px]">
+						<label class="block text-sm font-medium text-text-secondary mb-2">Filter by Plan</label>
+						<select name="filter_plan" class="w-full px-3 py-2 bg-bg-body border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary">
+							<option value="">All Plans</option>
+							for _, plan := range props.AllPlans {
+								<option value={ fmt.Sprintf("%d", plan.ID) } selected?={ props.FilterPlan == plan.ID }>
+									{ plan.Name }
+								</option>
+							}
+						</select>
+					</div>
+					<!-- Filter by User -->
+					<div class="flex-1 min-w-[200px]">
+						<label class="block text-sm font-medium text-text-secondary mb-2">Filter by User</label>
+						<select name="filter_user" class="w-full px-3 py-2 bg-bg-body border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary">
+							<option value="">All Users</option>
+							for _, user := range props.AllUsers {
+								<option value={ fmt.Sprintf("%d", user.ID) } selected?={ props.FilterUser == user.ID }>
+									{ user.Name }
+								</option>
+							}
+						</select>
+					</div>
+					<!-- Sort by -->
+					<div class="flex-1 min-w-[200px]">
+						<label class="block text-sm font-medium text-text-secondary mb-2">Sort by</label>
+						<select name="sort_by" class="w-full px-3 py-2 bg-bg-body border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary">
+							<option value="plan" selected?={ props.SortBy == "plan" }>Plan</option>
+							<option value="user" selected?={ props.SortBy == "user" }>User</option>
+							<option value="due_date" selected?={ props.SortBy == "due_date" }>Due Date</option>
+						</select>
+					</div>
+					<!-- Sort order -->
+					<div class="flex-1 min-w-[150px]">
+						<label class="block text-sm font-medium text-text-secondary mb-2">Order</label>
+						<select name="sort_order" class="w-full px-3 py-2 bg-bg-body border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary">
+							<option value="asc" selected?={ props.SortOrder == "asc" }>Ascending</option>
+							<option value="desc" selected?={ props.SortOrder == "desc" }>Descending</option>
+						</select>
+					</div>
+					<!-- Actions -->
+					<div class="flex gap-2">
+						<button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-hover transition-all duration-200">
+							Apply
+						</button>
+						<a href={ templ.SafeURL(fmt.Sprintf("/payment-dues?view=%s", props.ViewMode)) } class="px-4 py-2 bg-bg-body text-text-secondary border border-border rounded-lg font-medium hover:bg-bg-hover transition-all duration-200">
+							Clear
+						</a>
+					</div>
+				</form>
+			</div>
+		</div>
+		<!-- Content -->
+		if props.ViewMode == "plans" {
+			@ViewByPlans(props.PlanWithDues)
+		} else {
+			@ViewByUsers(props.UserWithDues)
+		}
+		<!-- Pagination -->
+		if props.TotalPages > 1 {
+			<div class="mt-6 flex justify-between items-center">
+				<div class="text-sm text-text-secondary">
+					Showing { fmt.Sprintf("%d-%d", (props.CurrentPage-1)*props.PageSize+1, min((props.CurrentPage)*props.PageSize, props.TotalCount)) } of { fmt.Sprintf("%d", props.TotalCount) } payment dues
+				</div>
+				<div class="flex gap-2">
+					if props.CurrentPage > 1 {
+						<a 
+							href={ templ.SafeURL(buildURLWithPage("/payment-dues", props.ViewMode, props.FilterPlan, props.FilterUser, props.SortBy, props.SortOrder, props.CurrentPage-1)) }
+							class="px-3 py-2 bg-bg-card text-text-primary border border-border rounded-lg font-medium hover:bg-bg-hover transition-all duration-200"
+						>
+							Previous
+						</a>
+					} else {
+						<span class="px-3 py-2 bg-bg-body text-text-secondary border border-border rounded-lg font-medium cursor-not-allowed">
+							Previous
+						</span>
+					}
+					<div class="flex gap-1">
+						for i := 1; i <= props.TotalPages; i++ {
+							if i == props.CurrentPage {
+								<span class="px-3 py-2 bg-primary text-white rounded-lg font-medium">
+									{ fmt.Sprintf("%d", i) }
+								</span>
+							} else if i == 1 || i == props.TotalPages || (i >= props.CurrentPage-2 && i <= props.CurrentPage+2) {
+								<a 
+									href={ templ.SafeURL(buildURLWithPage("/payment-dues", props.ViewMode, props.FilterPlan, props.FilterUser, props.SortBy, props.SortOrder, i)) }
+									class="px-3 py-2 bg-bg-card text-text-primary border border-border rounded-lg font-medium hover:bg-bg-hover transition-all duration-200"
+								>
+									{ fmt.Sprintf("%d", i) }
+								</a>
+							} else if i == props.CurrentPage-3 || i == props.CurrentPage+3 {
+								<span class="px-3 py-2 text-text-secondary">...</span>
+							}
+						}
+					</div>
+					if props.CurrentPage < props.TotalPages {
+						<a 
+							href={ templ.SafeURL(buildURLWithPage("/payment-dues", props.ViewMode, props.FilterPlan, props.FilterUser, props.SortBy, props.SortOrder, props.CurrentPage+1)) }
+							class="px-3 py-2 bg-bg-card text-text-primary border border-border rounded-lg font-medium hover:bg-bg-hover transition-all duration-200"
+						>
+							Next
+						</a>
+					} else {
+						<span class="px-3 py-2 bg-bg-body text-text-secondary border border-border rounded-lg font-medium cursor-not-allowed">
+							Next
+						</span>
+					}
+				</div>
+			</div>
+		}
+		@LogoutScript()
+	}
+}
+
+// ViewByPlans renders payment dues grouped by plans
+templ ViewByPlans(planWithDues []PlanWithDues) {
+	if len(planWithDues) == 0 {
+		<div class="bg-bg-card rounded-xl border border-border p-8 text-center text-text-secondary">
+			No payment dues found.
+		</div>
+	} else {
+		<div class="space-y-4">
+			for _, pwd := range planWithDues {
+				<div class="bg-bg-card rounded-xl border border-border overflow-hidden">
+					<!-- Plan header -->
+					<div class="bg-bg-body border-b border-border p-4">
+						<div class="flex justify-between items-center">
+							<div>
+								<h3 class="text-lg font-semibold text-text-primary">{ pwd.Plan.Name }</h3>
+								<p class="text-sm text-text-secondary">Total Price: Rp { fmt.Sprintf("%.0f", pwd.Plan.TotalPrice) }</p>
+							</div>
+							<span class="text-sm text-text-secondary">{ fmt.Sprintf("%d dues", len(pwd.Dues)) }</span>
+						</div>
+					</div>
+					<!-- Dues list -->
+					<div class="divide-y divide-border">
+						for _, due := range pwd.Dues {
+							@PaymentDueItem(due, "user")
+						}
+					</div>
+				</div>
+			}
+		</div>
+	}
+}
+
+// ViewByUsers renders payment dues grouped by users
+templ ViewByUsers(userWithDues []UserWithDues) {
+	if len(userWithDues) == 0 {
+		<div class="bg-bg-card rounded-xl border border-border p-8 text-center text-text-secondary">
+			No payment dues found.
+		</div>
+	} else {
+		<div class="space-y-4">
+			for _, uwd := range userWithDues {
+				<div class="bg-bg-card rounded-xl border border-border overflow-hidden">
+					<!-- User header -->
+					<div class="bg-bg-body border-b border-border p-4">
+						<div class="flex justify-between items-center">
+							<div>
+								<h3 class="text-lg font-semibold text-text-primary">{ uwd.User.Name }</h3>
+								<p class="text-sm text-text-secondary">{ uwd.User.Email }</p>
+							</div>
+							<span class="text-sm text-text-secondary">{ fmt.Sprintf("%d dues", len(uwd.Dues)) }</span>
+						</div>
+					</div>
+					<!-- Dues list -->
+					<div class="divide-y divide-border">
+						for _, due := range uwd.Dues {
+							@PaymentDueItem(due, "plan")
+						}
+					</div>
+				</div>
+			}
+		</div>
+	}
+}
+
+// PaymentDueItem renders a single payment due
+templ PaymentDueItem(due models.PaymentDue, displayMode string) {
+	<div class="p-4 hover:bg-bg-hover transition-colors">
+		<div class="flex justify-between items-start">
+			<div class="flex-1">
+				if displayMode == "user" {
+					<p class="font-medium text-text-primary">{ due.User.Name }</p>
+					<p class="text-sm text-text-secondary">{ due.User.Email }</p>
+				} else {
+					<p class="font-medium text-text-primary">{ due.Plan.Name }</p>
+					<p class="text-sm text-text-secondary">Plan Total: Rp { fmt.Sprintf("%.0f", due.Plan.TotalPrice) }</p>
+				}
+			</div>
+			<div class="text-right">
+				<p class="font-semibold text-text-primary">Rp { fmt.Sprintf("%.2f", due.CalculatedPayAmount) }</p>
+				<p class="text-xs text-text-secondary">Portion: { fmt.Sprintf("%d", due.Portion) }</p>
+				<p class="text-xs text-text-secondary mt-1">Due: { due.DueDate.Format("02 Jan 2006") }</p>
+				<div class="mt-2">
+					@PaymentStatusBadge(due.PaymentStatus)
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+// PaymentStatusBadge renders a status badge
+templ PaymentStatusBadge(status string) {
+	if status == "paid" {
+		<span class="px-2 py-1 rounded text-xs font-medium bg-green-500/20 text-green-500">Paid</span>
+	} else if status == "overdue" {
+		<span class="px-2 py-1 rounded text-xs font-medium bg-red-500/20 text-red-500">Overdue</span>
+	} else {
+		<span class="px-2 py-1 rounded text-xs font-medium bg-yellow-500/20 text-yellow-500">Pending</span>
+	}
+}
+
+// buildURL is a helper function to build URLs with query parameters
+func buildURL(base string, view string, filterPlan uint, filterUser uint, sortBy string, sortOrder string) string {
+	return buildURLWithPage(base, view, filterPlan, filterUser, sortBy, sortOrder, 1)
+}
+
+// buildURLWithPage is a helper function to build URLs with query parameters including page
+func buildURLWithPage(base string, view string, filterPlan uint, filterUser uint, sortBy string, sortOrder string, page int) string {
+	url := fmt.Sprintf("%s?view=%s", base, view)
+	if filterPlan > 0 {
+		url += fmt.Sprintf("&filter_plan=%d", filterPlan)
+	}
+	if filterUser > 0 {
+		url += fmt.Sprintf("&filter_user=%d", filterUser)
+	}
+	if sortBy != "" {
+		url += fmt.Sprintf("&sort_by=%s", sortBy)
+	}
+	if sortOrder != "" {
+		url += fmt.Sprintf("&sort_order=%s", sortOrder)
+	}
+	if page > 1 {
+		url += fmt.Sprintf("&page=%d", page)
+	}
+	return url
+}
+
+// min returns the minimum of two integers
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}

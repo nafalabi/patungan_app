@@ -89,6 +89,7 @@ func main() {
 	dashboardHandler := handlers.NewDashboardHandler()
 	planHandler := handlers.NewPlanHandler(db, cache)
 	userHandler := handlers.NewUserHandler(db, cache)
+	paymentDueHandler := handlers.NewPaymentDueHandler(db, cache)
 
 	// Public routes
 	e.GET("/login", authHandler.LoginPage)
@@ -118,6 +119,9 @@ func main() {
 	protected.GET("/users/:id/edit", userHandler.EditUserPage)
 	protected.POST("/users/:id/update", userHandler.UpdateUser)
 	protected.POST("/users/:id/delete", userHandler.DeleteUser)
+
+	// Payment dues routes
+	protected.GET("/payment-dues", paymentDueHandler.ListPaymentDues)
 
 	// Redirect root to dashboard (or login if not authenticated)
 	e.GET("/", func(c echo.Context) error {
