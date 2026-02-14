@@ -132,7 +132,7 @@ func main() {
 
 	// Webhook does not need auth protection, so it should be outside 'protected' group or explicitly allowed
 	// However, we usually put it under public routes
-	e.POST("/payments/callback", paymentDueHandler.MidtransCallback)
+	e.POST("/payments/callback/midtrans", paymentDueHandler.MidtransCallback)
 
 	// Redirect root to dashboard (or login if not authenticated)
 	e.GET("/", func(c echo.Context) error {

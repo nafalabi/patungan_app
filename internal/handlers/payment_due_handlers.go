@@ -265,9 +265,9 @@ func (h *PaymentDueHandler) InitiatePayment(c echo.Context) error {
 				Qty:   1,
 			},
 		},
-		Callbacks: &snap.Callbacks{
-			Finish: "https://google.com",
-		},
+		// Callbacks: &snap.Callbacks{
+		// 	Finish: "https://google.com",
+		// },
 	}
 
 	resp, err := h.midtransClient.CreateTransaction(orderID, int64(due.CalculatedPayAmount), req)
@@ -353,7 +353,7 @@ func (h *PaymentDueHandler) MidtransCallback(c echo.Context) error {
 		}
 	case "settlement":
 		h.markAsPaid(&due, notificationPayload)
-	case "deny", "expire", "cancel":
+	case "deny", "expire", "cancel", "failure":
 		var session models.PaymentSession
 		if err := h.db.Where("order_id = ?", orderID).First(&session).Error; err == nil {
 			session.IsActive = false
