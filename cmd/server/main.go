@@ -129,6 +129,7 @@ func main() {
 	// Payment dues routes
 	protected.GET("/payment-dues", paymentDueHandler.ListPaymentDues)
 	protected.POST("/payments/initiate/:id", paymentDueHandler.InitiatePayment)
+	protected.GET("/api/payments/:id/active-session", paymentDueHandler.CheckActiveSession)
 
 	// Webhook does not need auth protection, so it should be outside 'protected' group or explicitly allowed
 	// However, we usually put it under public routes

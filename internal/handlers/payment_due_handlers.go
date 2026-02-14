@@ -233,14 +233,22 @@ func (h *PaymentDueHandler) InitiatePayment(c echo.Context) error {
 	}
 
 	// 3.5 Check for existing active session
+	forceNew := c.QueryParam("force_new") == "true"
 	var existingSession models.PaymentSession
 	if err := h.db.Where("payment_due_id = ? AND is_active = ?", due.ID, true).Order("created_at desc").First(&existingSession).Error; err == nil {
-		var midtransResp snap.Response
-		if err := json.Unmarshal(existingSession.ResponseMetadata, &midtransResp); err == nil {
-			return c.JSON(http.StatusOK, map[string]interface{}{
-				"token":        midtransResp.Token,
-				"redirect_url": midtransResp.RedirectURL,
-			})
+		if forceNew {
+			// Deactivate existing session
+			existingSession.IsActive = false
+			h.db.Save(&existingSession)
+		} else {
+			// Return existing session
+			var midtransResp snap.Response
+			if err := json.Unmarshal(existingSession.ResponseMetadata, &midtransResp); err == nil {
+				return c.JSON(http.StatusOK, map[string]interface{}{
+					"token":        midtransResp.Token,
+					"redirect_url": midtransResp.RedirectURL,
+				})
+			}
 		}
 	}
 
@@ -294,6 +302,30 @@ func (h *PaymentDueHandler) InitiatePayment(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"token":        resp.Token,
 		"redirect_url": resp.RedirectURL,
+	})
+}
+
+// CheckActiveSession checks if there is an active payment session for a due
+func (h *PaymentDueHandler) CheckActiveSession(c echo.Context) error {
+	id := c.Param("id")
+	dueID, err := strconv.ParseUint(id, 10, 32)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid payment due ID")
+	}
+
+	var existingSession models.PaymentSession
+	if err := h.db.Where("payment_due_id = ? AND is_active = ?", dueID, true).Order("created_at desc").First(&existingSession).Error; err == nil {
+		var midtransResp snap.Response
+		if err := json.Unmarshal(existingSession.ResponseMetadata, &midtransResp); err == nil {
+			return c.JSON(http.StatusOK, map[string]interface{}{
+				"active": true,
+				"token":  midtransResp.Token,
+			})
+		}
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"active": false,
 	})
 }
 
