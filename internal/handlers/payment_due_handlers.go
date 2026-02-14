@@ -375,16 +375,28 @@ func (h *PaymentDueHandler) MidtransCallback(c echo.Context) error {
 	}
 
 	// Handle status
+	h.handleTransactionStatus(&due, orderID, transactionStatus, fraudStatus, notificationPayload["payment_type"].(string), notificationPayload["gross_amount"].(string))
+
+	return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
+}
+
+func (h *PaymentDueHandler) handleTransactionStatus(due *models.PaymentDue, orderID, transactionStatus, fraudStatus, paymentType, grossAmount string) {
 	switch transactionStatus {
 	case "capture":
 		switch fraudStatus {
 		case "accept":
-			h.markAsPaid(&due, notificationPayload)
-		case "deny":
+			h.markAsPaid(due, map[string]interface{}{
+				"payment_type": paymentType,
+				"gross_amount": grossAmount,
+			})
+		case "deny", "challenge":
 			// do nothing
 		}
 	case "settlement":
-		h.markAsPaid(&due, notificationPayload)
+		h.markAsPaid(due, map[string]interface{}{
+			"payment_type": paymentType,
+			"gross_amount": grossAmount,
+		})
 	case "deny", "expire", "cancel", "failure":
 		var session models.PaymentSession
 		if err := h.db.Where("order_id = ?", orderID).First(&session).Error; err == nil {
@@ -392,8 +404,6 @@ func (h *PaymentDueHandler) MidtransCallback(c echo.Context) error {
 			h.db.Save(&session)
 		}
 	}
-
-	return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
 }
 
 func (h *PaymentDueHandler) markAsPaid(due *models.PaymentDue, payload map[string]interface{}) {
@@ -423,4 +433,43 @@ func (h *PaymentDueHandler) markAsPaid(due *models.PaymentDue, payload map[strin
 		PaymentDate:    time.Now(),
 	}
 	h.db.Create(&userPayment)
+}
+
+// CheckPaymentStatus checks the status of a payment due with Midtrans
+func (h *PaymentDueHandler) CheckPaymentStatus(c echo.Context) error {
+	id := c.Param("id")
+	dueID, err := strconv.ParseUint(id, 10, 32)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid payment due ID")
+	}
+
+	displayMode := c.QueryParam("display_mode")
+	if displayMode == "" {
+		displayMode = "user" // Default fallback
+	}
+	currentUserID := getUintFromContext(c, "userID")
+
+	// 1. Find latest active session for this due
+	var session models.PaymentSession
+	h.db.Where("payment_due_id = ? AND is_active = ?", dueID, true).Order("created_at desc").First(&session)
+
+	// 2. Call Midtrans Check Transaction only if we have a session
+	if session.ID != 0 {
+		resp, err := h.midtransClient.CheckTransaction(session.OrderID)
+		if err == nil {
+			// 3. Process Response & Update Local State
+			var due models.PaymentDue
+			if err := h.db.First(&due, dueID).Error; err == nil {
+				h.handleTransactionStatus(&due, session.OrderID, resp.TransactionStatus, resp.FraudStatus, resp.PaymentType, resp.GrossAmount)
+			}
+		}
+	}
+
+	// 4. Reload PaymentDue with Associations for Rendering
+	var due models.PaymentDue
+	if err := h.db.Preload("Plan").Preload("User").First(&due, dueID).Error; err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, "Payment due not found")
+	}
+
+	return pages.PaymentDueItem(due, displayMode, currentUserID).Render(c.Request().Context(), c.Response())
 }

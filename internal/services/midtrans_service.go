@@ -82,3 +82,12 @@ func (s *MidtransService) VerifySignature(signatureKey, orderID, statusCode, gro
 
 	return signatureKey == hashString
 }
+
+// CheckTransaction checks the status of a transaction using Core API
+func (s *MidtransService) CheckTransaction(orderID string) (*coreapi.TransactionStatusResponse, error) {
+	resp, err := s.CoreClient.CheckTransaction(orderID)
+	if err != nil {
+		return nil, fmt.Errorf("midtrans check transaction error: %v", err)
+	}
+	return resp, nil
+}
