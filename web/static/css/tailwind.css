@@ -588,6 +588,14 @@ body {
   top: 1rem;
 }
 
+.right-0 {
+  right: 0px;
+}
+
+.top-16 {
+  top: 4rem;
+}
+
 .z-40 {
   z-index: 40;
 }
@@ -631,10 +639,6 @@ body {
 
 .mb-8 {
   margin-bottom: 2rem;
-}
-
-.ml-16 {
-  margin-left: 4rem;
 }
 
 .ml-7 {
@@ -721,12 +725,12 @@ body {
   max-height: 15rem;
 }
 
-.min-h-screen {
-  min-height: 100vh;
-}
-
 .min-h-\[60vh\] {
   min-height: 60vh;
+}
+
+.min-h-screen {
+  min-height: 100vh;
 }
 
 .w-10 {
@@ -783,6 +787,16 @@ body {
 
 .border-collapse {
   border-collapse: collapse;
+}
+
+.-translate-y-2 {
+  --tw-translate-y: -0.5rem;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.translate-y-0 {
+  --tw-translate-y: 0px;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
 @keyframes fadeIn {
@@ -1345,6 +1359,14 @@ body {
   text-decoration-line: none;
 }
 
+.opacity-0 {
+  opacity: 0;
+}
+
+.opacity-100 {
+  opacity: 1;
+}
+
 .shadow-2xl {
   --tw-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
   --tw-shadow-colored: 0 25px 50px -12px var(--tw-shadow-color);
@@ -1380,8 +1402,26 @@ body {
   transition-duration: 150ms;
 }
 
+.transition {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
 .duration-200 {
   transition-duration: 200ms;
+}
+
+.duration-150 {
+  transition-duration: 150ms;
+}
+
+.ease-in {
+  transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
+}
+
+.ease-out {
+  transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
 }
 
 .hover\:-translate-y-0:hover {
@@ -1481,12 +1521,28 @@ body {
 }
 
 @media (min-width: 768px) {
+  .md\:ml-16 {
+    margin-left: 4rem;
+  }
+
+  .md\:flex {
+    display: flex;
+  }
+
+  .md\:hidden {
+    display: none;
+  }
+
   .md\:grid-cols-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .md\:grid-cols-4 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .md\:p-10 {
+    padding: 2.5rem;
   }
 }
 

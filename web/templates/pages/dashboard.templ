@@ -28,22 +28,5 @@ templ Dashboard(props DashboardProps) {
 				Manage Plans
 			</a>
 		</div>
-		@LogoutScript()
 	}
-}
-
-// LogoutScript handles logout functionality
-templ LogoutScript() {
-	<script>
-		document.getElementById('logout-btn')?.addEventListener('click', async () => {
-			try {
-				const response = await fetch('/auth/logout', { method: 'POST' });
-				if (response.ok) {
-					window.location.href = '/login';
-				}
-			} catch (error) {
-				console.error('Logout failed:', error);
-			}
-		});
-	</script>
 }

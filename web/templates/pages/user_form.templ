@@ -38,30 +38,30 @@ templ UserForm(props UserFormProps) {
 			<form method="POST" action={ userFormAction(props.IsEdit, props.User.ID) }>
 				<div class="mb-5">
 					<label class="block mb-2 text-text-secondary">Name</label>
-					<input 
-						type="text" 
-						name="name" 
-						class="w-full p-2.5 rounded-lg border border-border bg-input-bg text-text-primary text-base focus:outline-none focus:border-primary" 
+					<input
+						type="text"
+						name="name"
+						class="w-full p-2.5 rounded-lg border border-border bg-input-bg text-text-primary text-base focus:outline-none focus:border-primary"
 						value={ props.User.Name }
 						required
 					/>
 				</div>
 				<div class="mb-5">
 					<label class="block mb-2 text-text-secondary">Email</label>
-					<input 
-						type="email" 
-						name="email" 
-						class="w-full p-2.5 rounded-lg border border-border bg-input-bg text-text-primary text-base focus:outline-none focus:border-primary" 
+					<input
+						type="email"
+						name="email"
+						class="w-full p-2.5 rounded-lg border border-border bg-input-bg text-text-primary text-base focus:outline-none focus:border-primary"
 						value={ props.User.Email }
 						required
 					/>
 				</div>
 				<div class="mb-5">
 					<label class="block mb-2 text-text-secondary">Phone</label>
-					<input 
-						type="tel" 
-						name="phone" 
-						class="w-full p-2.5 rounded-lg border border-border bg-input-bg text-text-primary text-base focus:outline-none focus:border-primary" 
+					<input
+						type="tel"
+						name="phone"
+						class="w-full p-2.5 rounded-lg border border-border bg-input-bg text-text-primary text-base focus:outline-none focus:border-primary"
 						value={ props.User.Phone }
 					/>
 				</div>
@@ -80,7 +80,6 @@ templ UserForm(props UserFormProps) {
 				</a>
 			</form>
 		</div>
-		@LogoutScript()
 	}
 }
 

@@ -1,0 +1,36 @@
+package layouts
+
+import "patungan_app_echo/web/templates/shared"
+
+// Header renders the top bar with breadcrumbs
+templ Header(breadcrumbs []shared.Breadcrumb, userEmail string) {
+	<header class="bg-bg-card border-b border-border h-16 px-8 hidden md:flex justify-between items-center sticky top-0 z-40">
+		<div class="flex items-center gap-2 text-sm text-text-secondary">
+			for i, crumb := range breadcrumbs {
+				if i > 0 {
+					<span class="text-text-secondary/50 text-xs">/</span>
+				}
+				<div class="flex items-center gap-2">
+					if crumb.URL != "" {
+						<a href={ templ.SafeURL(crumb.URL) } class="text-text-secondary hover:text-primary no-underline">{ crumb.Title }</a>
+					} else {
+						<span class="text-text-primary font-medium">{ crumb.Title }</span>
+					}
+				</div>
+			}
+		</div>
+		<div class="flex items-center gap-4">
+			if userEmail != "" {
+				<div class="flex items-center gap-4">
+					<span class="text-text-secondary text-sm">{ userEmail }</span>
+					<button
+						class="px-4 py-2 bg-transparent text-text-secondary border border-border rounded-md text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-bg-hover hover:text-text-primary hover:border-text-secondary flex items-center logout-btn"
+					>
+						<i data-lucide="log-out" style="width: 16px; height: 16px; margin-right: 4px;"></i>
+						Logout
+					</button>
+				</div>
+			}
+		</div>
+	</header>
+}

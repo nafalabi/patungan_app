@@ -17,7 +17,7 @@ type PlanFormProps struct {
 	IsEdit             bool
 	Plan               models.Plan
 	FormattedStartDate string
-	AllUsers           []models.User      // Available users to select
+	AllUsers           []models.User // Available users to select
 	// key: UserID, value: Portion (default 1)
 	ParticipantPortions map[uint]int
 }
@@ -42,26 +42,26 @@ templ PlanForm(props PlanFormProps) {
 			<form method="POST" action={ formAction(props.IsEdit, props.Plan.ID) }>
 				<div class="mb-5">
 					<label class="block mb-2 text-text-secondary">Plan Name</label>
-					<input 
-						type="text" 
-						name="name" 
-						class="w-full p-2.5 rounded-lg border border-border bg-input-bg text-text-primary text-base focus:outline-none focus:border-primary" 
+					<input
+						type="text"
+						name="name"
+						class="w-full p-2.5 rounded-lg border border-border bg-input-bg text-text-primary text-base focus:outline-none focus:border-primary"
 						value={ props.Plan.Name }
 						required
 					/>
 				</div>
 				<div class="mb-5">
 					<label class="block mb-2 text-text-secondary">Total Price (IDR)</label>
-					<input 
-						type="number" 
-						name="total_price" 
-						class="w-full p-2.5 rounded-lg border border-border bg-input-bg text-text-primary text-base focus:outline-none focus:border-primary" 
+					<input
+						type="number"
+						name="total_price"
+						class="w-full p-2.5 rounded-lg border border-border bg-input-bg text-text-primary text-base focus:outline-none focus:border-primary"
 						value={ fmt.Sprintf("%.0f", props.Plan.TotalPrice) }
 						required
 					/>
 				</div>
 				<!-- Payment Type & Recurring Options (Alpine.js) -->
-				<div 
+				<div
 					class="mb-5"
 					x-data={ fmt.Sprintf("recurringForm('%s', '%s')", props.Plan.PaymentType, derefString(props.Plan.RecurringInterval)) }
 				>
@@ -69,22 +69,22 @@ templ PlanForm(props PlanFormProps) {
 						<label class="block mb-2 text-text-secondary">Payment Type</label>
 						<div class="flex items-center gap-4">
 							<label class="flex items-center gap-2 cursor-pointer">
-								<input 
-									type="radio" 
-									name="payment_type" 
-									value="onetime" 
-									x-model="paymentType" 
+								<input
+									type="radio"
+									name="payment_type"
+									value="onetime"
+									x-model="paymentType"
 									@change="updateRRule"
 									class="text-primary focus:ring-primary"
 								/>
 								<span class="text-text-primary">One-time</span>
 							</label>
 							<label class="flex items-center gap-2 cursor-pointer">
-								<input 
-									type="radio" 
-									name="payment_type" 
-									value="recurring" 
-									x-model="paymentType" 
+								<input
+									type="radio"
+									name="payment_type"
+									value="recurring"
+									x-model="paymentType"
 									@change="updateRRule"
 									class="text-primary focus:ring-primary"
 								/>
@@ -92,13 +92,12 @@ templ PlanForm(props PlanFormProps) {
 							</label>
 						</div>
 					</div>
-
 					<!-- Recurring Options -->
 					<div x-show="paymentType === 'recurring'" class="mb-5 p-4 border border-border rounded-lg bg-bg-body space-y-4">
 						<div>
 							<label class="block mb-2 text-text-secondary">Frequency</label>
-							<select 
-								x-model="frequency" 
+							<select
+								x-model="frequency"
 								@change="updateRRule"
 								class="w-full p-2.5 rounded-lg border border-border bg-input-bg text-text-primary text-base focus:outline-none focus:border-primary"
 							>
@@ -112,26 +111,25 @@ templ PlanForm(props PlanFormProps) {
 							<label class="block mb-2 text-text-secondary">Interval</label>
 							<div class="flex items-center gap-2">
 								<span class="text-text-primary">Every</span>
-								<input 
-									type="number" 
-									min="1" 
-									x-model="interval" 
+								<input
+									type="number"
+									min="1"
+									x-model="interval"
 									@input="updateRRule"
-									class="w-20 p-2.5 rounded-lg border border-border bg-input-bg text-text-primary text-base focus:outline-none focus:border-primary" 
+									class="w-20 p-2.5 rounded-lg border border-border bg-input-bg text-text-primary text-base focus:outline-none focus:border-primary"
 								/>
 								<span class="text-text-primary" x-text="frequency.toLowerCase().replace('ly', '(s)')"></span>
 							</div>
 						</div>
 						<!-- Hidden Input for RRULE -->
-						<input type="hidden" name="recurring_interval" x-model="rruleString" />
+						<input type="hidden" name="recurring_interval" x-model="rruleString"/>
 					</div>
-
 					<div class="mb-5">
 						<label class="block mb-2 text-text-secondary">Start Date</label>
-						<input 
-							type="date" 
-							name="plan_start_date" 
-							class="w-full p-2.5 rounded-lg border border-border bg-input-bg text-text-primary text-base focus:outline-none focus:border-primary" 
+						<input
+							type="date"
+							name="plan_start_date"
+							class="w-full p-2.5 rounded-lg border border-border bg-input-bg text-text-primary text-base focus:outline-none focus:border-primary"
 							value={ props.FormattedStartDate }
 							required
 						/>
@@ -145,14 +143,14 @@ templ PlanForm(props PlanFormProps) {
 							<p class="text-text-secondary text-sm">No users available. Add users first.</p>
 						} else {
 							for _, user := range props.AllUsers {
-								<div 
+								<div
 									class="flex flex-col p-2 hover:bg-bg-hover rounded border border-transparent hover:border-border transition-all"
 									x-data={ fmt.Sprintf("{ selected: %v, portion: %d }", props.ParticipantPortions[user.ID] > 0, max(1, props.ParticipantPortions[user.ID])) }
 								>
 									<label class="flex items-center cursor-pointer">
-										<input 
-											type="checkbox" 
-											name="participants" 
+										<input
+											type="checkbox"
+											name="participants"
 											value={ fmt.Sprintf("%d", user.ID) }
 											id={ fmt.Sprintf("user-%d", user.ID) }
 											class="mr-3 h-4 w-4 rounded border-border bg-bg-card text-primary focus:ring-primary"
@@ -163,11 +161,10 @@ templ PlanForm(props PlanFormProps) {
 											<span class="text-text-secondary text-xs">{ user.Email }</span>
 										</div>
 									</label>
-									
 									<div class="mt-2 ml-7 flex items-center gap-2" x-show="selected" x-transition>
 										<label for={ fmt.Sprintf("portion-%d", user.ID) } class="text-xs text-text-secondary font-medium uppercase tracking-wide">Portion:</label>
-										<input 
-											type="number" 
+										<input
+											type="number"
 											name={ fmt.Sprintf("portion_%d", user.ID) }
 											id={ fmt.Sprintf("portion-%d", user.ID) }
 											x-model="portion"
@@ -182,10 +179,10 @@ templ PlanForm(props PlanFormProps) {
 					<p class="mt-2 text-xs text-text-secondary">Select users who will share this plan. Default portion is 1. Increase it if a user pays for multiple people.</p>
 				</div>
 				<div class="flex items-center gap-3 mb-6">
-					<input 
-						type="checkbox" 
-						name="allow_invitation" 
-						id="allow_invitation" 
+					<input
+						type="checkbox"
+						name="allow_invitation"
+						id="allow_invitation"
 						class="w-4 h-4 rounded border-border text-primary focus:ring-primary"
 						checked?={ props.Plan.AllowInvitationAfterPay }
 					/>
@@ -199,7 +196,6 @@ templ PlanForm(props PlanFormProps) {
 				</a>
 			</form>
 		</div>
-		@LogoutScript()
 		<script>
 			document.addEventListener('alpine:init', () => {
 				Alpine.data('recurringForm', (initialType, initialRRule) => ({

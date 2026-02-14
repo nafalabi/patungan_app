@@ -21,12 +21,12 @@ type UserWithDues struct {
 
 // PaymentDuesProps contains props for the payment dues page
 type PaymentDuesProps struct {
-	Title       string
-	ActiveNav   string
-	Breadcrumbs []shared.Breadcrumb
-	UserEmail   string
-	UserUID     string
-	CurrentUserID uint
+	Title             string
+	ActiveNav         string
+	Breadcrumbs       []shared.Breadcrumb
+	UserEmail         string
+	UserUID           string
+	CurrentUserID     uint
 	MidtransClientKey string
 
 	// Data
@@ -135,12 +135,12 @@ templ PaymentDues(props PaymentDuesProps) {
 					</div>
 					<!-- Show canceled checkbox -->
 					<div class="flex items-center gap-2 self-end pb-2">
-						<input 
-							type="checkbox" 
+						<input
+							type="checkbox"
 							id="show-canceled"
 							name="show_canceled"
 							value="true"
-							checked?={props.ShowCanceled}
+							checked?={ props.ShowCanceled }
 							class="w-4 h-4 rounded border-border text-primary focus:ring-2 focus:ring-primary"
 						/>
 						<label for="show-canceled" class="text-sm text-text-secondary cursor-pointer">
@@ -173,7 +173,7 @@ templ PaymentDues(props PaymentDuesProps) {
 				</div>
 				<div class="flex gap-2">
 					if props.CurrentPage > 1 {
-						<a 
+						<a
 							href={ templ.SafeURL(buildURLWithPage("/payment-dues", props.ViewMode, props.FilterPlan, props.FilterUser, props.SortBy, props.SortOrder, props.CurrentPage-1)) }
 							class="px-3 py-2 bg-bg-card text-text-primary border border-border rounded-lg font-medium hover:bg-bg-hover transition-all duration-200"
 						>
@@ -191,7 +191,7 @@ templ PaymentDues(props PaymentDuesProps) {
 									{ fmt.Sprintf("%d", i) }
 								</span>
 							} else if i == 1 || i == props.TotalPages || (i >= props.CurrentPage-2 && i <= props.CurrentPage+2) {
-								<a 
+								<a
 									href={ templ.SafeURL(buildURLWithPage("/payment-dues", props.ViewMode, props.FilterPlan, props.FilterUser, props.SortBy, props.SortOrder, i)) }
 									class="px-3 py-2 bg-bg-card text-text-primary border border-border rounded-lg font-medium hover:bg-bg-hover transition-all duration-200"
 								>
@@ -203,7 +203,7 @@ templ PaymentDues(props PaymentDuesProps) {
 						}
 					</div>
 					if props.CurrentPage < props.TotalPages {
-						<a 
+						<a
 							href={ templ.SafeURL(buildURLWithPage("/payment-dues", props.ViewMode, props.FilterPlan, props.FilterUser, props.SortBy, props.SortOrder, props.CurrentPage+1)) }
 							class="px-3 py-2 bg-bg-card text-text-primary border border-border rounded-lg font-medium hover:bg-bg-hover transition-all duration-200"
 						>
@@ -217,7 +217,6 @@ templ PaymentDues(props PaymentDuesProps) {
 				</div>
 			</div>
 		}
-		@LogoutScript()
 		<!-- Midtrans Snap Script -->
 		<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key={ props.MidtransClientKey }></script>
 		<script>
@@ -339,10 +338,9 @@ templ PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID ui
 				<p class="text-xs text-text-secondary mt-1">Due: { due.DueDate.Format("02 Jan 2006") }</p>
 				<div class="mt-2 flex flex-col items-end gap-2">
 					@PaymentStatusBadge(due.PaymentStatus)
-					
 					if due.UserID == currentUserID && due.PaymentStatus != "paid" && due.PaymentStatus != "canceled" {
-						<button 
-							onclick={ templ.ComponentScript{ Call: fmt.Sprintf("initiatePayment(%d)", due.ID) } }
+						<button
+							onclick={ templ.ComponentScript{Call: fmt.Sprintf("initiatePayment(%d)", due.ID)} }
 							class="px-3 py-1 bg-primary text-white text-xs font-medium rounded hover:bg-primary-hover transition-colors"
 						>
 							Pay Now
