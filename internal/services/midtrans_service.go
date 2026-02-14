@@ -1,6 +1,8 @@
 package services
 
 import (
+	"crypto/sha512"
+	"encoding/hex"
 	"fmt"
 	"os"
 
@@ -12,6 +14,7 @@ import (
 type MidtransService struct {
 	SnapClient snap.Client
 	CoreClient coreapi.Client
+	ServerKey  string
 }
 
 func NewMidtransService() *MidtransService {
@@ -38,6 +41,7 @@ func NewMidtransService() *MidtransService {
 	return &MidtransService{
 		SnapClient: s,
 		CoreClient: c,
+		ServerKey:  serverKey,
 	}
 }
 
@@ -70,11 +74,11 @@ func (s *MidtransService) CreateTransaction(orderID string, amount int64, param 
 }
 
 // VerifySignature verifies the notification signature
-func (s *MidtransService) VerifySignature(orderID, statusCode, grossAmount, serverKey, signatureKey string) bool {
-	// This is a simplified verification. Real verification might involve SHA512 hashing.
-	// However, the best way using the library helps.
-	// midtrans-go doesn't have a direct helper for verifying signature in check_status response,
-	// but typically we verify the signature key from the notification.
+func (s *MidtransService) VerifySignature(signatureKey, orderID, statusCode, grossAmount string) bool {
 	// Signature = SHA512(order_id + status_code + gross_amount + ServerKey)
-	return true // Placeholder, actual implementation should verify hash if needed, or rely on coreapi check status
+	input := orderID + statusCode + grossAmount + s.ServerKey
+	hash := sha512.Sum512([]byte(input))
+	hashString := hex.EncodeToString(hash[:])
+
+	return signatureKey == hashString
 }

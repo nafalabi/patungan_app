@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -231,6 +232,18 @@ func (h *PaymentDueHandler) InitiatePayment(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Payment due is already paid")
 	}
 
+	// 3.5 Check for existing active session
+	var existingSession models.PaymentSession
+	if err := h.db.Where("payment_due_id = ? AND is_active = ?", due.ID, true).Order("created_at desc").First(&existingSession).Error; err == nil {
+		var midtransResp snap.Response
+		if err := json.Unmarshal(existingSession.ResponseMetadata, &midtransResp); err == nil {
+			return c.JSON(http.StatusOK, map[string]interface{}{
+				"token":        midtransResp.Token,
+				"redirect_url": midtransResp.RedirectURL,
+			})
+		}
+	}
+
 	// 4. Create Snap Transaction
 	// Generate unique Order ID: payment-due-{id}-{timestamp}
 	orderID := fmt.Sprintf("payment-due-%d-%d", due.ID, time.Now().Unix())
@@ -252,12 +265,31 @@ func (h *PaymentDueHandler) InitiatePayment(c echo.Context) error {
 				Qty:   1,
 			},
 		},
+		Callbacks: &snap.Callbacks{
+			Finish: "https://google.com",
+		},
 	}
 
 	resp, err := h.midtransClient.CreateTransaction(orderID, int64(due.CalculatedPayAmount), req)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create transaction: "+err.Error())
 	}
+
+	// 5. Create PaymentSession
+	reqBytes, _ := json.Marshal(req)
+	respBytes, _ := json.Marshal(resp)
+
+	session := models.PaymentSession{
+		PlanID:           due.PlanID,
+		PaymentDueID:     due.ID,
+		UserID:           currentUserID,
+		PaymentGateway:   models.PaymentGatewayMidtrans,
+		OrderID:          orderID,
+		IsActive:         true,
+		RequestMetadata:  reqBytes,
+		ResponseMetadata: respBytes,
+	}
+	h.db.Create(&session)
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"token":        resp.Token,
@@ -272,10 +304,25 @@ func (h *PaymentDueHandler) MidtransCallback(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid JSON payload")
 	}
 
+	// Log to PaymentCallbackHistory
+	payloadBytes, _ := json.Marshal(notificationPayload)
+	history := models.PaymentCallbackHistory{
+		PaymentGateway: models.PaymentGatewayMidtrans,
+		Metadata:       payloadBytes,
+	}
+	h.db.Create(&history)
+
 	// Extract necessary fields
 	orderID, _ := notificationPayload["order_id"].(string)
 	transactionStatus, _ := notificationPayload["transaction_status"].(string)
 	fraudStatus, _ := notificationPayload["fraud_status"].(string)
+	signatureKey, _ := notificationPayload["signature_key"].(string)
+	statusCode, _ := notificationPayload["status_code"].(string)
+	grossAmount, _ := notificationPayload["gross_amount"].(string)
+
+	if !h.midtransClient.VerifySignature(signatureKey, orderID, statusCode, grossAmount) {
+		return echo.NewHTTPError(http.StatusUnauthorized, "Invalid Signature")
+	}
 
 	// Parse Order ID to get PaymentDueID
 	// Format: payment-due-{id}-{timestamp}
@@ -296,18 +343,22 @@ func (h *PaymentDueHandler) MidtransCallback(c echo.Context) error {
 	}
 
 	// Handle status
-	if transactionStatus == "capture" {
-		if fraudStatus == "challenge" {
-			// TODO: Set transaction status on your database to 'challenge'
-			// e.g. due.PaymentStatus = "challenge"
-		} else if fraudStatus == "accept" {
+	switch transactionStatus {
+	case "capture":
+		switch fraudStatus {
+		case "accept":
 			h.markAsPaid(&due, notificationPayload)
+		case "deny":
+			// do nothing
 		}
-	} else if transactionStatus == "settlement" {
+	case "settlement":
 		h.markAsPaid(&due, notificationPayload)
-	} else if transactionStatus == "deny" || transactionStatus == "expire" || transactionStatus == "cancel" {
-		due.PaymentStatus = models.PaymentStatusCanceled // or keep as pending/overdue depending on logic
-		h.db.Save(&due)
+	case "deny", "expire", "cancel":
+		var session models.PaymentSession
+		if err := h.db.Where("order_id = ?", orderID).First(&session).Error; err == nil {
+			session.IsActive = false
+			h.db.Save(&session)
+		}
 	}
 
 	return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
