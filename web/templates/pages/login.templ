@@ -121,10 +121,11 @@ templ LoginScript() {
 				} else if (error.code === 'auth/popup-blocked') {
 					showError('Pop-up was blocked. Please allow pop-ups for this site.');
 				} else {
-					showError('An error occurred. Please try again.');
-				}
-				setLoading(false);
+				// Show detailed error for debugging
+				showError(`Login failed: ${error.message} (${error.code})`);
 			}
+			setLoading(false);
+		}
 		});
 
 		const urlParams = new URLSearchParams(window.location.search);
