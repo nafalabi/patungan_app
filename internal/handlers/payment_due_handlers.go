@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -273,9 +274,9 @@ func (h *PaymentDueHandler) InitiatePayment(c echo.Context) error {
 				Qty:   1,
 			},
 		},
-		// Callbacks: &snap.Callbacks{
-		// 	Finish: "https://google.com",
-		// },
+		Callbacks: &snap.Callbacks{
+			Finish: getEnv("APP_URL", "http://localhost:8080") + "/payment-dues",
+		},
 	}
 
 	resp, err := h.midtransClient.CreateTransaction(orderID, int64(due.CalculatedPayAmount), req)
@@ -472,4 +473,11 @@ func (h *PaymentDueHandler) CheckPaymentStatus(c echo.Context) error {
 	}
 
 	return pages.PaymentDueItem(due, displayMode, currentUserID).Render(c.Request().Context(), c.Response())
+}
+
+func getEnv(key, fallback string) string {
+	if value, exists := os.LookupEnv(key); exists {
+		return value
+	}
+	return fallback
 }
