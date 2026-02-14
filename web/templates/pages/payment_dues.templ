@@ -26,6 +26,8 @@ type PaymentDuesProps struct {
 	Breadcrumbs []shared.Breadcrumb
 	UserEmail   string
 	UserUID     string
+	CurrentUserID uint
+	MidtransClientKey string
 
 	// Data
 	PlanWithDues []PlanWithDues
@@ -159,9 +161,9 @@ templ PaymentDues(props PaymentDuesProps) {
 		</div>
 		<!-- Content -->
 		if props.ViewMode == "plans" {
-			@ViewByPlans(props.PlanWithDues)
+			@ViewByPlans(props.PlanWithDues, props.CurrentUserID)
 		} else {
-			@ViewByUsers(props.UserWithDues)
+			@ViewByUsers(props.UserWithDues, props.CurrentUserID)
 		}
 		<!-- Pagination -->
 		if props.TotalPages > 1 {
@@ -216,11 +218,45 @@ templ PaymentDues(props PaymentDuesProps) {
 			</div>
 		}
 		@LogoutScript()
+		<!-- Midtrans Snap Script -->
+		<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key={ props.MidtransClientKey }></script>
+		<script>
+			function initiatePayment(dueID) {
+				fetch(`/payments/initiate/${dueID}`, {
+					method: 'POST',
+				})
+				.then(response => response.json())
+				.then(data => {
+					if (data.token) {
+						snap.pay(data.token, {
+							onSuccess: function(result){
+								window.location.reload();
+							},
+							onPending: function(result){
+								window.location.reload();
+							},
+							onError: function(result){
+								alert("Payment failed!");
+							},
+							onClose: function(){
+								console.log('customer closed the popup without finishing the payment');
+							}
+						});
+					} else {
+						alert("Failed to initiate payment: " + (data.message || "Unknown error"));
+					}
+				})
+				.catch(error => {
+					console.error('Error:', error);
+					alert("An error occurred");
+				});
+			}
+		</script>
 	}
 }
 
 // ViewByPlans renders payment dues grouped by plans
-templ ViewByPlans(planWithDues []PlanWithDues) {
+templ ViewByPlans(planWithDues []PlanWithDues, currentUserID uint) {
 	if len(planWithDues) == 0 {
 		<div class="bg-bg-card rounded-xl border border-border p-8 text-center text-text-secondary">
 			No payment dues found.
@@ -242,7 +278,7 @@ templ ViewByPlans(planWithDues []PlanWithDues) {
 					<!-- Dues list -->
 					<div class="divide-y divide-border">
 						for _, due := range pwd.Dues {
-							@PaymentDueItem(due, "user")
+							@PaymentDueItem(due, "user", currentUserID)
 						}
 					</div>
 				</div>
@@ -252,7 +288,7 @@ templ ViewByPlans(planWithDues []PlanWithDues) {
 }
 
 // ViewByUsers renders payment dues grouped by users
-templ ViewByUsers(userWithDues []UserWithDues) {
+templ ViewByUsers(userWithDues []UserWithDues, currentUserID uint) {
 	if len(userWithDues) == 0 {
 		<div class="bg-bg-card rounded-xl border border-border p-8 text-center text-text-secondary">
 			No payment dues found.
@@ -274,7 +310,7 @@ templ ViewByUsers(userWithDues []UserWithDues) {
 					<!-- Dues list -->
 					<div class="divide-y divide-border">
 						for _, due := range uwd.Dues {
-							@PaymentDueItem(due, "plan")
+							@PaymentDueItem(due, "plan", currentUserID)
 						}
 					</div>
 				</div>
@@ -284,7 +320,7 @@ templ ViewByUsers(userWithDues []UserWithDues) {
 }
 
 // PaymentDueItem renders a single payment due
-templ PaymentDueItem(due models.PaymentDue, displayMode string) {
+templ PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uint) {
 	<div class="p-4 hover:bg-bg-hover transition-colors">
 		<div class="flex justify-between items-start">
 			<div class="flex-1">
@@ -300,8 +336,18 @@ templ PaymentDueItem(due models.PaymentDue, displayMode string) {
 				<p class="font-semibold text-text-primary">Rp { fmt.Sprintf("%.2f", due.CalculatedPayAmount) }</p>
 				<p class="text-xs text-text-secondary">Portion: { fmt.Sprintf("%d", due.Portion) }</p>
 				<p class="text-xs text-text-secondary mt-1">Due: { due.DueDate.Format("02 Jan 2006") }</p>
-				<div class="mt-2">
+				<p class="text-xs text-text-secondary mt-1">Due: { due.DueDate.Format("02 Jan 2006") }</p>
+				<div class="mt-2 flex flex-col items-end gap-2">
 					@PaymentStatusBadge(due.PaymentStatus)
+					
+					if due.UserID == currentUserID && due.PaymentStatus != "paid" && due.PaymentStatus != "canceled" {
+						<button 
+							onclick={ templ.ComponentScript{ Call: fmt.Sprintf("initiatePayment(%d)", due.ID) } }
+							class="px-3 py-1 bg-primary text-white text-xs font-medium rounded hover:bg-primary-hover transition-colors"
+						>
+							Pay Now
+						</button>
+					}
 				</div>
 			</div>
 		</div>

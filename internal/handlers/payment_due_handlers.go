@@ -1,8 +1,11 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
@@ -11,15 +14,19 @@ import (
 	"patungan_app_echo/internal/services"
 	"patungan_app_echo/web/templates/pages"
 	"patungan_app_echo/web/templates/shared"
+
+	"github.com/midtrans/midtrans-go"
+	"github.com/midtrans/midtrans-go/snap"
 )
 
 type PaymentDueHandler struct {
-	db    *gorm.DB
-	cache *services.RedisCache
+	db             *gorm.DB
+	cache          *services.RedisCache
+	midtransClient *services.MidtransService
 }
 
-func NewPaymentDueHandler(db *gorm.DB, cache *services.RedisCache) *PaymentDueHandler {
-	return &PaymentDueHandler{db: db, cache: cache}
+func NewPaymentDueHandler(db *gorm.DB, cache *services.RedisCache, midtransClient *services.MidtransService) *PaymentDueHandler {
+	return &PaymentDueHandler{db: db, cache: cache, midtransClient: midtransClient}
 }
 
 // ListPaymentDues renders the list of payment dues with filtering and sorting
@@ -188,11 +195,149 @@ func (h *PaymentDueHandler) ListPaymentDues(c echo.Context) error {
 		AllPlans:     allPlans,
 		AllUsers:     allUsers,
 		// Pagination
-		CurrentPage: page,
-		TotalPages:  totalPages,
-		TotalCount:  int(totalCount),
-		PageSize:    pageSize,
+		CurrentPage:       page,
+		TotalPages:        totalPages,
+		TotalCount:        int(totalCount),
+		PageSize:          pageSize,
+		CurrentUserID:     getUintFromContext(c, "userID"),
+		MidtransClientKey: midtrans.ClientKey,
 	}
 
 	return pages.PaymentDues(props).Render(c.Request().Context(), c.Response())
+}
+
+// InitiatePayment handles the creation of a Snap transaction
+func (h *PaymentDueHandler) InitiatePayment(c echo.Context) error {
+	id := c.Param("id")
+	dueID, err := strconv.ParseUint(id, 10, 32)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid payment due ID")
+	}
+
+	// 1. Fetch PaymentDue
+	var due models.PaymentDue
+	if err := h.db.Preload("Plan").Preload("User").First(&due, dueID).Error; err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, "Payment due not found")
+	}
+
+	// 2. Validate Ownership
+	currentUserID := getUintFromContext(c, "userID")
+	if due.UserID != currentUserID {
+		return echo.NewHTTPError(http.StatusForbidden, "You can only pay for your own dues")
+	}
+
+	// 3. Check if already paid
+	if due.PaymentStatus == models.PaymentStatusPaid {
+		return echo.NewHTTPError(http.StatusBadRequest, "Payment due is already paid")
+	}
+
+	// 4. Create Snap Transaction
+	// Generate unique Order ID: payment-due-{id}-{timestamp}
+	orderID := fmt.Sprintf("payment-due-%d-%d", due.ID, time.Now().Unix())
+
+	req := &snap.Request{
+		TransactionDetails: midtrans.TransactionDetails{
+			OrderID:  orderID,
+			GrossAmt: int64(due.CalculatedPayAmount),
+		},
+		CustomerDetail: &midtrans.CustomerDetails{
+			FName: due.User.Name,
+			Email: due.User.Email,
+		},
+		Items: &[]midtrans.ItemDetails{
+			{
+				ID:    fmt.Sprintf("plan-%d", due.PlanID),
+				Name:  fmt.Sprintf("Payment for %s", due.Plan.Name),
+				Price: int64(due.CalculatedPayAmount),
+				Qty:   1,
+			},
+		},
+	}
+
+	resp, err := h.midtransClient.CreateTransaction(orderID, int64(due.CalculatedPayAmount), req)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create transaction: "+err.Error())
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"token":        resp.Token,
+		"redirect_url": resp.RedirectURL,
+	})
+}
+
+// MidtransCallback handles validation of Midtrans notifications
+func (h *PaymentDueHandler) MidtransCallback(c echo.Context) error {
+	var notificationPayload map[string]interface{}
+	if err := c.Bind(&notificationPayload); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid JSON payload")
+	}
+
+	// Extract necessary fields
+	orderID, _ := notificationPayload["order_id"].(string)
+	transactionStatus, _ := notificationPayload["transaction_status"].(string)
+	fraudStatus, _ := notificationPayload["fraud_status"].(string)
+
+	// Parse Order ID to get PaymentDueID
+	// Format: payment-due-{id}-{timestamp}
+	parts := strings.Split(orderID, "-")
+	if len(parts) < 3 {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid order ID format")
+	}
+	dueIDStr := parts[2] // payment (0), due (1), ID (2), timestamp (3)
+	dueID, err := strconv.ParseUint(dueIDStr, 10, 32)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid payment due ID in order ID")
+	}
+
+	// Fetch PaymentDue
+	var due models.PaymentDue
+	if err := h.db.First(&due, dueID).Error; err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, "Payment due not found")
+	}
+
+	// Handle status
+	if transactionStatus == "capture" {
+		if fraudStatus == "challenge" {
+			// TODO: Set transaction status on your database to 'challenge'
+			// e.g. due.PaymentStatus = "challenge"
+		} else if fraudStatus == "accept" {
+			h.markAsPaid(&due, notificationPayload)
+		}
+	} else if transactionStatus == "settlement" {
+		h.markAsPaid(&due, notificationPayload)
+	} else if transactionStatus == "deny" || transactionStatus == "expire" || transactionStatus == "cancel" {
+		due.PaymentStatus = models.PaymentStatusCanceled // or keep as pending/overdue depending on logic
+		h.db.Save(&due)
+	}
+
+	return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
+}
+
+func (h *PaymentDueHandler) markAsPaid(due *models.PaymentDue, payload map[string]interface{}) {
+	if due.PaymentStatus == models.PaymentStatusPaid {
+		return
+	}
+
+	// 1. Update PaymentDue status
+	due.PaymentStatus = models.PaymentStatusPaid
+	h.db.Save(due)
+
+	// 2. Create UserPayment record
+	paymentType, _ := payload["payment_type"].(string)
+
+	// Helper to get float from interface safely
+	// Gross amount is usually string in JSON payload from Midtrans?
+	// Check doc: gross_amount is string.
+	grossAmtStr, _ := payload["gross_amount"].(string)
+	grossAmt, _ := strconv.ParseFloat(grossAmtStr, 64)
+
+	userPayment := models.UserPayment{
+		PlanID:         due.PlanID,
+		PaymentDueID:   due.ID,
+		UserID:         due.UserID,
+		TotalPay:       grossAmt,
+		ChannelPayment: paymentType,
+		PaymentDate:    time.Now(),
+	}
+	h.db.Create(&userPayment)
 }

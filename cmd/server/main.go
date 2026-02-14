@@ -65,6 +65,9 @@ func main() {
 		log.Println("Warning: REDIS_URL not set, caching disabled")
 	}
 
+	// Initialize Midtrans
+	midtransService := services.NewMidtransService()
+
 	// Create Echo instance
 	e := echo.New()
 
@@ -92,7 +95,7 @@ func main() {
 	dashboardHandler := handlers.NewDashboardHandler()
 	planHandler := handlers.NewPlanHandler(db, cache)
 	userHandler := handlers.NewUserHandler(db, cache)
-	paymentDueHandler := handlers.NewPaymentDueHandler(db, cache)
+	paymentDueHandler := handlers.NewPaymentDueHandler(db, cache, midtransService)
 
 	// Public routes
 	e.GET("/login", authHandler.LoginPage)
@@ -125,6 +128,11 @@ func main() {
 
 	// Payment dues routes
 	protected.GET("/payment-dues", paymentDueHandler.ListPaymentDues)
+	protected.POST("/payments/initiate/:id", paymentDueHandler.InitiatePayment)
+
+	// Webhook does not need auth protection, so it should be outside 'protected' group or explicitly allowed
+	// However, we usually put it under public routes
+	e.POST("/payments/callback", paymentDueHandler.MidtransCallback)
 
 	// Redirect root to dashboard (or login if not authenticated)
 	e.GET("/", func(c echo.Context) error {
