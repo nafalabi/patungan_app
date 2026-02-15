@@ -47,10 +47,10 @@ func (h *DashboardHandler) Dashboard(c echo.Context) error {
 		h.db.Model(&models.Plan{}).Count(&totalActivePlans)
 
 		// 2. Payment Stats (Global)
-		h.db.Model(&models.PaymentDue{}).Where("payment_status != ?", models.PaymentStatusPaid).Count(&pendingDuesCount)
+		h.db.Model(&models.PaymentDue{}).Where("payment_status = ?", models.PaymentStatusPending).Count(&pendingDuesCount)
 
 		var pendingResult struct{ Total float64 }
-		h.db.Model(&models.PaymentDue{}).Where("payment_status != ?", models.PaymentStatusPaid).Select("COALESCE(SUM(calculated_pay_amount), 0) as total").Scan(&pendingResult)
+		h.db.Model(&models.PaymentDue{}).Where("payment_status = ?", models.PaymentStatusPending).Select("COALESCE(SUM(calculated_pay_amount), 0) as total").Scan(&pendingResult)
 		pendingAmount = pendingResult.Total
 
 		var paidResult struct{ Total float64 }
@@ -59,7 +59,7 @@ func (h *DashboardHandler) Dashboard(c echo.Context) error {
 
 		// 3. Upcoming Dues (Global)
 		h.db.Preload("Plan").Preload("User").
-			Where("payment_status != ?", models.PaymentStatusPaid).
+			Where("payment_status = ?", models.PaymentStatusPending).
 			Order("due_date asc").
 			Limit(5).
 			Find(&upcomingDues)
@@ -75,10 +75,10 @@ func (h *DashboardHandler) Dashboard(c echo.Context) error {
 			Count(&totalActivePlans)
 
 		// 2. Payment Stats (My Dues)
-		h.db.Model(&models.PaymentDue{}).Where("user_id = ? AND payment_status != ?", userID, models.PaymentStatusPaid).Count(&pendingDuesCount)
+		h.db.Model(&models.PaymentDue{}).Where("user_id = ? AND payment_status = ?", userID, models.PaymentStatusPending).Count(&pendingDuesCount)
 
 		var pendingResult struct{ Total float64 }
-		h.db.Model(&models.PaymentDue{}).Where("user_id = ? AND payment_status != ?", userID, models.PaymentStatusPaid).Select("COALESCE(SUM(calculated_pay_amount), 0) as total").Scan(&pendingResult)
+		h.db.Model(&models.PaymentDue{}).Where("user_id = ? AND payment_status = ?", userID, models.PaymentStatusPending).Select("COALESCE(SUM(calculated_pay_amount), 0) as total").Scan(&pendingResult)
 		pendingAmount = pendingResult.Total
 
 		var paidResult struct{ Total float64 }
@@ -87,7 +87,7 @@ func (h *DashboardHandler) Dashboard(c echo.Context) error {
 
 		// 3. Upcoming Dues (My Dues)
 		h.db.Preload("Plan").Preload("User").
-			Where("user_id = ? AND payment_status != ?", userID, models.PaymentStatusPaid).
+			Where("user_id = ? AND payment_status = ?", userID, models.PaymentStatusPending).
 			Order("due_date asc").
 			Limit(5).
 			Find(&upcomingDues)
@@ -105,6 +105,7 @@ func (h *DashboardHandler) Dashboard(c echo.Context) error {
 		Breadcrumbs:      breadcrumbs,
 		UserEmail:        userEmail,
 		UserUID:          userUID,
+		UserID:           userID,
 		CurrentUserType:  string(user.UserType),
 		TotalActivePlans: int(totalActivePlans),
 		PendingDuesCount: int(pendingDuesCount),

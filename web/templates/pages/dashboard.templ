@@ -14,6 +14,7 @@ type DashboardProps struct {
 	Breadcrumbs      []shared.Breadcrumb
 	UserEmail        string
 	UserUID          string
+	UserID           uint
 	CurrentUserType  string
 	TotalActivePlans int
 	PendingDuesCount int
@@ -131,9 +132,11 @@ templ Dashboard(props DashboardProps) {
 										<td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">{ due.DueDate.Format("02 Jan 2006") }</td>
 										<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-text-primary text-right">Rp { fmt.Sprintf("%.0f", due.CalculatedPayAmount) }</td>
 										<td class="px-6 py-4 whitespace-nowrap text-sm text-center">
-											<a href={ templ.SafeURL(fmt.Sprintf("/payment-dues#payment-due-%d", due.ID)) } class="text-primary hover:text-primary-hover font-medium">
-												Pay Now
-											</a>
+											if due.User.ID == props.UserID {
+												<a href={ templ.SafeURL(fmt.Sprintf("/payment-dues#payment-due-%d", due.ID)) } class="text-primary hover:text-primary-hover font-medium">
+													Pay Now
+												</a>
+											}
 										</td>
 									</tr>
 								}
