@@ -282,10 +282,29 @@ func (h *PlanHandler) EditPlanPage(c echo.Context) error {
 
 // UpdatePlan handles updating an existing plan
 func (h *PlanHandler) UpdatePlan(c echo.Context) error {
+	userID := getUintFromContext(c, "userID")
+	if userID == 0 {
+		return echo.NewHTTPError(http.StatusUnauthorized, "Invalid user session")
+	}
+
 	id := c.Param("id")
 	var plan models.Plan
 	if err := h.db.First(&plan, id).Error; err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, "Plan not found")
+	}
+
+	// Authorization Check & Data Integrity Logic
+	if plan.OwnerID == 0 {
+		// Data corruption healing: If plan has no owner (0), assign to current user
+		plan.OwnerID = userID
+	} else if plan.OwnerID != userID {
+		// Strict ownership check: Only owner or Admin can edit
+		var user models.User
+		if err := h.db.First(&user, userID).Error; err == nil {
+			if user.UserType != models.UserTypeAdmin {
+				return echo.NewHTTPError(http.StatusForbidden, "You do not have permission to edit this plan")
+			}
+		}
 	}
 
 	plan.Name = c.FormValue("name")
@@ -308,7 +327,7 @@ func (h *PlanHandler) UpdatePlan(c echo.Context) error {
 	plan.AllowInvitationAfterPay = c.FormValue("allow_invitation") == "on"
 
 	if err := h.db.Save(&plan).Error; err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to update plan")
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to update plan: "+err.Error())
 	}
 
 	// Handle participants update

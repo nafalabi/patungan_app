@@ -259,7 +259,7 @@ func PlanForm(props PlanFormProps) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" x-model=\"portion\" min=\"1\" class=\"w-20 px-2 py-1 bg-bg-body border border-border rounded text-text-primary text-sm focus:outline-none focus:border-primary\"></div></div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" x-model=\"portion\" min=\"1\" class=\"w-20 px-2 py-1 bg-bg-body border border-border rounded text-text-primary text-sm focus:outline-none focus:border-primary\" :disabled=\"!selected\"></div></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
