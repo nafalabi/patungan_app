@@ -11,6 +11,7 @@ type PaymentGateway string
 
 const (
 	PaymentGatewayMidtrans PaymentGateway = "midtrans"
+	PaymentGatewayManual   PaymentGateway = "manual"
 )
 
 type PaymentCallbackHistory struct {

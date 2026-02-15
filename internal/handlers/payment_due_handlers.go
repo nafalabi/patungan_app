@@ -180,28 +180,37 @@ func (h *PaymentDueHandler) ListPaymentDues(c echo.Context) error {
 		{Title: "Payment Dues", URL: ""},
 	}
 
+	// Get current user type
+	var currentUserType models.UserType
+	if val := c.Get("userType"); val != nil {
+		if ut, ok := val.(models.UserType); ok {
+			currentUserType = ut
+		}
+	}
+
 	props := pages.PaymentDuesProps{
-		Title:        "Payment Dues",
-		ActiveNav:    "payment-dues",
-		Breadcrumbs:  breadcrumbs,
-		UserEmail:    getStringFromContext(c, "userEmail"),
-		UserUID:      getStringFromContext(c, "userUID"),
-		PlanWithDues: planWithDues,
-		UserWithDues: userWithDues,
-		ViewMode:     viewMode,
-		FilterPlan:   filterPlan,
-		FilterUser:   filterUser,
-		ShowCanceled: showCanceled,
-		SortBy:       sortBy,
-		SortOrder:    sortOrder,
-		AllPlans:     allPlans,
-		AllUsers:     allUsers,
+		Title:         "Payment Dues",
+		ActiveNav:     "payment-dues",
+		Breadcrumbs:   breadcrumbs,
+		UserEmail:     getStringFromContext(c, "userEmail"),
+		UserUIDString: getStringFromContext(c, "userUID"),
+		PlanWithDues:  planWithDues,
+		UserWithDues:  userWithDues,
+		ViewMode:      viewMode,
+		FilterPlan:    filterPlan,
+		FilterUser:    filterUser,
+		ShowCanceled:  showCanceled,
+		SortBy:        sortBy,
+		SortOrder:     sortOrder,
+		AllPlans:      allPlans,
+		AllUsers:      allUsers,
 		// Pagination
 		CurrentPage:       page,
 		TotalPages:        totalPages,
 		TotalCount:        int(totalCount),
 		PageSize:          pageSize,
 		CurrentUserID:     getUintFromContext(c, "userID"),
+		CurrentUserType:   currentUserType,
 		MidtransClientKey: midtrans.ClientKey,
 	}
 
@@ -446,12 +455,23 @@ func (h *PaymentDueHandler) markAsPaid(due *models.PaymentDue, payload map[strin
 
 	// 2. Create UserPayment record
 	paymentType, _ := payload["payment_type"].(string)
+	paymentGatewayStr, ok := payload["payment_gateway"].(string)
+	var paymentGateway models.PaymentGateway
+	if ok {
+		paymentGateway = models.PaymentGateway(paymentGatewayStr)
+	} else {
+		paymentGateway = models.PaymentGatewayMidtrans // Default to midtrans for existing calls
+	}
 
 	// Helper to get float from interface safely
 	// Gross amount is usually string in JSON payload from Midtrans?
 	// Check doc: gross_amount is string.
-	grossAmtStr, _ := payload["gross_amount"].(string)
-	grossAmt, _ := strconv.ParseFloat(grossAmtStr, 64)
+	var grossAmt float64
+	if val, ok := payload["gross_amount"].(string); ok {
+		grossAmt, _ = strconv.ParseFloat(val, 64)
+	} else if val, ok := payload["gross_amount"].(float64); ok {
+		grossAmt = val
+	}
 
 	userPayment := models.UserPayment{
 		PlanID:         due.PlanID,
@@ -459,9 +479,56 @@ func (h *PaymentDueHandler) markAsPaid(due *models.PaymentDue, payload map[strin
 		UserID:         due.UserID,
 		TotalPay:       grossAmt,
 		ChannelPayment: paymentType,
+		PaymentGateway: paymentGateway,
 		PaymentDate:    time.Now(),
 	}
 	h.db.Create(&userPayment)
+}
+
+// HandleMarkAsComplete allows admins to manually mark a payment due as paid
+func (h *PaymentDueHandler) HandleMarkAsComplete(c echo.Context) error {
+	// 1. Authorization Check
+	userType, ok := c.Get("userType").(models.UserType)
+	if !ok || userType != models.UserTypeAdmin {
+		return echo.NewHTTPError(http.StatusForbidden, "Only admins can perform this action")
+	}
+
+	id := c.Param("id")
+	dueID, err := strconv.ParseUint(id, 10, 32)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid payment due ID")
+	}
+
+	// 2. Fetch PaymentDue
+	var due models.PaymentDue
+	if err := h.db.Preload("Plan").Preload("User").First(&due, dueID).Error; err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, "Payment due not found")
+	}
+
+	// 3. Mark as Paid using helper
+	if due.PaymentStatus != models.PaymentStatusPaid {
+		h.markAsPaid(&due, map[string]interface{}{
+			"payment_type":    "manual",
+			"gross_amount":    due.CalculatedPayAmount,
+			"payment_gateway": string(models.PaymentGatewayManual), // Pass as string, helper converts back
+		})
+	}
+
+	// 4. Return updated component
+	// Re-fetch to get fresh state if needed, though markAsPaid updates the struct pointer
+	// But we need relations for the template
+	if err := h.db.Preload("Plan").Preload("User").First(&due, dueID).Error; err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to refresh payment due")
+	}
+
+	currentUserID := getUintFromContext(c, "userID")
+	// Retrieve display mode from query or default
+	displayMode := c.QueryParam("display_mode")
+	if displayMode == "" {
+		displayMode = "admin" // Assuming admin view since admin triggers it
+	}
+
+	return pages.PaymentDueItem(due, displayMode, currentUserID, models.UserTypeAdmin).Render(c.Request().Context(), c.Response())
 }
 
 // CheckPaymentStatus checks the status of a payment due with Midtrans
@@ -500,7 +567,14 @@ func (h *PaymentDueHandler) CheckPaymentStatus(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, "Payment due not found")
 	}
 
-	return pages.PaymentDueItem(due, displayMode, currentUserID).Render(c.Request().Context(), c.Response())
+	var currentUserType models.UserType
+	if val := c.Get("userType"); val != nil {
+		if ut, ok := val.(models.UserType); ok {
+			currentUserType = ut
+		}
+	}
+
+	return pages.PaymentDueItem(due, displayMode, currentUserID, currentUserType).Render(c.Request().Context(), c.Response())
 }
 
 func getEnv(key, fallback string) string {

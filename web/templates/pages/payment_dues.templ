@@ -25,8 +25,9 @@ type PaymentDuesProps struct {
 	ActiveNav         string
 	Breadcrumbs       []shared.Breadcrumb
 	UserEmail         string
-	UserUID           string
+	UserUIDString     string
 	CurrentUserID     uint
+	CurrentUserType   models.UserType
 	MidtransClientKey string
 
 	// Data
@@ -59,7 +60,7 @@ templ PaymentDues(props PaymentDuesProps) {
 		ActiveNav:   props.ActiveNav,
 		Breadcrumbs: props.Breadcrumbs,
 		UserEmail:   props.UserEmail,
-		UserUID:     props.UserUID,
+		UserUID:     props.UserUIDString,
 	}) {
 		<div class="mb-6">
 			<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
@@ -161,9 +162,9 @@ templ PaymentDues(props PaymentDuesProps) {
 		</div>
 		<!-- Content -->
 		if props.ViewMode == "plans" {
-			@ViewByPlans(props.PlanWithDues, props.CurrentUserID)
+			@ViewByPlans(props.PlanWithDues, props.CurrentUserID, props.CurrentUserType)
 		} else {
-			@ViewByUsers(props.UserWithDues, props.CurrentUserID)
+			@ViewByUsers(props.UserWithDues, props.CurrentUserID, props.CurrentUserType)
 		}
 		<!-- Pagination -->
 		if props.TotalPages > 1 {
@@ -383,7 +384,7 @@ templ PaymentDues(props PaymentDuesProps) {
 }
 
 // ViewByPlans renders payment dues grouped by plans
-templ ViewByPlans(planWithDues []PlanWithDues, currentUserID uint) {
+templ ViewByPlans(planWithDues []PlanWithDues, currentUserID uint, currentUserType models.UserType) {
 	if len(planWithDues) == 0 {
 		<div class="bg-bg-card rounded-xl border border-border p-8 text-center text-text-secondary">
 			No payment dues found.
@@ -405,7 +406,7 @@ templ ViewByPlans(planWithDues []PlanWithDues, currentUserID uint) {
 					<!-- Dues list -->
 					<div class="divide-y divide-border">
 						for _, due := range pwd.Dues {
-							@PaymentDueItem(due, "user", currentUserID)
+							@PaymentDueItem(due, "user", currentUserID, currentUserType)
 						}
 					</div>
 				</div>
@@ -415,7 +416,7 @@ templ ViewByPlans(planWithDues []PlanWithDues, currentUserID uint) {
 }
 
 // ViewByUsers renders payment dues grouped by users
-templ ViewByUsers(userWithDues []UserWithDues, currentUserID uint) {
+templ ViewByUsers(userWithDues []UserWithDues, currentUserID uint, currentUserType models.UserType) {
 	if len(userWithDues) == 0 {
 		<div class="bg-bg-card rounded-xl border border-border p-8 text-center text-text-secondary">
 			No payment dues found.
@@ -437,7 +438,7 @@ templ ViewByUsers(userWithDues []UserWithDues, currentUserID uint) {
 					<!-- Dues list -->
 					<div class="divide-y divide-border">
 						for _, due := range uwd.Dues {
-							@PaymentDueItem(due, "plan", currentUserID)
+							@PaymentDueItem(due, "plan", currentUserID, currentUserType)
 						}
 					</div>
 				</div>
@@ -447,7 +448,7 @@ templ ViewByUsers(userWithDues []UserWithDues, currentUserID uint) {
 }
 
 // PaymentDueItem renders a single payment due
-templ PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uint) {
+templ PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uint, currentUserType models.UserType) {
 	<div 
 		id={ fmt.Sprintf("payment-due-%d", due.ID) }
 		class="p-4 hover:bg-bg-hover transition-colors"
@@ -482,6 +483,17 @@ templ PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID ui
 							class="px-3 py-1 bg-bg-card text-text-primary border border-border text-xs font-medium rounded hover:bg-bg-hover transition-colors"
 						>
 							Check Status
+						</button>
+					}
+					if currentUserType == "Admin" && due.PaymentStatus != "paid" && due.PaymentStatus != "canceled" {
+						<button
+							hx-post={ fmt.Sprintf("/payments/%d/mark-complete?display_mode=%s", due.ID, displayMode) }
+							hx-target={ fmt.Sprintf("#payment-due-%d", due.ID) }
+							hx-swap="outerHTML"
+							hx-confirm="Are you sure you want to mark this payment as complete?"
+							class="px-3 py-1 bg-green-600 text-white text-xs font-medium rounded hover:bg-green-700 transition-colors"
+						>
+							Mark as complete
 						</button>
 					}
 				</div>
