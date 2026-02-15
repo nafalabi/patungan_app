@@ -1,17 +1,25 @@
 package pages
 
 import (
+	"fmt"
+	"patungan_app_echo/internal/models"
 	"patungan_app_echo/web/templates/layouts"
 	"patungan_app_echo/web/templates/shared"
 )
 
 // DashboardProps contains props for the dashboard page
 type DashboardProps struct {
-	Title       string
-	ActiveNav   string
-	Breadcrumbs []shared.Breadcrumb
-	UserEmail   string
-	UserUID     string
+	Title            string
+	ActiveNav        string
+	Breadcrumbs      []shared.Breadcrumb
+	UserEmail        string
+	UserUID          string
+	CurrentUserType  string
+	TotalActivePlans int
+	PendingDuesCount int
+	PendingAmount    float64
+	PaidAmount       float64
+	UpcomingDues     []models.PaymentDue
 }
 
 // Dashboard renders the dashboard page
@@ -23,10 +31,128 @@ templ Dashboard(props DashboardProps) {
 		UserEmail:   props.UserEmail,
 		UserUID:     props.UserUID,
 	}) {
-		<div class="bg-bg-card border border-border rounded-xl p-6 mb-8">
-			<a href="/plans" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border-none cursor-pointer font-medium no-underline transition-all duration-200 bg-primary text-white hover:bg-primary-hover hover:-translate-y-px">
-				Manage Plans
-			</a>
+		<div class="space-y-8">
+			<!-- Welcome Section -->
+			<div class="flex justify-between items-center">
+				<div>
+					<h1 class="text-2xl font-bold text-text-primary">Dashboard</h1>
+					<p class="text-text-secondary">Welcome back, { props.UserEmail }</p>
+				</div>
+				if props.CurrentUserType == "Admin" || props.CurrentUserType == "PlanCreator" {
+					<a href="/plans/create" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-white font-medium hover:bg-primary-hover transition-colors">
+						<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+						Create Plan
+					</a>
+				}
+			</div>
+
+			<!-- Stats Grid -->
+			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+				<!-- Total Plans -->
+				<div class="bg-bg-card border border-border rounded-xl p-5">
+					<div class="flex items-center gap-4">
+						<div class="p-3 bg-blue-500/10 rounded-lg text-blue-500">
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layers"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></svg>
+						</div>
+						<div>
+							<p class="text-sm font-medium text-text-secondary">Active Plans</p>
+							<h3 class="text-2xl font-bold text-text-primary">{ fmt.Sprintf("%d", props.TotalActivePlans) }</h3>
+						</div>
+					</div>
+				</div>
+
+				<!-- Pending Dues Count -->
+				<div class="bg-bg-card border border-border rounded-xl p-5">
+					<div class="flex items-center gap-4">
+						<div class="p-3 bg-yellow-500/10 rounded-lg text-yellow-500">
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+						</div>
+						<div>
+							<p class="text-sm font-medium text-text-secondary">Pending Dues</p>
+							<h3 class="text-2xl font-bold text-text-primary">{ fmt.Sprintf("%d", props.PendingDuesCount) }</h3>
+						</div>
+					</div>
+				</div>
+
+				<!-- Pending Amount -->
+				<div class="bg-bg-card border border-border rounded-xl p-5">
+					<div class="flex items-center gap-4">
+						<div class="p-3 bg-red-500/10 rounded-lg text-red-500">
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-alert-circle"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+						</div>
+						<div>
+							<p class="text-sm font-medium text-text-secondary">Pending Amount</p>
+							<h3 class="text-2xl font-bold text-text-primary">Rp { fmt.Sprintf("%.0f", props.PendingAmount) }</h3>
+						</div>
+					</div>
+				</div>
+
+				<!-- Paid Amount -->
+				<div class="bg-bg-card border border-border rounded-xl p-5">
+					<div class="flex items-center gap-4">
+						<div class="p-3 bg-green-500/10 rounded-lg text-green-500">
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+						</div>
+						<div>
+							<p class="text-sm font-medium text-text-secondary">Total Paid</p>
+							<h3 class="text-2xl font-bold text-text-primary">Rp { fmt.Sprintf("%.0f", props.PaidAmount) }</h3>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Upcoming Dues Section -->
+			<div class="bg-bg-card border border-border rounded-xl overflow-hidden">
+				<div class="p-6 border-b border-border flex justify-between items-center">
+					<h2 class="text-lg font-bold text-text-primary">Upcoming Dues</h2>
+					<a href="/payment-dues" class="text-sm text-primary hover:text-primary-hover font-medium">View All</a>
+				</div>
+				if len(props.UpcomingDues) == 0 {
+					<div class="p-8 text-center text-text-secondary">
+						No upcoming dues found. You're all caught up!
+					</div>
+				} else {
+					<div class="overflow-x-auto">
+						<table class="w-full">
+							<thead class="bg-bg-body text-left">
+								<tr>
+									<th class="px-6 py-3 text-xs font-medium text-text-secondary uppercase tracking-wider">Plan</th>
+									<th class="px-6 py-3 text-xs font-medium text-text-secondary uppercase tracking-wider">User</th>
+									<th class="px-6 py-3 text-xs font-medium text-text-secondary uppercase tracking-wider">Due Date</th>
+									<th class="px-6 py-3 text-xs font-medium text-text-secondary uppercase tracking-wider text-right">Amount</th>
+									<th class="px-6 py-3 text-xs font-medium text-text-secondary uppercase tracking-wider text-center">Action</th>
+								</tr>
+							</thead>
+							<tbody class="divide-y divide-border">
+								for _, due := range props.UpcomingDues {
+									<tr class="hover:bg-bg-hover transition-colors">
+										<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-text-primary">{ due.Plan.Name }</td>
+										<td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">{ due.User.Name }</td>
+										<td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">{ due.DueDate.Format("02 Jan 2006") }</td>
+										<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-text-primary text-right">Rp { fmt.Sprintf("%.0f", due.CalculatedPayAmount) }</td>
+										<td class="px-6 py-4 whitespace-nowrap text-sm text-center">
+											<a href={ templ.SafeURL(fmt.Sprintf("/payment-dues#payment-due-%d", due.ID)) } class="text-primary hover:text-primary-hover font-medium">
+												Pay Now
+											</a>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+			</div>
+
+			<!-- Quick Actions (Mobile only or additional) -->
+			if props.CurrentUserType == "Admin" || props.CurrentUserType == "PlanCreator" {
+				<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+					<a href="/plans" class="block p-6 bg-bg-card border border-border rounded-xl hover:border-primary transition-colors group">
+						<h3 class="text-lg font-bold text-text-primary group-hover:text-primary mb-2">Manage Plans</h3>
+						<p class="text-sm text-text-secondary">View and manage all your subscription plans.</p>
+					</a>
+					// Add more quick actions here if needed
+				</div>
+			}
 		</div>
 	}
 }

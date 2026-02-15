@@ -10,8 +10,9 @@ import (
 type UserType string
 
 const (
-	UserTypeAdmin  UserType = "Admin"
-	UserTypeMember UserType = "Member"
+	UserTypeAdmin       UserType = "Admin"
+	UserTypePlanCreator UserType = "PlanCreator"
+	UserTypeMember      UserType = "Member"
 )
 
 // User represents a user in the system
