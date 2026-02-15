@@ -63,8 +63,8 @@ templ UsersList(props UsersListProps) {
 templ UserRow(user models.User) {
 	<tr class="hover:bg-bg-hover transition-colors">
 		<td class="p-4 text-text-primary">{ user.Name }</td>
-		<td class="p-4 text-text-primary">{ user.Email }</td>
-		<td class="p-4 text-text-primary">{ user.Phone }</td>
+		<td class="p-4 text-text-secondary">{ user.Email }</td>
+		<td class="p-4 text-text-secondary">{ user.Phone }</td>
 		<td class="p-4">
 			if user.UserType == models.UserTypeAdmin {
 				<span class="px-2 py-1 rounded text-xs font-medium bg-primary/20 text-primary">Admin</span>
