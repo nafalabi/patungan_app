@@ -94,11 +94,11 @@ func PaymentDues(props PaymentDuesProps) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"mb-6\"><div class=\"flex justify-between items-center mb-4\"><h1 class=\"text-2xl font-bold text-text-primary\">Payment Dues</h1><!-- View mode toggle --><div class=\"flex gap-2\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"mb-6\"><div class=\"flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4\"><h1 class=\"text-2xl font-bold text-text-primary\">Payment Dues</h1><!-- View mode toggle --><div class=\"flex gap-2 w-full sm:w-auto\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var3 = []any{"px-4 py-2 rounded-lg font-medium transition-all duration-200",
+			var templ_7745c5c3_Var3 = []any{"flex-1 sm:flex-none text-center px-4 py-2 rounded-lg font-medium transition-all duration-200",
 				templ.KV("bg-primary text-white", props.ViewMode == "plans"),
 				templ.KV("bg-bg-card text-text-secondary border border-border hover:bg-bg-hover", props.ViewMode != "plans"),
 			}
@@ -136,7 +136,7 @@ func PaymentDues(props PaymentDuesProps) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var6 = []any{"px-4 py-2 rounded-lg font-medium transition-all duration-200",
+			var templ_7745c5c3_Var6 = []any{"flex-1 sm:flex-none text-center px-4 py-2 rounded-lg font-medium transition-all duration-200",
 				templ.KV("bg-primary text-white", props.ViewMode == "users"),
 				templ.KV("bg-bg-card text-text-secondary border border-border hover:bg-bg-hover", props.ViewMode != "users"),
 			}

@@ -76,7 +76,7 @@ func PlansList(props PlansListProps) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!-- Header --> <div class=\"flex justify-between items-center mb-6\"><div><h1 class=\"text-2xl font-bold text-text-primary\">Plans</h1><p class=\"text-sm text-text-secondary mt-1\">Showing ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!-- Header --> <div class=\"flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6\"><div><h1 class=\"text-2xl font-bold text-text-primary\">Plans</h1><p class=\"text-sm text-text-secondary mt-1\">Showing ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -89,7 +89,7 @@ func PlansList(props PlansListProps) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " total plans</p></div><a href=\"/plans/create\" class=\"inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border-none cursor-pointer font-medium no-underline transition-all duration-200 bg-primary text-white hover:bg-primary-hover hover:-translate-y-px\"><i data-lucide=\"plus\" style=\"width: 18px; height: 18px;\"></i> Create New Plan</a></div><!-- Filters and Sorting --> <div class=\"bg-bg-card rounded-xl border border-border p-4 mb-6\"><form id=\"filter-form\" method=\"get\" action=\"/plans\"><div class=\"grid grid-cols-1 md:grid-cols-4 gap-4\"><!-- Filter by Owner --><div><label class=\"block text-sm font-medium text-text-secondary mb-2\">Owner</label> <select name=\"filter_owner\" class=\"w-full px-3 py-2 bg-bg-body border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary\" onchange=\"this.form.submit()\"><option value=\"\">All Owners</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " total plans</p></div><a href=\"/plans/create\" class=\"w-full sm:w-auto inline-flex justify-center items-center gap-2 px-5 py-2.5 rounded-lg border-none cursor-pointer font-medium no-underline transition-all duration-200 bg-primary text-white hover:bg-primary-hover hover:-translate-y-px\"><i data-lucide=\"plus\" style=\"width: 18px; height: 18px;\"></i> Create New Plan</a></div><!-- Filters and Sorting --> <div class=\"bg-bg-card rounded-xl border border-border p-4 mb-6\"><form id=\"filter-form\" method=\"get\" action=\"/plans\"><div class=\"grid grid-cols-1 md:grid-cols-4 gap-4\"><!-- Filter by Owner --><div><label class=\"block text-sm font-medium text-text-secondary mb-2\">Owner</label> <select name=\"filter_owner\" class=\"w-full px-3 py-2 bg-bg-body border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary\" onchange=\"this.form.submit()\"><option value=\"\">All Owners</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

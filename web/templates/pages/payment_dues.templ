@@ -62,14 +62,14 @@ templ PaymentDues(props PaymentDuesProps) {
 		UserUID:     props.UserUID,
 	}) {
 		<div class="mb-6">
-			<div class="flex justify-between items-center mb-4">
+			<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
 				<h1 class="text-2xl font-bold text-text-primary">Payment Dues</h1>
 				<!-- View mode toggle -->
-				<div class="flex gap-2">
+				<div class="flex gap-2 w-full sm:w-auto">
 					<a
 						href={ templ.SafeURL(buildURL("/payment-dues", "plans", props.FilterPlan, props.FilterUser, props.SortBy, props.SortOrder)) }
 						class={
-							"px-4 py-2 rounded-lg font-medium transition-all duration-200",
+							"flex-1 sm:flex-none text-center px-4 py-2 rounded-lg font-medium transition-all duration-200",
 							templ.KV("bg-primary text-white", props.ViewMode == "plans"),
 							templ.KV("bg-bg-card text-text-secondary border border-border hover:bg-bg-hover", props.ViewMode != "plans"),
 						}
@@ -79,7 +79,7 @@ templ PaymentDues(props PaymentDuesProps) {
 					<a
 						href={ templ.SafeURL(buildURL("/payment-dues", "users", props.FilterPlan, props.FilterUser, props.SortBy, props.SortOrder)) }
 						class={
-							"px-4 py-2 rounded-lg font-medium transition-all duration-200",
+							"flex-1 sm:flex-none text-center px-4 py-2 rounded-lg font-medium transition-all duration-200",
 							templ.KV("bg-primary text-white", props.ViewMode == "users"),
 							templ.KV("bg-bg-card text-text-secondary border border-border hover:bg-bg-hover", props.ViewMode != "users"),
 						}

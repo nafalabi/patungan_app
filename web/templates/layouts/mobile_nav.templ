@@ -4,10 +4,12 @@ package layouts
 templ MobileNav(activeNav string) {
 	<div x-data="{ open: false }" class="bg-bg-card border-b border-border sticky top-0 z-50 md:hidden">
 		<div class="flex items-center justify-between px-4 h-16">
-			<div class="flex items-center gap-2">
-				<span class="text-xl text-primary"><i data-lucide="wallet"></i></span>
-				<span class="font-bold text-lg">Patungan</span>
-			</div>
+			<a href="/">
+				<div class="flex items-center gap-2">
+					<span class="text-xl text-primary"><i data-lucide="wallet"></i></span>
+					<span class="font-bold text-lg">Patungan</span>
+				</div>
+			</a>
 			<button @click="open = !open" class="text-text-secondary hover:text-primary p-2">
 				<i x-show="!open" data-lucide="menu"></i>
 				<i x-show="open" data-lucide="x" style="display: none;"></i>

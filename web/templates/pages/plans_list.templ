@@ -44,14 +44,14 @@ templ PlansList(props PlansListProps) {
 		UserUID:     props.UserUID,
 	}) {
 		<!-- Header -->
-		<div class="flex justify-between items-center mb-6">
+		<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
 			<div>
 				<h1 class="text-2xl font-bold text-text-primary">Plans</h1>
 				<p class="text-sm text-text-secondary mt-1">
 					Showing { fmt.Sprintf("%d", props.TotalCount) } total plans
 				</p>
 			</div>
-			<a href="/plans/create" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border-none cursor-pointer font-medium no-underline transition-all duration-200 bg-primary text-white hover:bg-primary-hover hover:-translate-y-px">
+			<a href="/plans/create" class="w-full sm:w-auto inline-flex justify-center items-center gap-2 px-5 py-2.5 rounded-lg border-none cursor-pointer font-medium no-underline transition-all duration-200 bg-primary text-white hover:bg-primary-hover hover:-translate-y-px">
 				<i data-lucide="plus" style="width: 18px; height: 18px;"></i>
 				Create New Plan
 			</a>
