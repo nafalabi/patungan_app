@@ -279,7 +279,10 @@ templ PaymentDues(props PaymentDuesProps) {
 									onClose: function(){ console.log('customer closed the popup without finishing the payment'); }
 								});
 							} else {
-								alert('Failed to initiate payment: ' + (data.message || 'Unknown error'));
+								alert(data.message || 'Failed to initiate payment');
+								if (data.message && data.message.includes('already made')) {
+									window.location.reload();
+								}
 							}
 						})
 						.catch(error => {

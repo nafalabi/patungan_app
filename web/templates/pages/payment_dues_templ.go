@@ -529,7 +529,7 @@ func PaymentDues(props PaymentDuesProps) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "\"></script> <!-- Payment Logic with Modal --> <div x-data=\"{ \n\t\t\t\tshowModal: false, \n\t\t\t\tactiveDueID: null,\n\t\t\t\tinitiatePayment(dueID, forceNew = false) {\n\t\t\t\t\tthis.activeDueID = dueID;\n\t\t\t\t\t\n\t\t\t\t\t// If forcing new, skip check and go directly to initiate\n\t\t\t\t\tif (forceNew) {\n\t\t\t\t\t\tthis.callInitiateAPI(dueID, true);\n\t\t\t\t\t\tthis.showModal = false;\n\t\t\t\t\t\treturn;\n\t\t\t\t\t}\n\n\t\t\t\t\t// Check for active session\n\t\t\t\t\tfetch(`/api/payments/${dueID}/active-session`)\n\t\t\t\t\t\t.then(response => response.json())\n\t\t\t\t\t\t.then(data => {\n\t\t\t\t\t\t\tif (data.active) {\n\t\t\t\t\t\t\t\t// Found active session, show modal\n\t\t\t\t\t\t\t\tthis.showModal = true;\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\t// No active session, create new\n\t\t\t\t\t\t\t\tthis.callInitiateAPI(dueID, false);\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t})\n\t\t\t\t\t\t.catch(error => {\n\t\t\t\t\t\t\tconsole.error('Error checking session:', error);\n\t\t\t\t\t\t\talert('An error occurred while checking payment status');\n\t\t\t\t\t\t});\n\t\t\t\t},\n\t\t\t\tcontinueSession() {\n\t\t\t\t\t// Call initiate without force_new to get existing token\n\t\t\t\t\tthis.callInitiateAPI(this.activeDueID, false);\n\t\t\t\t\tthis.showModal = false;\n\t\t\t\t},\n\t\t\t\tstartNewSession() {\n\t\t\t\t\t// Call initiate with force_new=true\n\t\t\t\t\tthis.callInitiateAPI(this.activeDueID, true);\n\t\t\t\t\tthis.showModal = false;\n\t\t\t\t},\n\t\t\t\tcallInitiateAPI(dueID, forceNew) {\n\t\t\t\t\tlet url = `/payments/initiate/${dueID}`;\n\t\t\t\t\tif (forceNew) {\n\t\t\t\t\t\turl += '?force_new=true';\n\t\t\t\t\t}\n\n\t\t\t\t\tfetch(url, { method: 'POST' })\n\t\t\t\t\t\t.then(response => response.json())\n\t\t\t\t\t\t.then(data => {\n\t\t\t\t\t\t\tif (data.token) {\n\t\t\t\t\t\t\t\tsnap.pay(data.token, {\n\t\t\t\t\t\t\t\t\tonSuccess: function(result){ window.location.reload(); },\n\t\t\t\t\t\t\t\t\tonPending: function(result){ window.location.reload(); },\n\t\t\t\t\t\t\t\t\tonError: function(result){ alert('Payment failed!'); },\n\t\t\t\t\t\t\t\t\tonClose: function(){ console.log('customer closed the popup without finishing the payment'); }\n\t\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\talert('Failed to initiate payment: ' + (data.message || 'Unknown error'));\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t})\n\t\t\t\t\t\t.catch(error => {\n\t\t\t\t\t\t\tconsole.error('Error:', error);\n\t\t\t\t\t\t\talert('An error occurred');\n\t\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t}\" @initiate-payment.window=\"initiatePayment($event.detail.dueID)\"><!-- Modal --><div x-show=\"showModal\" class=\"fixed inset-0 z-50 overflow-y-auto\" style=\"display: none;\"><div class=\"flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0\"><!-- Background overlay --><div x-show=\"showModal\" x-transition:enter=\"ease-out duration-300\" x-transition:enter-start=\"opacity-0\" x-transition:enter-end=\"opacity-100\" x-transition:leave=\"ease-in duration-200\" x-transition:leave-start=\"opacity-100\" x-transition:leave-end=\"opacity-0\" class=\"fixed inset-0 transition-opacity\" aria-hidden=\"true\"><div class=\"absolute inset-0 bg-gray-500 opacity-75\"></div></div><!-- Modal panel --><div x-show=\"showModal\" x-transition:enter=\"ease-out duration-300\" x-transition:enter-start=\"opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95\" x-transition:enter-end=\"opacity-100 translate-y-0 sm:scale-100\" x-transition:leave=\"ease-in duration-200\" x-transition:leave-start=\"opacity-100 translate-y-0 sm:scale-100\" x-transition:leave-end=\"opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95\" class=\"inline-block align-bottom bg-bg-card rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-border\"><div class=\"bg-bg-card px-4 pt-5 pb-4 sm:p-6 sm:pb-4\"><div class=\"sm:flex sm:items-start\"><div class=\"mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10\"><svg class=\"h-6 w-6 text-blue-600\" xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\" aria-hidden=\"true\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z\"></path></svg></div><div class=\"mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left\"><h3 class=\"text-lg leading-6 font-medium text-text-primary\" id=\"modal-title\">Active Payment Session Found</h3><div class=\"mt-2\"><p class=\"text-sm text-text-secondary\">You have an unfinished payment session for this due. Would you like to continue with the existing session or start a new one?</p></div></div></div></div><div class=\"bg-bg-body px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2\"><button type=\"button\" @click=\"continueSession()\" class=\"w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm\">Continue Session</button> <button type=\"button\" @click=\"startNewSession()\" class=\"mt-3 w-full inline-flex justify-center rounded-md border border-border shadow-sm px-4 py-2 bg-bg-card text-base font-medium text-text-primary hover:bg-bg-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm\">Start New Session</button> <button type=\"button\" @click=\"showModal = false\" class=\"mt-3 w-full inline-flex justify-center rounded-md border border-border shadow-sm px-4 py-2 bg-bg-card text-base font-medium text-text-secondary hover:bg-bg-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm\">Cancel</button></div></div></div></div><!-- Expose initiatePayment globally so onclick works --><script>\n\t\t\t\twindow.initiatePayment = function(dueID) {\n\t\t\t\t\twindow.dispatchEvent(new CustomEvent('initiate-payment', { detail: { dueID: dueID } }));\n\t\t\t\t}\n\t\t\t</script></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "\"></script> <!-- Payment Logic with Modal --> <div x-data=\"{ \n\t\t\t\tshowModal: false, \n\t\t\t\tactiveDueID: null,\n\t\t\t\tinitiatePayment(dueID, forceNew = false) {\n\t\t\t\t\tthis.activeDueID = dueID;\n\t\t\t\t\t\n\t\t\t\t\t// If forcing new, skip check and go directly to initiate\n\t\t\t\t\tif (forceNew) {\n\t\t\t\t\t\tthis.callInitiateAPI(dueID, true);\n\t\t\t\t\t\tthis.showModal = false;\n\t\t\t\t\t\treturn;\n\t\t\t\t\t}\n\n\t\t\t\t\t// Check for active session\n\t\t\t\t\tfetch(`/api/payments/${dueID}/active-session`)\n\t\t\t\t\t\t.then(response => response.json())\n\t\t\t\t\t\t.then(data => {\n\t\t\t\t\t\t\tif (data.active) {\n\t\t\t\t\t\t\t\t// Found active session, show modal\n\t\t\t\t\t\t\t\tthis.showModal = true;\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\t// No active session, create new\n\t\t\t\t\t\t\t\tthis.callInitiateAPI(dueID, false);\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t})\n\t\t\t\t\t\t.catch(error => {\n\t\t\t\t\t\t\tconsole.error('Error checking session:', error);\n\t\t\t\t\t\t\talert('An error occurred while checking payment status');\n\t\t\t\t\t\t});\n\t\t\t\t},\n\t\t\t\tcontinueSession() {\n\t\t\t\t\t// Call initiate without force_new to get existing token\n\t\t\t\t\tthis.callInitiateAPI(this.activeDueID, false);\n\t\t\t\t\tthis.showModal = false;\n\t\t\t\t},\n\t\t\t\tstartNewSession() {\n\t\t\t\t\t// Call initiate with force_new=true\n\t\t\t\t\tthis.callInitiateAPI(this.activeDueID, true);\n\t\t\t\t\tthis.showModal = false;\n\t\t\t\t},\n\t\t\t\tcallInitiateAPI(dueID, forceNew) {\n\t\t\t\t\tlet url = `/payments/initiate/${dueID}`;\n\t\t\t\t\tif (forceNew) {\n\t\t\t\t\t\turl += '?force_new=true';\n\t\t\t\t\t}\n\n\t\t\t\t\tfetch(url, { method: 'POST' })\n\t\t\t\t\t\t.then(response => response.json())\n\t\t\t\t\t\t.then(data => {\n\t\t\t\t\t\t\tif (data.token) {\n\t\t\t\t\t\t\t\tsnap.pay(data.token, {\n\t\t\t\t\t\t\t\t\tonSuccess: function(result){ window.location.reload(); },\n\t\t\t\t\t\t\t\t\tonPending: function(result){ window.location.reload(); },\n\t\t\t\t\t\t\t\t\tonError: function(result){ alert('Payment failed!'); },\n\t\t\t\t\t\t\t\t\tonClose: function(){ console.log('customer closed the popup without finishing the payment'); }\n\t\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\talert(data.message || 'Failed to initiate payment');\n\t\t\t\t\t\t\t\tif (data.message && data.message.includes('already made')) {\n\t\t\t\t\t\t\t\t\twindow.location.reload();\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t})\n\t\t\t\t\t\t.catch(error => {\n\t\t\t\t\t\t\tconsole.error('Error:', error);\n\t\t\t\t\t\t\talert('An error occurred');\n\t\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t}\" @initiate-payment.window=\"initiatePayment($event.detail.dueID)\"><!-- Modal --><div x-show=\"showModal\" class=\"fixed inset-0 z-50 overflow-y-auto\" style=\"display: none;\"><div class=\"flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0\"><!-- Background overlay --><div x-show=\"showModal\" x-transition:enter=\"ease-out duration-300\" x-transition:enter-start=\"opacity-0\" x-transition:enter-end=\"opacity-100\" x-transition:leave=\"ease-in duration-200\" x-transition:leave-start=\"opacity-100\" x-transition:leave-end=\"opacity-0\" class=\"fixed inset-0 transition-opacity\" aria-hidden=\"true\"><div class=\"absolute inset-0 bg-gray-500 opacity-75\"></div></div><!-- Modal panel --><div x-show=\"showModal\" x-transition:enter=\"ease-out duration-300\" x-transition:enter-start=\"opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95\" x-transition:enter-end=\"opacity-100 translate-y-0 sm:scale-100\" x-transition:leave=\"ease-in duration-200\" x-transition:leave-start=\"opacity-100 translate-y-0 sm:scale-100\" x-transition:leave-end=\"opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95\" class=\"inline-block align-bottom bg-bg-card rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-border\"><div class=\"bg-bg-card px-4 pt-5 pb-4 sm:p-6 sm:pb-4\"><div class=\"sm:flex sm:items-start\"><div class=\"mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10\"><svg class=\"h-6 w-6 text-blue-600\" xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\" aria-hidden=\"true\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z\"></path></svg></div><div class=\"mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left\"><h3 class=\"text-lg leading-6 font-medium text-text-primary\" id=\"modal-title\">Active Payment Session Found</h3><div class=\"mt-2\"><p class=\"text-sm text-text-secondary\">You have an unfinished payment session for this due. Would you like to continue with the existing session or start a new one?</p></div></div></div></div><div class=\"bg-bg-body px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2\"><button type=\"button\" @click=\"continueSession()\" class=\"w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm\">Continue Session</button> <button type=\"button\" @click=\"startNewSession()\" class=\"mt-3 w-full inline-flex justify-center rounded-md border border-border shadow-sm px-4 py-2 bg-bg-card text-base font-medium text-text-primary hover:bg-bg-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm\">Start New Session</button> <button type=\"button\" @click=\"showModal = false\" class=\"mt-3 w-full inline-flex justify-center rounded-md border border-border shadow-sm px-4 py-2 bg-bg-card text-base font-medium text-text-secondary hover:bg-bg-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm\">Cancel</button></div></div></div></div><!-- Expose initiatePayment globally so onclick works --><script>\n\t\t\t\twindow.initiatePayment = function(dueID) {\n\t\t\t\t\twindow.dispatchEvent(new CustomEvent('initiate-payment', { detail: { dueID: dueID } }));\n\t\t\t\t}\n\t\t\t</script></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -589,7 +589,7 @@ func ViewByPlans(planWithDues []PlanWithDues, currentUserID uint) templ.Componen
 				var templ_7745c5c3_Var24 string
 				templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(pwd.Plan.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/payment_dues.templ`, Line: 396, Col: 75}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/payment_dues.templ`, Line: 399, Col: 75}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 				if templ_7745c5c3_Err != nil {
@@ -602,7 +602,7 @@ func ViewByPlans(planWithDues []PlanWithDues, currentUserID uint) templ.Componen
 				var templ_7745c5c3_Var25 string
 				templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.0f", pwd.Plan.TotalPrice))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/payment_dues.templ`, Line: 397, Col: 105}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/payment_dues.templ`, Line: 400, Col: 105}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 				if templ_7745c5c3_Err != nil {
@@ -615,7 +615,7 @@ func ViewByPlans(planWithDues []PlanWithDues, currentUserID uint) templ.Componen
 				var templ_7745c5c3_Var26 string
 				templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d dues", len(pwd.Dues)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/payment_dues.templ`, Line: 399, Col: 88}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/payment_dues.templ`, Line: 402, Col: 88}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 				if templ_7745c5c3_Err != nil {
@@ -685,7 +685,7 @@ func ViewByUsers(userWithDues []UserWithDues, currentUserID uint) templ.Componen
 				var templ_7745c5c3_Var28 string
 				templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(uwd.User.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/payment_dues.templ`, Line: 428, Col: 75}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/payment_dues.templ`, Line: 431, Col: 75}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 				if templ_7745c5c3_Err != nil {
@@ -698,7 +698,7 @@ func ViewByUsers(userWithDues []UserWithDues, currentUserID uint) templ.Componen
 				var templ_7745c5c3_Var29 string
 				templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(uwd.User.Email)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/payment_dues.templ`, Line: 429, Col: 63}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/payment_dues.templ`, Line: 432, Col: 63}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 				if templ_7745c5c3_Err != nil {
@@ -711,7 +711,7 @@ func ViewByUsers(userWithDues []UserWithDues, currentUserID uint) templ.Componen
 				var templ_7745c5c3_Var30 string
 				templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d dues", len(uwd.Dues)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/payment_dues.templ`, Line: 431, Col: 88}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/payment_dues.templ`, Line: 434, Col: 88}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 				if templ_7745c5c3_Err != nil {
@@ -770,7 +770,7 @@ func PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uin
 		var templ_7745c5c3_Var32 string
 		templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("payment-due-%d", due.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/payment_dues.templ`, Line: 449, Col: 44}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/payment_dues.templ`, Line: 452, Col: 44}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 		if templ_7745c5c3_Err != nil {
@@ -788,7 +788,7 @@ func PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uin
 			var templ_7745c5c3_Var33 string
 			templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(due.User.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/payment_dues.templ`, Line: 455, Col: 61}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/payment_dues.templ`, Line: 458, Col: 61}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 			if templ_7745c5c3_Err != nil {
@@ -801,7 +801,7 @@ func PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uin
 			var templ_7745c5c3_Var34 string
 			templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(due.User.Email)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/payment_dues.templ`, Line: 456, Col: 60}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/payment_dues.templ`, Line: 459, Col: 60}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 			if templ_7745c5c3_Err != nil {
@@ -819,7 +819,7 @@ func PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uin
 			var templ_7745c5c3_Var35 string
 			templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(due.Plan.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/payment_dues.templ`, Line: 458, Col: 61}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/payment_dues.templ`, Line: 461, Col: 61}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 			if templ_7745c5c3_Err != nil {
@@ -832,7 +832,7 @@ func PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uin
 			var templ_7745c5c3_Var36 string
 			templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.0f", due.Plan.TotalPrice))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/payment_dues.templ`, Line: 459, Col: 101}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/payment_dues.templ`, Line: 462, Col: 101}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 			if templ_7745c5c3_Err != nil {
@@ -850,7 +850,7 @@ func PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uin
 		var templ_7745c5c3_Var37 string
 		templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", due.CalculatedPayAmount))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/payment_dues.templ`, Line: 463, Col: 96}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/payment_dues.templ`, Line: 466, Col: 96}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
 		if templ_7745c5c3_Err != nil {
@@ -863,7 +863,7 @@ func PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uin
 		var templ_7745c5c3_Var38 string
 		templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", due.Portion))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/payment_dues.templ`, Line: 464, Col: 84}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/payment_dues.templ`, Line: 467, Col: 84}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
 		if templ_7745c5c3_Err != nil {
@@ -876,7 +876,7 @@ func PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uin
 		var templ_7745c5c3_Var39 string
 		templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(due.DueDate.Format("02 Jan 2006"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/payment_dues.templ`, Line: 465, Col: 88}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/payment_dues.templ`, Line: 468, Col: 88}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 		if templ_7745c5c3_Err != nil {
@@ -911,7 +911,7 @@ func PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uin
 			var templ_7745c5c3_Var41 string
 			templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/payments/%d/status?display_mode=%s", due.ID, displayMode))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/payment_dues.templ`, Line: 476, Col: 87}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/payment_dues.templ`, Line: 479, Col: 87}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
 			if templ_7745c5c3_Err != nil {
@@ -924,7 +924,7 @@ func PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uin
 			var templ_7745c5c3_Var42 string
 			templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#payment-due-%d", due.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/payment_dues.templ`, Line: 477, Col: 57}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/payment_dues.templ`, Line: 480, Col: 57}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
 			if templ_7745c5c3_Err != nil {

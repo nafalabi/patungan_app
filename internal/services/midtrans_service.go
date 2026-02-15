@@ -91,3 +91,12 @@ func (s *MidtransService) CheckTransaction(orderID string) (*coreapi.Transaction
 	}
 	return resp, nil
 }
+
+// CancelTransaction cancels a pending transaction
+func (s *MidtransService) CancelTransaction(orderID string) (*coreapi.CancelResponse, error) {
+	resp, err := s.CoreClient.CancelTransaction(orderID)
+	if err != nil {
+		return nil, fmt.Errorf("midtrans cancel transaction error: %v", err)
+	}
+	return resp, nil
+}

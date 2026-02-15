@@ -237,19 +237,47 @@ func (h *PaymentDueHandler) InitiatePayment(c echo.Context) error {
 	forceNew := c.QueryParam("force_new") == "true"
 	var existingSession models.PaymentSession
 	if err := h.db.Where("payment_due_id = ? AND is_active = ?", due.ID, true).Order("created_at desc").First(&existingSession).Error; err == nil {
-		if forceNew {
-			// Deactivate existing session
+		// Check to midtrans for existing session status
+		statusResp, err := h.midtransClient.CheckTransaction(existingSession.OrderID)
+		if err == nil {
+			// Case 1: Payment already successful
+			if statusResp.TransactionStatus == "settlement" || statusResp.TransactionStatus == "capture" {
+				h.handleTransactionStatus(&due, existingSession.OrderID, statusResp.TransactionStatus, statusResp.FraudStatus, statusResp.PaymentType, statusResp.GrossAmount)
+				return c.JSON(http.StatusBadRequest, map[string]string{"message": "Payment is already made. Please refresh the page."})
+			}
+
+			// Case 2: Payment failed/expired/canceled
+			if statusResp.TransactionStatus == "deny" || statusResp.TransactionStatus == "expire" || statusResp.TransactionStatus == "cancel" || statusResp.TransactionStatus == "failure" {
+				// Deactivate local session (Midtrans is already in terminal state)
+				existingSession.IsActive = false
+				h.db.Save(&existingSession)
+				// Proceed to create new transaction
+			} else {
+				// Case 3: Payment is Pending
+				if forceNew {
+					// User wants to force new -> Cancel existing at Midtrans
+					h.midtransClient.CancelTransaction(existingSession.OrderID)
+					existingSession.IsActive = false
+					h.db.Save(&existingSession)
+					// Proceed to create new transaction
+				} else {
+					// User wants to continue -> Return existing session
+					var midtransResp snap.Response
+					if err := json.Unmarshal(existingSession.ResponseMetadata, &midtransResp); err == nil {
+						return c.JSON(http.StatusOK, map[string]interface{}{
+							"token":        midtransResp.Token,
+							"redirect_url": midtransResp.RedirectURL,
+						})
+					}
+					// If unmarshal fails, treat as broken and proceed to create new
+					existingSession.IsActive = false
+					h.db.Save(&existingSession)
+				}
+			}
+		} else {
+			// If check failed (e.g. not found), just deactivate local session and create new
 			existingSession.IsActive = false
 			h.db.Save(&existingSession)
-		} else {
-			// Return existing session
-			var midtransResp snap.Response
-			if err := json.Unmarshal(existingSession.ResponseMetadata, &midtransResp); err == nil {
-				return c.JSON(http.StatusOK, map[string]interface{}{
-					"token":        midtransResp.Token,
-					"redirect_url": midtransResp.RedirectURL,
-				})
-			}
 		}
 	}
 
