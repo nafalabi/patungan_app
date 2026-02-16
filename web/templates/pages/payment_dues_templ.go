@@ -96,11 +96,11 @@ func PaymentDues(props PaymentDuesProps) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"mb-6\"><div class=\"flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4\"><h1 class=\"text-2xl font-bold text-text-primary\">Payment Dues</h1><!-- View mode toggle --><div class=\"flex gap-2 w-full sm:w-auto\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"mb-6\"><div class=\"flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4\"><h1 class=\"text-2xl font-bold text-text-primary\">Payment Dues</h1><!-- View mode toggle --><div class=\"flex flex-wrap gap-2 w-full sm:w-auto\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var3 = []any{"flex-1 sm:flex-none text-center px-4 py-2 rounded-lg font-medium transition-all duration-200",
+			var templ_7745c5c3_Var3 = []any{"sm:flex-none text-center px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap",
 				templ.KV("bg-primary text-white", props.ViewMode == "all"),
 				templ.KV("bg-bg-card text-text-secondary border border-border hover:bg-bg-hover", props.ViewMode != "all"),
 			}
@@ -138,7 +138,7 @@ func PaymentDues(props PaymentDuesProps) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var6 = []any{"flex-1 sm:flex-none text-center px-4 py-2 rounded-lg font-medium transition-all duration-200",
+			var templ_7745c5c3_Var6 = []any{"sm:flex-none text-center px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap",
 				templ.KV("bg-primary text-white", props.ViewMode == "plans"),
 				templ.KV("bg-bg-card text-text-secondary border border-border hover:bg-bg-hover", props.ViewMode != "plans"),
 			}
@@ -176,7 +176,7 @@ func PaymentDues(props PaymentDuesProps) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var9 = []any{"flex-1 sm:flex-none text-center px-4 py-2 rounded-lg font-medium transition-all duration-200",
+			var templ_7745c5c3_Var9 = []any{"sm:flex-none text-center px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap",
 				templ.KV("bg-primary text-white", props.ViewMode == "users"),
 				templ.KV("bg-bg-card text-text-secondary border border-border hover:bg-bg-hover", props.ViewMode != "users"),
 			}
@@ -385,7 +385,7 @@ func PaymentDues(props PaymentDuesProps) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, " class=\"w-4 h-4 rounded border-border text-primary focus:ring-2 focus:ring-primary\"> <label for=\"show-canceled\" class=\"text-sm text-text-secondary cursor-pointer\">Show canceled</label></div><!-- Actions --><div class=\"flex gap-2\"><button type=\"submit\" class=\"px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-hover transition-all duration-200\">Apply</button> <a href=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, " class=\"w-4 h-4 rounded border-border text-primary focus:ring-2 focus:ring-primary\"> <label for=\"show-canceled\" class=\"text-sm text-text-secondary cursor-pointer\">Show canceled</label></div><!-- Actions --><div class=\"flex gap-2\"><button type=\"submit\" class=\"px-3 py-1.5 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-hover transition-all duration-200\">Apply</button> <a href=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -398,7 +398,7 @@ func PaymentDues(props PaymentDuesProps) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "\" class=\"px-4 py-2 bg-bg-body text-text-secondary border border-border rounded-lg font-medium hover:bg-bg-hover transition-all duration-200\">Clear</a></div></form></div></div><!-- Content --> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "\" class=\"px-3 py-1.5 bg-bg-body text-text-secondary border border-border rounded-lg text-sm font-medium hover:bg-bg-hover transition-all duration-200\">Clear</a></div></form></div></div><!-- Content --> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

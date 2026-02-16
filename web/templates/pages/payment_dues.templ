@@ -67,11 +67,11 @@ templ PaymentDues(props PaymentDuesProps) {
 			<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
 				<h1 class="text-2xl font-bold text-text-primary">Payment Dues</h1>
 				<!-- View mode toggle -->
-				<div class="flex gap-2 w-full sm:w-auto">
+				<div class="flex flex-wrap gap-2 w-full sm:w-auto">
 					<a
 						href={ templ.SafeURL(buildURL("/payment-dues", "all", props.FilterPlan, props.FilterUser, props.SortBy, props.SortOrder)) }
 						class={
-							"flex-1 sm:flex-none text-center px-4 py-2 rounded-lg font-medium transition-all duration-200",
+							"sm:flex-none text-center px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap",
 							templ.KV("bg-primary text-white", props.ViewMode == "all"),
 							templ.KV("bg-bg-card text-text-secondary border border-border hover:bg-bg-hover", props.ViewMode != "all"),
 						}
@@ -81,7 +81,7 @@ templ PaymentDues(props PaymentDuesProps) {
 					<a
 						href={ templ.SafeURL(buildURL("/payment-dues", "plans", props.FilterPlan, props.FilterUser, props.SortBy, props.SortOrder)) }
 						class={
-							"flex-1 sm:flex-none text-center px-4 py-2 rounded-lg font-medium transition-all duration-200",
+							"sm:flex-none text-center px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap",
 							templ.KV("bg-primary text-white", props.ViewMode == "plans"),
 							templ.KV("bg-bg-card text-text-secondary border border-border hover:bg-bg-hover", props.ViewMode != "plans"),
 						}
@@ -91,7 +91,7 @@ templ PaymentDues(props PaymentDuesProps) {
 					<a
 						href={ templ.SafeURL(buildURL("/payment-dues", "users", props.FilterPlan, props.FilterUser, props.SortBy, props.SortOrder)) }
 						class={
-							"flex-1 sm:flex-none text-center px-4 py-2 rounded-lg font-medium transition-all duration-200",
+							"sm:flex-none text-center px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap",
 							templ.KV("bg-primary text-white", props.ViewMode == "users"),
 							templ.KV("bg-bg-card text-text-secondary border border-border hover:bg-bg-hover", props.ViewMode != "users"),
 						}
@@ -162,10 +162,10 @@ templ PaymentDues(props PaymentDuesProps) {
 					</div>
 					<!-- Actions -->
 					<div class="flex gap-2">
-						<button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-hover transition-all duration-200">
+						<button type="submit" class="px-3 py-1.5 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-hover transition-all duration-200">
 							Apply
 						</button>
-						<a href={ templ.SafeURL(fmt.Sprintf("/payment-dues?view=%s", props.ViewMode)) } class="px-4 py-2 bg-bg-body text-text-secondary border border-border rounded-lg font-medium hover:bg-bg-hover transition-all duration-200">
+						<a href={ templ.SafeURL(fmt.Sprintf("/payment-dues?view=%s", props.ViewMode)) } class="px-3 py-1.5 bg-bg-body text-text-secondary border border-border rounded-lg text-sm font-medium hover:bg-bg-hover transition-all duration-200">
 							Clear
 						</a>
 					</div>
