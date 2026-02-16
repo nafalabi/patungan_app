@@ -36,7 +36,7 @@ func (h *PaymentDueHandler) ListPaymentDues(c echo.Context) error {
 	// Parse query parameters
 	viewMode := c.QueryParam("view")
 	if viewMode == "" {
-		viewMode = "plans"
+		viewMode = "all"
 	}
 
 	filterPlanStr := c.QueryParam("filter_plan")
@@ -44,7 +44,7 @@ func (h *PaymentDueHandler) ListPaymentDues(c echo.Context) error {
 	showCanceled := c.QueryParam("show_canceled") == "true"
 	sortBy := c.QueryParam("sort_by")
 	if sortBy == "" {
-		sortBy = "due_date"
+		sortBy = "created_at"
 	}
 	sortOrder := c.QueryParam("sort_order")
 	if sortOrder == "" {
@@ -116,6 +116,8 @@ func (h *PaymentDueHandler) ListPaymentDues(c echo.Context) error {
 			Order("users.name " + sortOrder)
 	case "due_date":
 		query = query.Order("due_date " + sortOrder)
+	case "created_at":
+		query = query.Order("created_at " + sortOrder)
 	default:
 		query = query.Order("id " + sortOrder)
 	}
@@ -135,8 +137,10 @@ func (h *PaymentDueHandler) ListPaymentDues(c echo.Context) error {
 	h.db.Find(&allUsers)
 
 	// Group data based on view mode
+	// Group data based on view mode
 	var planWithDues []pages.PlanWithDues
 	var userWithDues []pages.UserWithDues
+	var flatDues []models.PaymentDue
 
 	if viewMode == "plans" {
 		// Group by plans
@@ -155,7 +159,7 @@ func (h *PaymentDueHandler) ListPaymentDues(c echo.Context) error {
 		for _, pwd := range planMap {
 			planWithDues = append(planWithDues, *pwd)
 		}
-	} else {
+	} else if viewMode == "users" {
 		// Group by users
 		userMap := make(map[uint]*pages.UserWithDues)
 		for _, due := range paymentDues {
@@ -172,6 +176,9 @@ func (h *PaymentDueHandler) ListPaymentDues(c echo.Context) error {
 		for _, uwd := range userMap {
 			userWithDues = append(userWithDues, *uwd)
 		}
+	} else {
+		// Flat view (all)
+		flatDues = paymentDues
 	}
 
 	// Breadcrumbs: Home > Payment Dues
@@ -196,6 +203,7 @@ func (h *PaymentDueHandler) ListPaymentDues(c echo.Context) error {
 		UserUIDString: getStringFromContext(c, "userUID"),
 		PlanWithDues:  planWithDues,
 		UserWithDues:  userWithDues,
+		FlatDues:      flatDues,
 		ViewMode:      viewMode,
 		FilterPlan:    filterPlan,
 		FilterUser:    filterUser,

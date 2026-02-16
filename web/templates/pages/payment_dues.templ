@@ -33,6 +33,7 @@ type PaymentDuesProps struct {
 	// Data
 	PlanWithDues []PlanWithDues
 	UserWithDues []UserWithDues
+	FlatDues     []models.PaymentDue
 
 	// Filter/Sort state
 	ViewMode     string
@@ -67,6 +68,16 @@ templ PaymentDues(props PaymentDuesProps) {
 				<h1 class="text-2xl font-bold text-text-primary">Payment Dues</h1>
 				<!-- View mode toggle -->
 				<div class="flex gap-2 w-full sm:w-auto">
+					<a
+						href={ templ.SafeURL(buildURL("/payment-dues", "all", props.FilterPlan, props.FilterUser, props.SortBy, props.SortOrder)) }
+						class={
+							"flex-1 sm:flex-none text-center px-4 py-2 rounded-lg font-medium transition-all duration-200",
+							templ.KV("bg-primary text-white", props.ViewMode == "all"),
+							templ.KV("bg-bg-card text-text-secondary border border-border hover:bg-bg-hover", props.ViewMode != "all"),
+						}
+					>
+						View All
+					</a>
 					<a
 						href={ templ.SafeURL(buildURL("/payment-dues", "plans", props.FilterPlan, props.FilterUser, props.SortBy, props.SortOrder)) }
 						class={
@@ -121,6 +132,7 @@ templ PaymentDues(props PaymentDuesProps) {
 					<div class="flex-1 min-w-[200px]">
 						<label class="block text-sm font-medium text-text-secondary mb-2">Sort by</label>
 						<select name="sort_by" class="w-full px-3 py-2 bg-bg-body border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary">
+							<option value="created_at" selected?={ props.SortBy == "created_at" }>Created Date</option>
 							<option value="plan" selected?={ props.SortBy == "plan" }>Plan</option>
 							<option value="user" selected?={ props.SortBy == "user" }>User</option>
 							<option value="due_date" selected?={ props.SortBy == "due_date" }>Due Date</option>
@@ -163,8 +175,10 @@ templ PaymentDues(props PaymentDuesProps) {
 		<!-- Content -->
 		if props.ViewMode == "plans" {
 			@ViewByPlans(props.PlanWithDues, props.CurrentUserID, props.CurrentUserType)
-		} else {
+		} else if props.ViewMode == "users" {
 			@ViewByUsers(props.UserWithDues, props.CurrentUserID, props.CurrentUserType)
+		} else {
+			@ViewAll(props.FlatDues, props.CurrentUserID, props.CurrentUserType)
 		}
 		<!-- Pagination -->
 		if props.TotalPages > 1 {
@@ -447,6 +461,25 @@ templ ViewByUsers(userWithDues []UserWithDues, currentUserID uint, currentUserTy
 	}
 }
 
+// ViewAll renders a flat list of payment dues
+templ ViewAll(dues []models.PaymentDue, currentUserID uint, currentUserType models.UserType) {
+	if len(dues) == 0 {
+		<div class="bg-bg-card rounded-xl border border-border p-8 text-center text-text-secondary">
+			No payment dues found.
+		</div>
+	} else {
+		<div class="space-y-4">
+			<div class="bg-bg-card rounded-xl border border-border overflow-hidden">
+				<div class="divide-y divide-border">
+					for _, due := range dues {
+						@PaymentDueItem(due, "both", currentUserID, currentUserType)
+					}
+				</div>
+			</div>
+		</div>
+	}
+}
+
 // PaymentDueItem renders a single payment due
 templ PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uint, currentUserType models.UserType) {
 	<div 
@@ -459,9 +492,22 @@ templ PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID ui
 				if displayMode == "user" {
 					<p class="font-medium text-text-primary">{ due.User.Name }</p>
 					<p class="text-sm text-text-secondary">{ due.User.Email }</p>
-				} else {
+				} else if displayMode == "plan" {
 					<p class="font-medium text-text-primary">{ due.Plan.Name }</p>
 					<p class="text-sm text-text-secondary">Plan Total: Rp { fmt.Sprintf("%.0f", due.Plan.TotalPrice) }</p>
+				} else {
+					// both
+					<div class="flex flex-col sm:flex-row sm:gap-4">
+						<div>
+							<p class="font-medium text-text-primary">{ due.Plan.Name }</p>
+							<p class="text-xs text-text-secondary">Plan Total: Rp { fmt.Sprintf("%.0f", due.Plan.TotalPrice) }</p>
+						</div>
+						<div class="hidden sm:block text-border">|</div>
+						<div>
+							<p class="font-medium text-text-primary">{ due.User.Name }</p>
+							<p class="text-xs text-text-secondary">{ due.User.Email }</p>
+						</div>
+					</div>
 				}
 			</div>
 			<div class="text-right">

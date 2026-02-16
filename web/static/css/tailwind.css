@@ -1480,6 +1480,11 @@ body {
   color: rgb(202 138 4 / var(--tw-text-opacity));
 }
 
+.text-border {
+  --tw-text-opacity: 1;
+  color: rgb(226 232 240 / var(--tw-text-opacity));
+}
+
 .no-underline {
   text-decoration-line: none;
 }
@@ -1789,6 +1794,10 @@ body {
 
   .sm\:items-center {
     align-items: center;
+  }
+
+  .sm\:gap-4 {
+    gap: 1rem;
   }
 
   .sm\:p-0 {
