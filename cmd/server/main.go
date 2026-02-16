@@ -71,6 +71,9 @@ func main() {
 	// Initialize Email
 	emailService := services.NewEmailService()
 
+	// Initialize WAHA
+	wahaService := services.NewWahaService()
+
 	// Create Echo instance
 	e := echo.New()
 
@@ -87,6 +90,7 @@ func main() {
 			c.Set("cache", cache)
 			c.Set("db", db)
 			c.Set("email", emailService)
+			c.Set("waha", wahaService)
 			return next(c)
 		}
 	})
