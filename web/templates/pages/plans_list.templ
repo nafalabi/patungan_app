@@ -240,7 +240,7 @@ templ PlanCard(plan models.Plan) {
 						Not Scheduled
 					</span>
 				} else {
-					@StatusBadge(string(plan.ScheduledTask.Status))
+					@StatusBadge(string(plan.ScheduledTask.Status), string(plan.PaymentType))
 				}
 			</div>
 		</div>
