@@ -68,6 +68,9 @@ func main() {
 	// Initialize Midtrans
 	midtransService := services.NewMidtransService()
 
+	// Initialize Email
+	emailService := services.NewEmailService()
+
 	// Create Echo instance
 	e := echo.New()
 
@@ -83,6 +86,7 @@ func main() {
 		return func(c echo.Context) error {
 			c.Set("cache", cache)
 			c.Set("db", db)
+			c.Set("email", emailService)
 			return next(c)
 		}
 	})
