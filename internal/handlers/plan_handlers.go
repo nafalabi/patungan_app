@@ -459,7 +459,6 @@ func (h *PlanHandler) SchedulePlan(c echo.Context) error {
 
 	taskName := tasks.TaskProcessPlanSchedule
 	arguments := map[string]interface{}{"plan_id": plan.ID}
-	due := plan.NextDue()
 
 	status := models.ScheduledTaskStatusActive
 
@@ -475,7 +474,7 @@ func (h *PlanHandler) SchedulePlan(c echo.Context) error {
 		task := models.ScheduledTask{
 			TaskName:          taskName,
 			Arguments:         arguments,
-			Due:               due,
+			Due:               plan.PlanStartDate,
 			RecurringInterval: plan.RecurringInterval,
 			Status:            status,
 			TaskType:          taskType,
@@ -495,7 +494,7 @@ func (h *PlanHandler) SchedulePlan(c echo.Context) error {
 		task := plan.ScheduledTask
 		task.TaskName = taskName
 		task.Arguments = arguments
-		task.Due = due
+		task.Due = plan.NextDue()
 		task.RecurringInterval = plan.RecurringInterval
 		task.Status = status
 		task.TaskType = taskType
