@@ -8,9 +8,9 @@ A robust web application designed to manage shared expenses, recurring plans, an
 -   **Plan Management**: Create, edit, and schedule recurring billing plans.
 -   **Payment Dues**: Automatically generate payment dues for plan participants.
 -   **Payment Integration**: Seamless integration with Midtrans for payment processing.
--   **Dashboard**: Overview of active plans and pending payments.
--   **Background Workers**: Asynq-based workers for processing scheduled tasks.
--   **Responsive UI**: Modern interface with TailwindCSS and mobile-first design.
+-   **Notification System**: Multi-channel notifications via WhatsApp (Personal & Group) and Email.
+-   **Dashboard**: Overview of active plans, recent payments, and pending dues.
+-   **Responsive UI**: Modern, high-performance interface built with Templ and HTMX, styled with TailwindCSS.
 
 ## 🛠 Tech Stack
 
@@ -22,12 +22,14 @@ A robust web application designed to manage shared expenses, recurring plans, an
 -   **ORM**: GORM
 -   **Caching**: Redis
 -   **Payment Gateway**: Midtrans
--   **Worker Queue**: Asynq (implied by worker service)
+-   **Notification Engine**: custom built with SMTP (Email) and [WAHA](https://waha.dev/) (WhatsApp HTTP API)
+-   **Worker System**: Internal Semaphore-based Concurrent Worker
 
 **Frontend**
+-   **Interactivity**: [HTMX](https://htmx.org/) (for SPA-like experience without complex JS frameworks)
 -   **Styling**: [TailwindCSS](https://tailwindcss.com/)
--   **Interactivity**: [HTMX](https://htmx.org/)
--   **Templating**: Templ (Components)
+-   **Icons**: [Lucide](https://lucide.dev/)
+-   **Templating**: Type-safe [Templ](https://templ.guide/) components
 
 ## 📋 Prerequisites
 
