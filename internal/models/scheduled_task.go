@@ -35,9 +35,9 @@ type ScheduledTask struct {
 	TaskName          string                 `gorm:"type:varchar(255)" json:"task_name"`
 	Arguments         map[string]interface{} `gorm:"serializer:json" json:"arguments"`
 	LastRun           *time.Time             `json:"last_run"`
-	Due               time.Time              `json:"due"`
+	Due               time.Time              `gorm:"index:idx_scheduled_tasks_status_due,priority:2,where:deleted_at IS NULL" json:"due"`
 	RecurringInterval *string                `gorm:"type:text" json:"recurring_interval"`
-	Status            ScheduledTaskStatus    `gorm:"type:varchar(20)" json:"status"`
+	Status            ScheduledTaskStatus    `gorm:"type:varchar(20);index:idx_scheduled_tasks_status_due,priority:1,where:deleted_at IS NULL" json:"status"`
 	TaskType          ScheduledTaskType      `gorm:"type:varchar(20);default:'onetime'" json:"task_type"`
 	MaxAttempt        int                    `json:"max_attempt"`
 }
