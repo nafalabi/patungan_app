@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 	"time"
 
@@ -15,6 +16,8 @@ import (
 	"patungan_app_echo/internal/services"
 	"patungan_app_echo/internal/tasks"
 )
+
+const MaxConcurrentTasks = 10
 
 func main() {
 	// Load environment variables
@@ -90,16 +93,29 @@ func processScheduledTasks(ctx context.Context, db *gorm.DB) {
 		return
 	}
 
-	log.Printf("Found %d pending tasks.", len(pendingTasks))
+	log.Printf("Found %d pending tasks. Processing with concurrency limit of %d", len(pendingTasks), MaxConcurrentTasks)
+
+	var wg sync.WaitGroup
+	sem := make(chan struct{}, MaxConcurrentTasks)
 
 	for _, task := range pendingTasks {
 		// Check context cancellation
 		if ctx.Err() != nil {
-			return
+			break
 		}
 
-		executeTask(ctx, db, task, 1)
+		wg.Add(1)
+		sem <- struct{}{} // Acquire semaphore
+
+		go func(t models.ScheduledTask) {
+			defer wg.Done()
+			defer func() { <-sem }() // Release semaphore
+			executeTask(ctx, db, t, 1)
+		}(task)
 	}
+
+	wg.Wait()
+	log.Println("Finished processing batch.")
 }
 
 func executeTask(ctx context.Context, db *gorm.DB, task models.ScheduledTask, curAttempt int) {
@@ -150,13 +166,14 @@ func executeTask(ctx context.Context, db *gorm.DB, task models.ScheduledTask, cu
 	duration := time.Since(startTime)
 	runtimeMs := int(duration.Milliseconds())
 
-	status := "success"
+	status := ""
 	var resultData map[string]interface{}
 	if err != nil {
 		status = "failure"
 		resultData = map[string]interface{}{"error": err.Error()}
 		log.Printf("Task %s failed: %v", task.TaskName, err)
 	} else {
+		status = "success"
 		resultData = result
 		log.Printf("Task %s completed successfully.", task.TaskName)
 	}
@@ -180,7 +197,8 @@ func executeTask(ctx context.Context, db *gorm.DB, task models.ScheduledTask, cu
 	}
 
 	if status != "success" {
-		if curAttempt >= task.MaxAttempt {
+		if curAttempt < task.MaxAttempt {
+			log.Printf("Task %s failed (Attempt %d/%d). Retrying...", task.TaskName, curAttempt, task.MaxAttempt)
 			executeTask(ctx, db, task, curAttempt+1)
 			return
 		}
