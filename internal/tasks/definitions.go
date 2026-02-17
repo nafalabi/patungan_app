@@ -7,4 +7,8 @@ func DefineTasks() {
 
 	// Register plan tasks
 	RegisterHandler(TaskProcessPlanSchedule, ProcessPlanScheduleHandler)
+
+	// Register notification tasks
+	RegisterHandler(TaskSendWhatsappNotif, SendWhatsappNotifHandler)
+	RegisterHandler(TaskSendEmailNotif, SendEmailNotifHandler)
 }
