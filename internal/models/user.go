@@ -28,7 +28,8 @@ type User struct {
 	UserType UserType `gorm:"type:varchar(20);default:'Member'" json:"user_type"`
 
 	// Relationships
-	PlanParticipants []PlanParticipant `gorm:"foreignKey:UserID" json:"plan_participants,omitempty"`
-	UserPayments     []UserPayment     `gorm:"foreignKey:UserID" json:"user_payments,omitempty"`
-	Refunds          []Refund          `gorm:"foreignKey:UserID" json:"refunds,omitempty"`
+	PlanParticipants    []PlanParticipant   `gorm:"foreignKey:UserID" json:"plan_participants,omitempty"`
+	UserPayments        []UserPayment       `gorm:"foreignKey:UserID" json:"user_payments,omitempty"`
+	Refunds             []Refund            `gorm:"foreignKey:UserID" json:"refunds,omitempty"`
+	UserNotifPreference UserNotifPreference `gorm:"foreignKey:UserID" json:"user_notif_preference,omitempty"`
 }

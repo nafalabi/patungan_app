@@ -172,7 +172,7 @@ func UserRow(user models.User) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</td><td class=\"p-4 flex gap-2\"><a href=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</td><td class=\"p-4 flex items-center gap-2\"><a href=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -185,20 +185,33 @@ func UserRow(user models.User) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" class=\"inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border-none cursor-pointer font-medium no-underline transition-all duration-200 bg-primary text-white hover:bg-primary-hover hover:-translate-y-px text-sm\">Edit</a><form method=\"POST\" action=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" class=\"inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-primary text-white hover:bg-primary-hover transition-all duration-200 text-sm font-medium whitespace-nowrap min-w-[100px]\"><i data-lucide=\"edit-2\" style=\"width: 16px; height: 16px;\"></i> Edit</a><form method=\"POST\" action=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var8 templ.SafeURL
 		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/users/%d/delete", user.ID)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/users_list.templ`, Line: 79, Col: 87}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/users_list.templ`, Line: 81, Col: 87}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" onsubmit=\"return confirm('Are you sure?')\"><button type=\"submit\" class=\"inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border-none cursor-pointer font-medium no-underline transition-all duration-200 bg-danger text-white hover:bg-red-600 hover:-translate-y-px text-sm\">Delete</button></form></td></tr>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" onsubmit=\"return confirm('Are you sure?')\" class=\"inline-block\"><button type=\"submit\" class=\"inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-danger text-white hover:bg-red-600 transition-all duration-200 text-sm font-medium whitespace-nowrap min-w-[100px]\"><i data-lucide=\"trash-2\" style=\"width: 16px; height: 16px;\"></i> Delete</button></form><button hx-get=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var9 string
+		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/users/%d/preference", user.ID))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/users_list.templ`, Line: 88, Col: 64}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\" hx-target=\"body\" hx-swap=\"beforeend\" class=\"inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-gray-500 text-white hover:bg-gray-600 transition-all duration-200 text-sm font-medium whitespace-nowrap min-w-[140px]\"><i data-lucide=\"bell\" style=\"width: 16px; height: 16px;\"></i> Settings</button></td></tr>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -54,7 +54,7 @@ func ProcessPlanScheduleHandler(ctx context.Context, db *gorm.DB, args map[strin
 			UserID:              p.UserID,
 			Portion:             p.Portion,
 			CalculatedPayAmount: amount,
-			PaymentStatus:       "pending",
+			PaymentStatus:       models.PaymentStatusPending,
 			DueDate:             plan.ScheduledTask.Due,
 		}
 		if err := db.Create(&due).Error; err != nil {

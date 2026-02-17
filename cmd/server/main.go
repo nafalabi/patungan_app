@@ -104,6 +104,7 @@ func main() {
 	planHandler := handlers.NewPlanHandler(db, cache)
 	userHandler := handlers.NewUserHandler(db, cache)
 	paymentDueHandler := handlers.NewPaymentDueHandler(db, cache, midtransService)
+	userPrefHandler := handlers.NewUserPreferenceHandler(db)
 
 	// Public routes
 	e.GET("/login", authHandler.LoginPage)
@@ -133,6 +134,10 @@ func main() {
 	protected.GET("/users/:id/edit", userHandler.EditUserPage)
 	protected.POST("/users/:id/update", userHandler.UpdateUser)
 	protected.POST("/users/:id/delete", userHandler.DeleteUser)
+
+	// User Preference (HTMX)
+	protected.GET("/users/:id/preference", userPrefHandler.GetUserPreference)
+	protected.PUT("/users/:id/preference", userPrefHandler.UpdateUserPreference)
 
 	// Payment dues routes
 	protected.GET("/payment-dues", paymentDueHandler.ListPaymentDues)

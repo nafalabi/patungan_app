@@ -1,0 +1,136 @@
+package pages
+
+import (
+	"fmt"
+	"patungan_app_echo/internal/models"
+)
+
+// UserPreferencePopup renders the notification preference popup
+templ UserPreferencePopup(user models.User, pref models.UserNotifPreference) {
+	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" id="notif-pref-modal">
+		<div class="bg-bg-card rounded-xl border border-border shadow-2xl p-6 w-full max-w-md relative animate-in fade-in zoom-in-95 duration-200">
+			<button class="absolute top-4 right-4 text-text-secondary hover:text-text-primary transition-colors" onclick="document.getElementById('notif-pref-modal').remove()">
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+			</button>
+
+			<h2 class="text-xl font-bold text-text-primary mb-4">Notification Settings</h2>
+			<p class="text-text-secondary mb-6">User: <span class="font-medium text-text-primary">{ user.Name }</span></p>
+
+			<form hx-put={ fmt.Sprintf("/users/%d/preference", user.ID) } hx-target="#notif-pref-modal" hx-swap="outerHTML">
+				<div class="space-y-4">
+					<!-- Channel Selection -->
+					<div>
+						<label class="block text-sm font-medium text-text-secondary mb-2">Preferred Channel</label>
+						<div class="flex gap-4">
+							<label class="inline-flex items-center cursor-pointer">
+								<input type="radio" name="channel" value="email" class="form-radio text-primary focus:ring-primary border-border bg-bg-body" 
+									checked?={ pref.Channel == models.NotificationChannelEmail }
+									onchange="toggleWhatsappOptions(false)">
+								<span class="ml-2 text-text-primary">Email</span>
+							</label>
+							<label class="inline-flex items-center cursor-pointer">
+								<input type="radio" name="channel" value="whatsapp" class="form-radio text-primary focus:ring-primary border-border bg-bg-body" 
+									checked?={ pref.Channel == models.NotificationChannelWhatsapp }
+									onchange="toggleWhatsappOptions(true)">
+								<span class="ml-2 text-text-primary">WhatsApp</span>
+							</label>
+						</div>
+					</div>
+
+					<!-- WhatsApp Options -->
+					<div id="whatsapp-options" class={ "p-4 bg-bg-body rounded-lg border border-border transition-all duration-200", templ.KV("hidden", pref.Channel != models.NotificationChannelWhatsapp) }>
+						<label class="block text-sm font-medium text-text-secondary mb-2">WhatsApp Target</label>
+						<div class="flex gap-4 mb-3">
+							<label class="inline-flex items-center cursor-pointer">
+								<input type="radio" name="whatsapp_target_type" value="personal" class="form-radio text-green-600 focus:ring-green-600 border-border bg-bg-card"
+									checked?={ pref.WhatsappTargetType == models.WhatsappTargetTypePersonal }
+									onchange="toggleGroupInput(false)">
+								<span class="ml-2 text-text-primary">Personal Number</span>
+							</label>
+							<label class="inline-flex items-center cursor-pointer">
+								<input type="radio" name="whatsapp_target_type" value="group" class="form-radio text-green-600 focus:ring-green-600 border-border bg-bg-card"
+									checked?={ pref.WhatsappTargetType == models.WhatsappTargetTypeGroup }
+									onchange="toggleGroupInput(true)">
+								<span class="ml-2 text-text-primary">Group</span>
+							</label>
+						</div>
+						
+						<div id="group-id-container" class={ "transition-all duration-200", templ.KV("hidden", pref.WhatsappTargetType != models.WhatsappTargetTypeGroup) }>
+							<label class="block text-xs font-medium text-text-secondary mb-1">Group ID (Chat ID)</label>
+							<input type="text" name="whatsapp_group_id" value={ pref.WhatsappGroupID }
+								class="w-full px-3 py-2 bg-bg-card border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+								placeholder="e.g. 123456789@g.us">
+							<p class="text-xs text-text-secondary mt-1">Get this ID from WAHA logs or API.</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="flex justify-end gap-3 mt-6 pt-4 border-t border-border">
+					<button type="button" onclick="document.getElementById('notif-pref-modal').remove()" 
+						class="px-4 py-2 text-text-primary bg-bg-body border border-border rounded-lg font-medium hover:bg-bg-hover transition-colors">
+						Cancel
+					</button>
+					<button type="submit" class="px-4 py-2 text-white bg-primary rounded-lg font-medium hover:bg-primary-hover transition-colors shadow-sm">
+						Save Changes
+					</button>
+				</div>
+			</form>
+
+			<script>
+				function toggleWhatsappOptions(show) {
+					const el = document.getElementById('whatsapp-options');
+					if (show) el.classList.remove('hidden');
+					else el.classList.add('hidden');
+				}
+				function toggleGroupInput(show) {
+					const el = document.getElementById('group-id-container');
+					if (show) el.classList.remove('hidden');
+					else el.classList.add('hidden');
+				}
+			</script>
+		</div>
+	</div>
+}
+
+// UserPreferenceSuccess is returned after a successful update to show a toast and close the modal
+templ UserPreferenceSuccess() {
+	<script>
+		(function() {
+			const toast = document.createElement('div');
+			toast.style.position = 'fixed';
+			toast.style.bottom = '2rem';
+			toast.style.right = '2rem';
+			toast.style.zIndex = '99999';
+			toast.style.backgroundColor = '#10b981';
+			toast.style.color = 'white';
+			toast.style.padding = '0.75rem 1.5rem';
+			toast.style.borderRadius = '0.5rem';
+			toast.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
+			toast.style.transition = 'all 0.3s ease';
+			toast.style.opacity = '0';
+			toast.style.transform = 'translateY(1rem)';
+			toast.innerText = 'Settings saved successfully!';
+			
+			document.body.appendChild(toast);
+			
+			setTimeout(() => {
+				toast.style.opacity = '1';
+				toast.style.transform = 'translateY(0)';
+			}, 10);
+			
+			setTimeout(() => {
+				toast.style.opacity = '0';
+				toast.style.transform = 'translateY(1rem)';
+				setTimeout(() => toast.remove(), 300);
+			}, 3000);
+
+			// Self-destruct: remove this script tag from the DOM
+			// Since hx-swap="outerHTML" replaced the modal with this script,
+			// removing the script leaves nothing behind.
+			const script = document.currentScript;
+			if (script) {
+				setTimeout(() => script.remove(), 100);
+			}
+		})();
+	</script>
+}
