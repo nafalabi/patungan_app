@@ -11,6 +11,7 @@ type NotificationChannel string
 const (
 	NotificationChannelEmail    NotificationChannel = "email"
 	NotificationChannelWhatsapp NotificationChannel = "whatsapp"
+	NotificationChannelNone     NotificationChannel = "none"
 )
 
 type WorkspaceType string
@@ -28,7 +29,7 @@ type UserNotifPreference struct {
 
 	UserID uint `gorm:"uniqueIndex" json:"user_id"`
 
-	Channel NotificationChannel `gorm:"type:varchar(20);default:'email'" json:"channel"`
+	Channel NotificationChannel `gorm:"type:varchar(20);default:'none'" json:"channel"`
 
 	// WhatsApp specific options
 	WhatsappTargetType string `gorm:"type:varchar(20);default:'personal'" json:"whatsapp_target_type"` // 'personal' or 'group'

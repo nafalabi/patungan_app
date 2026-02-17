@@ -21,7 +21,13 @@ templ UserPreferencePopup(user models.User, pref models.UserNotifPreference) {
 					<!-- Channel Selection -->
 					<div>
 						<label class="block text-sm font-medium text-text-secondary mb-2">Preferred Channel</label>
-						<div class="flex gap-4">
+						<div class="flex flex-wrap gap-4">
+							<label class="inline-flex items-center cursor-pointer">
+								<input type="radio" name="channel" value="none" class="form-radio text-primary focus:ring-primary border-border bg-bg-body" 
+									checked?={ pref.Channel == models.NotificationChannelNone || pref.Channel == "" }
+									onchange="toggleWhatsappOptions(false)">
+								<span class="ml-2 text-text-primary">None</span>
+							</label>
 							<label class="inline-flex items-center cursor-pointer">
 								<input type="radio" name="channel" value="email" class="form-radio text-primary focus:ring-primary border-border bg-bg-body" 
 									checked?={ pref.Channel == models.NotificationChannelEmail }

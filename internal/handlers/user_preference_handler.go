@@ -35,7 +35,7 @@ func (h *UserPreferenceHandler) GetUserPreference(c echo.Context) error {
 			// Default values
 			pref = models.UserNotifPreference{
 				UserID:             uint(userID),
-				Channel:            models.NotificationChannelEmail,
+				Channel:            models.NotificationChannelNone,
 				WhatsappTargetType: models.WhatsappTargetTypePersonal,
 			}
 		} else {

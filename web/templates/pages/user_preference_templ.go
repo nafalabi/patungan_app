@@ -61,27 +61,37 @@ func UserPreferencePopup(user models.User, pref models.UserNotifPreference) temp
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" hx-target=\"#notif-pref-modal\" hx-swap=\"outerHTML\"><div class=\"space-y-4\"><!-- Channel Selection --><div><label class=\"block text-sm font-medium text-text-secondary mb-2\">Preferred Channel</label><div class=\"flex gap-4\"><label class=\"inline-flex items-center cursor-pointer\"><input type=\"radio\" name=\"channel\" value=\"email\" class=\"form-radio text-primary focus:ring-primary border-border bg-bg-body\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" hx-target=\"#notif-pref-modal\" hx-swap=\"outerHTML\"><div class=\"space-y-4\"><!-- Channel Selection --><div><label class=\"block text-sm font-medium text-text-secondary mb-2\">Preferred Channel</label><div class=\"flex flex-wrap gap-4\"><label class=\"inline-flex items-center cursor-pointer\"><input type=\"radio\" name=\"channel\" value=\"none\" class=\"form-radio text-primary focus:ring-primary border-border bg-bg-body\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if pref.Channel == models.NotificationChannelEmail {
+		if pref.Channel == models.NotificationChannelNone || pref.Channel == "" {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, " checked")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, " onchange=\"toggleWhatsappOptions(false)\"> <span class=\"ml-2 text-text-primary\">Email</span></label> <label class=\"inline-flex items-center cursor-pointer\"><input type=\"radio\" name=\"channel\" value=\"whatsapp\" class=\"form-radio text-primary focus:ring-primary border-border bg-bg-body\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, " onchange=\"toggleWhatsappOptions(false)\"> <span class=\"ml-2 text-text-primary\">None</span></label> <label class=\"inline-flex items-center cursor-pointer\"><input type=\"radio\" name=\"channel\" value=\"email\" class=\"form-radio text-primary focus:ring-primary border-border bg-bg-body\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if pref.Channel == models.NotificationChannelWhatsapp {
+		if pref.Channel == models.NotificationChannelEmail {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, " checked")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, " onchange=\"toggleWhatsappOptions(true)\"> <span class=\"ml-2 text-text-primary\">WhatsApp</span></label></div></div><!-- WhatsApp Options -->")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, " onchange=\"toggleWhatsappOptions(false)\"> <span class=\"ml-2 text-text-primary\">Email</span></label> <label class=\"inline-flex items-center cursor-pointer\"><input type=\"radio\" name=\"channel\" value=\"whatsapp\" class=\"form-radio text-primary focus:ring-primary border-border bg-bg-body\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if pref.Channel == models.NotificationChannelWhatsapp {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, " checked")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, " onchange=\"toggleWhatsappOptions(true)\"> <span class=\"ml-2 text-text-primary\">WhatsApp</span></label></div></div><!-- WhatsApp Options -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -90,7 +100,7 @@ func UserPreferencePopup(user models.User, pref models.UserNotifPreference) temp
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div id=\"whatsapp-options\" class=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div id=\"whatsapp-options\" class=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -103,27 +113,27 @@ func UserPreferencePopup(user models.User, pref models.UserNotifPreference) temp
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\"><label class=\"block text-sm font-medium text-text-secondary mb-2\">WhatsApp Target</label><div class=\"flex gap-4 mb-3\"><label class=\"inline-flex items-center cursor-pointer\"><input type=\"radio\" name=\"whatsapp_target_type\" value=\"personal\" class=\"form-radio text-green-600 focus:ring-green-600 border-border bg-bg-card\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\"><label class=\"block text-sm font-medium text-text-secondary mb-2\">WhatsApp Target</label><div class=\"flex gap-4 mb-3\"><label class=\"inline-flex items-center cursor-pointer\"><input type=\"radio\" name=\"whatsapp_target_type\" value=\"personal\" class=\"form-radio text-green-600 focus:ring-green-600 border-border bg-bg-card\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if pref.WhatsappTargetType == models.WhatsappTargetTypePersonal {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, " checked")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, " onchange=\"toggleGroupInput(false)\"> <span class=\"ml-2 text-text-primary\">Personal Number</span></label> <label class=\"inline-flex items-center cursor-pointer\"><input type=\"radio\" name=\"whatsapp_target_type\" value=\"group\" class=\"form-radio text-green-600 focus:ring-green-600 border-border bg-bg-card\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		if pref.WhatsappTargetType == models.WhatsappTargetTypeGroup {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, " checked")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, " onchange=\"toggleGroupInput(true)\"> <span class=\"ml-2 text-text-primary\">Group</span></label></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, " onchange=\"toggleGroupInput(false)\"> <span class=\"ml-2 text-text-primary\">Personal Number</span></label> <label class=\"inline-flex items-center cursor-pointer\"><input type=\"radio\" name=\"whatsapp_target_type\" value=\"group\" class=\"form-radio text-green-600 focus:ring-green-600 border-border bg-bg-card\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if pref.WhatsappTargetType == models.WhatsappTargetTypeGroup {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, " checked")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, " onchange=\"toggleGroupInput(true)\"> <span class=\"ml-2 text-text-primary\">Group</span></label></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -132,7 +142,7 @@ func UserPreferencePopup(user models.User, pref models.UserNotifPreference) temp
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div id=\"group-id-container\" class=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div id=\"group-id-container\" class=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -145,20 +155,20 @@ func UserPreferencePopup(user models.User, pref models.UserNotifPreference) temp
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\"><label class=\"block text-xs font-medium text-text-secondary mb-1\">Group ID (Chat ID)</label> <input type=\"text\" name=\"whatsapp_group_id\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\"><label class=\"block text-xs font-medium text-text-secondary mb-1\">Group ID (Chat ID)</label> <input type=\"text\" name=\"whatsapp_group_id\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var8 string
 		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(pref.WhatsappGroupID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/user_preference.templ`, Line: 60, Col: 79}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/user_preference.templ`, Line: 66, Col: 79}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" class=\"w-full px-3 py-2 bg-bg-card border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary text-sm\" placeholder=\"e.g. 123456789@g.us\"><p class=\"text-xs text-text-secondary mt-1\">Get this ID from WAHA logs or API.</p></div></div></div><div class=\"flex justify-end gap-3 mt-6 pt-4 border-t border-border\"><button type=\"button\" onclick=\"document.getElementById('notif-pref-modal').remove()\" class=\"px-4 py-2 text-text-primary bg-bg-body border border-border rounded-lg font-medium hover:bg-bg-hover transition-colors\">Cancel</button> <button type=\"submit\" class=\"px-4 py-2 text-white bg-primary rounded-lg font-medium hover:bg-primary-hover transition-colors shadow-sm\">Save Changes</button></div></form><script>\n\t\t\t\tfunction toggleWhatsappOptions(show) {\n\t\t\t\t\tconst el = document.getElementById('whatsapp-options');\n\t\t\t\t\tif (show) el.classList.remove('hidden');\n\t\t\t\t\telse el.classList.add('hidden');\n\t\t\t\t}\n\t\t\t\tfunction toggleGroupInput(show) {\n\t\t\t\t\tconst el = document.getElementById('group-id-container');\n\t\t\t\t\tif (show) el.classList.remove('hidden');\n\t\t\t\t\telse el.classList.add('hidden');\n\t\t\t\t}\n\t\t\t</script></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\" class=\"w-full px-3 py-2 bg-bg-card border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary text-sm\" placeholder=\"e.g. 123456789@g.us\"><p class=\"text-xs text-text-secondary mt-1\">Get this ID from WAHA logs or API.</p></div></div></div><div class=\"flex justify-end gap-3 mt-6 pt-4 border-t border-border\"><button type=\"button\" onclick=\"document.getElementById('notif-pref-modal').remove()\" class=\"px-4 py-2 text-text-primary bg-bg-body border border-border rounded-lg font-medium hover:bg-bg-hover transition-colors\">Cancel</button> <button type=\"submit\" class=\"px-4 py-2 text-white bg-primary rounded-lg font-medium hover:bg-primary-hover transition-colors shadow-sm\">Save Changes</button></div></form><script>\n\t\t\t\tfunction toggleWhatsappOptions(show) {\n\t\t\t\t\tconst el = document.getElementById('whatsapp-options');\n\t\t\t\t\tif (show) el.classList.remove('hidden');\n\t\t\t\t\telse el.classList.add('hidden');\n\t\t\t\t}\n\t\t\t\tfunction toggleGroupInput(show) {\n\t\t\t\t\tconst el = document.getElementById('group-id-container');\n\t\t\t\t\tif (show) el.classList.remove('hidden');\n\t\t\t\t\telse el.classList.add('hidden');\n\t\t\t\t}\n\t\t\t</script></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -188,7 +198,7 @@ func UserPreferenceSuccess() templ.Component {
 			templ_7745c5c3_Var9 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<script>\n\t\t(function() {\n\t\t\tconst toast = document.createElement('div');\n\t\t\ttoast.style.position = 'fixed';\n\t\t\ttoast.style.bottom = '2rem';\n\t\t\ttoast.style.right = '2rem';\n\t\t\ttoast.style.zIndex = '99999';\n\t\t\ttoast.style.backgroundColor = '#10b981';\n\t\t\ttoast.style.color = 'white';\n\t\t\ttoast.style.padding = '0.75rem 1.5rem';\n\t\t\ttoast.style.borderRadius = '0.5rem';\n\t\t\ttoast.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';\n\t\t\ttoast.style.transition = 'all 0.3s ease';\n\t\t\ttoast.style.opacity = '0';\n\t\t\ttoast.style.transform = 'translateY(1rem)';\n\t\t\ttoast.innerText = 'Settings saved successfully!';\n\t\t\t\n\t\t\tdocument.body.appendChild(toast);\n\t\t\t\n\t\t\tsetTimeout(() => {\n\t\t\t\ttoast.style.opacity = '1';\n\t\t\t\ttoast.style.transform = 'translateY(0)';\n\t\t\t}, 10);\n\t\t\t\n\t\t\tsetTimeout(() => {\n\t\t\t\ttoast.style.opacity = '0';\n\t\t\t\ttoast.style.transform = 'translateY(1rem)';\n\t\t\t\tsetTimeout(() => toast.remove(), 300);\n\t\t\t}, 3000);\n\n\t\t\t// Self-destruct: remove this script tag from the DOM\n\t\t\t// Since hx-swap=\"outerHTML\" replaced the modal with this script,\n\t\t\t// removing the script leaves nothing behind.\n\t\t\tconst script = document.currentScript;\n\t\t\tif (script) {\n\t\t\t\tsetTimeout(() => script.remove(), 100);\n\t\t\t}\n\t\t})();\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<script>\n\t\t(function() {\n\t\t\tconst toast = document.createElement('div');\n\t\t\ttoast.style.position = 'fixed';\n\t\t\ttoast.style.bottom = '2rem';\n\t\t\ttoast.style.right = '2rem';\n\t\t\ttoast.style.zIndex = '99999';\n\t\t\ttoast.style.backgroundColor = '#10b981';\n\t\t\ttoast.style.color = 'white';\n\t\t\ttoast.style.padding = '0.75rem 1.5rem';\n\t\t\ttoast.style.borderRadius = '0.5rem';\n\t\t\ttoast.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';\n\t\t\ttoast.style.transition = 'all 0.3s ease';\n\t\t\ttoast.style.opacity = '0';\n\t\t\ttoast.style.transform = 'translateY(1rem)';\n\t\t\ttoast.innerText = 'Settings saved successfully!';\n\t\t\t\n\t\t\tdocument.body.appendChild(toast);\n\t\t\t\n\t\t\tsetTimeout(() => {\n\t\t\t\ttoast.style.opacity = '1';\n\t\t\t\ttoast.style.transform = 'translateY(0)';\n\t\t\t}, 10);\n\t\t\t\n\t\t\tsetTimeout(() => {\n\t\t\t\ttoast.style.opacity = '0';\n\t\t\t\ttoast.style.transform = 'translateY(1rem)';\n\t\t\t\tsetTimeout(() => toast.remove(), 300);\n\t\t\t}, 3000);\n\n\t\t\t// Self-destruct: remove this script tag from the DOM\n\t\t\t// Since hx-swap=\"outerHTML\" replaced the modal with this script,\n\t\t\t// removing the script leaves nothing behind.\n\t\t\tconst script = document.currentScript;\n\t\t\tif (script) {\n\t\t\t\tsetTimeout(() => script.remove(), 100);\n\t\t\t}\n\t\t})();\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

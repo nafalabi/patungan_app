@@ -62,9 +62,14 @@ func SendNotificationHandler(ctx context.Context, db *gorm.DB, args map[string]i
 			sendErr = sendEmailNotif(user, args)
 		} else if pref.Channel == models.NotificationChannelWhatsapp {
 			sendErr = sendWhatsappNotif(user, args, pref)
+		} else if pref.Channel == models.NotificationChannelNone {
+			// Explicitly disabled, skip
+			log.Printf("Notification disabled (none) for %s", user.Username)
+			skippedCount++
+			continue
 		} else {
 			// Unknown channel, skip
-			log.Printf("Unknown channel %s for %s", pref.Channel, user.Username)
+			log.Printf("Unsupported notification channel %s for %s", pref.Channel, user.Username)
 			skippedCount++
 			continue
 		}
