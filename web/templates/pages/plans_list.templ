@@ -249,21 +249,22 @@ templ PlanCard(plan models.Plan) {
 			<button 
 				hx-get={ fmt.Sprintf("/plans/%d/schedule-popup", plan.ID) }
 				hx-target="#global-modal"
-				class="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-border cursor-pointer font-medium transition-all duration-200 bg-bg-card text-text-primary hover:bg-bg-hover text-sm"
+				class="flex-1 inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg border border-border cursor-pointer font-medium transition-all duration-200 bg-bg-card text-text-primary hover:bg-bg-hover text-sm"
 			>
 				<i data-lucide="calendar" style="width: 14px; height: 14px;"></i>
 				Schedule
 			</button>
 			<a 
 				href={ templ.SafeURL(fmt.Sprintf("/plans/%d/edit", plan.ID)) }
-				class="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg border-none cursor-pointer font-medium no-underline transition-all duration-200 bg-primary text-white hover:bg-primary-hover text-sm"
+				class="flex-1 inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg border-none cursor-pointer font-medium no-underline transition-all duration-200 bg-primary text-white hover:bg-primary-hover text-sm"
 			>
+				<i data-lucide="edit-2" style="width: 14px; height: 14px;"></i>
 				Edit
 			</a>
 			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/plans/%d/delete", plan.ID)) } onsubmit="return confirm('Are you sure?')" class="flex-1">
 				<button 
 					type="submit"
-					class="w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg border-none cursor-pointer font-medium transition-all duration-200 bg-danger text-white hover:bg-red-600 text-sm"
+					class="w-full h-full inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg border-none cursor-pointer font-medium transition-all duration-200 bg-danger text-white hover:bg-red-600 text-sm"
 				>
 					<i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>
 				</button>

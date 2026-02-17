@@ -737,6 +737,10 @@ body {
   height: 100vh;
 }
 
+.h-full {
+  height: 100%;
+}
+
 .max-h-60 {
   max-height: 15rem;
 }

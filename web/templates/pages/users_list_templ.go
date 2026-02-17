@@ -185,7 +185,7 @@ func UserRow(user models.User) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" class=\"inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-primary text-white hover:bg-primary-hover transition-all duration-200 text-sm font-medium whitespace-nowrap min-w-[100px]\"><i data-lucide=\"edit-2\" style=\"width: 16px; height: 16px;\"></i> Edit</a><form method=\"POST\" action=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" class=\"inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg bg-primary text-white hover:bg-primary-hover transition-all duration-200 text-sm font-medium whitespace-nowrap min-w-[100px]\"><i data-lucide=\"edit-2\" style=\"width: 16px; height: 16px;\"></i> Edit</a><form method=\"POST\" action=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -198,7 +198,7 @@ func UserRow(user models.User) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" onsubmit=\"return confirm('Are you sure?')\" class=\"inline-block\"><button type=\"submit\" class=\"inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-danger text-white hover:bg-red-600 transition-all duration-200 text-sm font-medium whitespace-nowrap min-w-[100px]\"><i data-lucide=\"trash-2\" style=\"width: 16px; height: 16px;\"></i> Delete</button></form><button hx-get=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" onsubmit=\"return confirm('Are you sure?')\" class=\"inline-block\"><button type=\"submit\" class=\"inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg bg-danger text-white hover:bg-red-600 transition-all duration-200 text-sm font-medium whitespace-nowrap min-w-[100px]\"><i data-lucide=\"trash-2\" style=\"width: 16px; height: 16px;\"></i> Delete</button></form><button hx-get=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -211,7 +211,7 @@ func UserRow(user models.User) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\" hx-target=\"body\" hx-swap=\"beforeend\" class=\"inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-gray-500 text-white hover:bg-gray-600 transition-all duration-200 text-sm font-medium whitespace-nowrap min-w-[140px]\"><i data-lucide=\"bell\" style=\"width: 16px; height: 16px;\"></i> Settings</button></td></tr>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\" hx-target=\"body\" hx-swap=\"beforeend\" class=\"inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg bg-gray-500 text-white hover:bg-gray-600 transition-all duration-200 text-sm font-medium whitespace-nowrap min-w-[140px]\"><i data-lucide=\"bell\" style=\"width: 16px; height: 16px;\"></i> Settings</button></td></tr>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
