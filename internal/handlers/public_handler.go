@@ -74,7 +74,7 @@ func (h *PublicHandler) InitiatePayment(c echo.Context) error {
 	result, err := h.paymentService.InitiatePayment(&due, forceNew, callbackURL)
 	if err != nil {
 		if err.Error() == "payment already made" {
-			return c.JSON(http.StatusBadRequest, map[string]string{"message": "Payment is already made. Please refresh the page."})
+			return c.JSON(http.StatusBadRequest, map[string]string{"message": "Payment is already made. Please check the status."})
 		}
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to initiate payment: "+err.Error())
 	}
@@ -110,5 +110,34 @@ func (h *PublicHandler) CheckActiveSession(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"active": false,
+	})
+}
+
+// CheckStatus checks the payment status and returns the current state
+func (h *PublicHandler) CheckStatus(c echo.Context) error {
+	uuid := c.Param("uuid")
+	if uuid == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid payment due UUID")
+	}
+
+	var due models.PaymentDue
+	if err := h.db.Where("uuid = ?", uuid).First(&due).Error; err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, "Payment due not found")
+	}
+
+	// Verify status with PaymentService
+	if err := h.paymentService.VerifyPaymentStatus(due.ID); err != nil {
+		// Log error but proceed to return current status from DB
+		log.Printf("Failed to verify payment status for due %d: %v", due.ID, err)
+	}
+
+	// Re-fetch to get latest status
+	if err := h.db.First(&due, due.ID).Error; err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to fetch payment due")
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"status":         due.PaymentStatus,
+		"payment_status": due.PaymentStatus, // redundancy for frontend convenience
 	})
 }

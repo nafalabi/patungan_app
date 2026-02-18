@@ -3,6 +3,7 @@ package services
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"time"
 
 	"gorm.io/gorm"
@@ -150,4 +151,97 @@ func (s *PaymentService) InitiatePayment(due *models.PaymentDue, forceNew bool, 
 		RedirectURL: resp.RedirectURL,
 		IsExisting:  false,
 	}, nil
+}
+
+// VerifyPaymentStatus checks the status of a payment due with Midtrans and updates local state
+func (s *PaymentService) VerifyPaymentStatus(dueID uint) error {
+	// 1. Find latest active session for this due
+	var session models.PaymentSession
+	if err := s.db.Where("payment_due_id = ? AND is_active = ?", dueID, true).Order("created_at desc").First(&session).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil // No active session to verify
+		}
+		return err
+	}
+
+	// 2. Call Midtrans Check Transaction
+	resp, err := s.midtransClient.CheckTransaction(session.OrderID)
+	if err != nil {
+		return err
+	}
+
+	// 3. Process Response & Update Local State
+	var due models.PaymentDue
+	if err := s.db.First(&due, dueID).Error; err != nil {
+		return err
+	}
+
+	s.HandleTransactionStatus(&due, session.OrderID, resp.TransactionStatus, resp.FraudStatus, resp.PaymentType, resp.GrossAmount)
+
+	return nil
+}
+
+func (s *PaymentService) HandleTransactionStatus(due *models.PaymentDue, orderID, transactionStatus, fraudStatus, paymentType, grossAmount string) {
+	switch transactionStatus {
+	case "capture":
+		switch fraudStatus {
+		case "accept":
+			s.MarkAsPaid(due, map[string]interface{}{
+				"payment_type": paymentType,
+				"gross_amount": grossAmount,
+			})
+		case "deny", "challenge":
+			// do nothing
+		}
+	case "settlement":
+		s.MarkAsPaid(due, map[string]interface{}{
+			"payment_type": paymentType,
+			"gross_amount": grossAmount,
+		})
+	case "deny", "expire", "cancel", "failure":
+		var session models.PaymentSession
+		if err := s.db.Where("order_id = ?", orderID).First(&session).Error; err == nil {
+			session.IsActive = false
+			s.db.Save(&session)
+		}
+	}
+}
+
+func (s *PaymentService) MarkAsPaid(due *models.PaymentDue, payload map[string]interface{}) {
+	if due.PaymentStatus == models.PaymentStatusPaid {
+		return
+	}
+
+	// 1. Update PaymentDue status
+	due.PaymentStatus = models.PaymentStatusPaid
+	s.db.Save(due)
+
+	// 2. Create UserPayment record
+	paymentType, _ := payload["payment_type"].(string)
+	paymentGatewayStr, ok := payload["payment_gateway"].(string)
+	var paymentGateway models.PaymentGateway
+	if ok {
+		paymentGateway = models.PaymentGateway(paymentGatewayStr)
+	} else {
+		paymentGateway = models.PaymentGatewayMidtrans // Default to midtrans for existing calls
+	}
+
+	// Helper to get float from interface safely
+	var grossAmt float64
+	if val, ok := payload["gross_amount"].(string); ok {
+		grossAmt, _ = strconv.ParseFloat(val, 64)
+	} else if val, ok := payload["gross_amount"].(float64); ok {
+		grossAmt = val
+	}
+
+	userPayment := models.UserPayment{
+		PlanID:         due.PlanID,
+		PaymentDueID:   due.ID,
+		UserID:         due.UserID,
+		TotalPay:       grossAmt,
+		ChannelPayment: paymentType,
+		PaymentGateway: paymentGateway,
+		PaymentDate:    time.Now(),
+	}
+	s.db.Create(&userPayment)
 }

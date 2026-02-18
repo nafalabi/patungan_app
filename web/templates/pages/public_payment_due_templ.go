@@ -53,14 +53,14 @@ func PublicPaymentDue(props PublicPaymentDueProps) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"max-w-sm mx-auto\" x-data=\"{ \n\t\t\t\tshowModal: false, \n\t\t\t\tactiveUUID: null,\n\t\t\t\tinitiatePayment(uuid, forceNew = false) {\n\t\t\t\t\tthis.activeUUID = uuid;\n\t\t\t\t\t\n\t\t\t\t\t// If forcing new, skip check and go directly to initiate\n\t\t\t\t\tif (forceNew) {\n\t\t\t\t\t\tthis.callInitiateAPI(uuid, true);\n\t\t\t\t\t\tthis.showModal = false;\n\t\t\t\t\t\treturn;\n\t\t\t\t\t}\n\n\t\t\t\t\t// Check for active session\n\t\t\t\t\tfetch(`/p/${uuid}/active-session`)\n\t\t\t\t\t\t.then(response => response.json())\n\t\t\t\t\t\t.then(data => {\n\t\t\t\t\t\t\tif (data.active) {\n\t\t\t\t\t\t\t\t// Found active session, show modal\n\t\t\t\t\t\t\t\tthis.showModal = true;\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\t// No active session, create new\n\t\t\t\t\t\t\t\tthis.callInitiateAPI(uuid, false);\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t})\n\t\t\t\t\t\t.catch(error => {\n\t\t\t\t\t\t\tconsole.error('Error checking session:', error);\n\t\t\t\t\t\t\talert('An error occurred while checking payment status');\n\t\t\t\t\t\t});\n\t\t\t\t},\n\t\t\t\tcontinueSession() {\n\t\t\t\t\t// Call initiate without force_new to get existing token\n\t\t\t\t\tthis.callInitiateAPI(this.activeUUID, false);\n\t\t\t\t\tthis.showModal = false;\n\t\t\t\t},\n\t\t\t\tstartNewSession() {\n\t\t\t\t\t// Call initiate with force_new=true\n\t\t\t\t\tthis.callInitiateAPI(this.activeUUID, true);\n\t\t\t\t\tthis.showModal = false;\n\t\t\t\t},\n\t\t\t\tcallInitiateAPI(uuid, forceNew) {\n\t\t\t\t\tlet url = `/p/${uuid}/initiate`;\n\t\t\t\t\tif (forceNew) {\n\t\t\t\t\t\turl += '?force_new=true';\n\t\t\t\t\t}\n\n\t\t\t\t\tfetch(url, { method: 'POST' })\n\t\t\t\t\t\t.then(response => response.json())\n\t\t\t\t\t\t.then(data => {\n\t\t\t\t\t\t\tif (data.token) {\n\t\t\t\t\t\t\t\tsnap.pay(data.token, {\n\t\t\t\t\t\t\t\t\tonSuccess: function(result){ window.location.reload(); },\n\t\t\t\t\t\t\t\t\tonPending: function(result){ window.location.reload(); },\n\t\t\t\t\t\t\t\t\tonError: function(result){ alert('Payment failed!'); },\n\t\t\t\t\t\t\t\t\tonClose: function(){ console.log('customer closed the popup without finishing the payment'); }\n\t\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\talert(data.message || 'Failed to initiate payment');\n\t\t\t\t\t\t\t\tif (data.message && data.message.includes('already made')) {\n\t\t\t\t\t\t\t\t\twindow.location.reload();\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t})\n\t\t\t\t\t\t.catch(error => {\n\t\t\t\t\t\t\tconsole.error('Error:', error);\n\t\t\t\t\t\t\talert('An error occurred');\n\t\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t}\"><div class=\"bg-bg-card rounded-2xl border border-border overflow-hidden shadow-sm\"><!-- Header Section --><div class=\"bg-primary/5 border-b border-border p-6 text-center\"><h1 class=\"text-2xl font-bold text-text-primary mb-1\">Payment Request</h1><p class=\"text-text-secondary\">Please review the payment details below</p></div><!-- Amount Section --><div class=\"p-8 text-center border-b border-border\"><p class=\"text-sm font-medium text-text-secondary uppercase tracking-wider mb-2\">Total Amount</p><div class=\"text-4xl font-bold text-primary\">Rp ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"max-w-sm mx-auto\" x-data=\"{ \n\t\t\t\tshowModal: false, \n\t\t\t\tactiveUUID: null,\n\t\t\t\tinitiatePayment(uuid, forceNew = false) {\n\t\t\t\t\tthis.activeUUID = uuid;\n\t\t\t\t\t\n\t\t\t\t\t// If forcing new, skip check and go directly to initiate\n\t\t\t\t\tif (forceNew) {\n\t\t\t\t\t\tthis.callInitiateAPI(uuid, true);\n\t\t\t\t\t\tthis.showModal = false;\n\t\t\t\t\t\treturn;\n\t\t\t\t\t}\n\n\t\t\t\t\t// Check for active session\n\t\t\t\t\tfetch(`/p/${uuid}/active-session`)\n\t\t\t\t\t\t.then(response => response.json())\n\t\t\t\t\t\t.then(data => {\n\t\t\t\t\t\t\tif (data.active) {\n\t\t\t\t\t\t\t\t// Found active session, show modal\n\t\t\t\t\t\t\t\tthis.showModal = true;\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\t// No active session, create new\n\t\t\t\t\t\t\t\tthis.callInitiateAPI(uuid, false);\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t})\n\t\t\t\t\t\t.catch(error => {\n\t\t\t\t\t\t\tconsole.error('Error checking session:', error);\n\t\t\t\t\t\t\talert('An error occurred while checking payment status');\n\t\t\t\t\t\t});\n\t\t\t\t},\n\t\t\t\tcontinueSession() {\n\t\t\t\t\t// Call initiate without force_new to get existing token\n\t\t\t\t\tthis.callInitiateAPI(this.activeUUID, false);\n\t\t\t\t\tthis.showModal = false;\n\t\t\t\t},\n\t\t\t\tstartNewSession() {\n\t\t\t\t\t// Call initiate with force_new=true\n\t\t\t\t\tthis.callInitiateAPI(this.activeUUID, true);\n\t\t\t\t\tthis.showModal = false;\n\t\t\t\t},\n\t\t\t\tcallInitiateAPI(uuid, forceNew) {\n\t\t\t\t\tlet url = `/p/${uuid}/initiate`;\n\t\t\t\t\tif (forceNew) {\n\t\t\t\t\t\turl += '?force_new=true';\n\t\t\t\t\t}\n\n\t\t\t\t\tfetch(url, { method: 'POST' })\n\t\t\t\t\t\t.then(response => response.json())\n\t\t\t\t\t\t.then(data => {\n\t\t\t\t\t\t\tif (data.token) {\n\t\t\t\t\t\t\t\tsnap.pay(data.token, {\n\t\t\t\t\t\t\t\t\tonSuccess: function(result){ window.location.reload(); },\n\t\t\t\t\t\t\t\t\tonPending: function(result){ window.location.reload(); },\n\t\t\t\t\t\t\t\t\tonError: function(result){ alert('Payment failed!'); },\n\t\t\t\t\t\t\t\t\tonClose: function(){ console.log('customer closed the popup without finishing the payment'); }\n\t\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\talert(data.message || 'Failed to initiate payment');\n\t\t\t\t\t\t\t\tif (data.message && data.message.includes('already made')) {\n\t\t\t\t\t\t\t\t\twindow.location.reload();\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t})\n\t\t\t\t\t\t.catch(error => {\n\t\t\t\t\t\t\tconsole.error('Error:', error);\n\t\t\t\t\t\t\talert('An error occurred');\n\t\t\t\t\t\t});\n\t\t\t\t},\n\t\t\t\tcheckStatus(uuid) {\n\t\t\t\t\tfetch(`/p/${uuid}/status`)\n\t\t\t\t\t\t.then(response => response.json())\n\t\t\t\t\t\t.then(data => {\n\t\t\t\t\t\t\tif (data.status === 'paid') {\n\t\t\t\t\t\t\t\twindow.location.reload();\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\talert('Payment status: ' + data.status + '. If you have paid, please wait a moment and try again.');\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t})\n\t\t\t\t\t\t.catch(error => {\n\t\t\t\t\t\t\tconsole.error('Error checking status:', error);\n\t\t\t\t\t\t\talert('Failed to check payment status');\n\t\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t}\"><div class=\"bg-bg-card rounded-2xl border border-border overflow-hidden shadow-sm\"><!-- Header Section --><div class=\"bg-primary/5 border-b border-border p-6 text-center\"><h1 class=\"text-2xl font-bold text-text-primary mb-1\">Payment Request</h1><p class=\"text-text-secondary\">Please review the payment details below</p></div><!-- Amount Section --><div class=\"p-8 text-center border-b border-border\"><p class=\"text-sm font-medium text-text-secondary uppercase tracking-wider mb-2\">Total Amount</p><div class=\"text-4xl font-bold text-primary\">Rp ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", props.Due.CalculatedPayAmount))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/public_payment_due.templ`, Line: 102, Col: 61}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/public_payment_due.templ`, Line: 117, Col: 61}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -81,7 +81,7 @@ func PublicPaymentDue(props PublicPaymentDueProps) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(props.Due.Plan.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/public_payment_due.templ`, Line: 113, Col: 71}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/public_payment_due.templ`, Line: 128, Col: 71}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -94,7 +94,7 @@ func PublicPaymentDue(props PublicPaymentDueProps) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(props.Due.User.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/public_payment_due.templ`, Line: 117, Col: 71}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/public_payment_due.templ`, Line: 132, Col: 71}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -107,7 +107,7 @@ func PublicPaymentDue(props PublicPaymentDueProps) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(props.Due.User.Email)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/public_payment_due.templ`, Line: 121, Col: 72}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/public_payment_due.templ`, Line: 136, Col: 72}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -120,7 +120,7 @@ func PublicPaymentDue(props PublicPaymentDueProps) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(props.Due.DueDate.Format("02 January 2006"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/public_payment_due.templ`, Line: 125, Col: 95}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/public_payment_due.templ`, Line: 140, Col: 95}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -138,7 +138,7 @@ func PublicPaymentDue(props PublicPaymentDueProps) templ.Component {
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", props.Due.Portion))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/public_payment_due.templ`, Line: 130, Col: 89}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/public_payment_due.templ`, Line: 145, Col: 89}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
@@ -161,36 +161,49 @@ func PublicPaymentDue(props PublicPaymentDueProps) templ.Component {
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("initiatePayment('%s')", props.Due.UUID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/public_payment_due.templ`, Line: 139, Col: 68}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/public_payment_due.templ`, Line: 154, Col: 68}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" class=\"w-full py-3 px-4 bg-primary text-white font-semibold rounded-xl hover:bg-primary-hover transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5\">Pay Now</button></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" class=\"w-full py-3 px-4 bg-primary text-white font-semibold rounded-xl hover:bg-primary-hover transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5\">Pay Now</button> <button @click=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var10 string
+				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("checkStatus('%s')", props.Due.UUID))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/public_payment_due.templ`, Line: 160, Col: 64}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\" class=\"mt-3 w-full py-3 px-4 bg-bg-card border border-border text-text-primary font-semibold rounded-xl hover:bg-bg-hover transition-all duration-200 shadow-sm hover:shadow transform hover:-translate-y-0.5\">Check Status</button></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else if props.Due.PaymentStatus == "paid" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div class=\"p-6 bg-green-50/50 border-t border-border text-center\"><div class=\"inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-100 text-green-600 mb-3\"><i data-lucide=\"check\" class=\"w-6 h-6\"></i></div><h3 class=\"text-lg font-medium text-green-800\">Payment Completed</h3><p class=\"text-green-600 text-sm mt-1\">Thank you for your payment!</p></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"p-6 bg-green-50/50 border-t border-border text-center\"><div class=\"inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-100 text-green-600 mb-3\"><i data-lucide=\"check\" class=\"w-6 h-6\"></i></div><h3 class=\"text-lg font-medium text-green-800\">Payment Completed</h3><p class=\"text-green-600 text-sm mt-1\">Thank you for your payment!</p></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div><!-- Modal --><div x-show=\"showModal\" class=\"fixed inset-0 z-50 overflow-y-auto\" style=\"display: none;\"><div class=\"flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0\"><!-- Background overlay --><div x-show=\"showModal\" x-transition:enter=\"ease-out duration-300\" x-transition:enter-start=\"opacity-0\" x-transition:enter-end=\"opacity-100\" x-transition:leave=\"ease-in duration-200\" x-transition:leave-start=\"opacity-100\" x-transition:leave-end=\"opacity-0\" class=\"fixed inset-0 transition-opacity\" aria-hidden=\"true\"><div class=\"absolute inset-0 bg-gray-500 opacity-75\"></div></div><!-- Modal panel --><div x-show=\"showModal\" x-transition:enter=\"ease-out duration-300\" x-transition:enter-start=\"opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95\" x-transition:enter-end=\"opacity-100 translate-y-0 sm:scale-100\" x-transition:leave=\"ease-in duration-200\" x-transition:leave-start=\"opacity-100 translate-y-0 sm:scale-100\" x-transition:leave-end=\"opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95\" class=\"inline-block align-bottom bg-bg-card rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-border\"><div class=\"bg-bg-card px-4 pt-5 pb-4 sm:p-6 sm:pb-4\"><div class=\"sm:flex sm:items-start\"><div class=\"mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10\"><svg class=\"h-6 w-6 text-blue-600\" xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\" aria-hidden=\"true\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z\"></path></svg></div><div class=\"mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left\"><h3 class=\"text-lg leading-6 font-medium text-text-primary\" id=\"modal-title\">Active Payment Session Found</h3><div class=\"mt-2\"><p class=\"text-sm text-text-secondary\">You have an unfinished payment session. Would you like to continue with the existing session or start a new one?</p></div></div></div></div><div class=\"bg-bg-body px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2\"><button type=\"button\" @click=\"continueSession()\" class=\"w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm\">Continue Session</button> <button type=\"button\" @click=\"startNewSession()\" class=\"mt-3 w-full inline-flex justify-center rounded-md border border-border shadow-sm px-4 py-2 bg-bg-card text-base font-medium text-text-primary hover:bg-bg-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm\">Start New Session</button> <button type=\"button\" @click=\"showModal = false\" class=\"mt-3 w-full inline-flex justify-center rounded-md border border-border shadow-sm px-4 py-2 bg-bg-card text-base font-medium text-text-secondary hover:bg-bg-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm\">Cancel</button></div></div></div></div></div><!-- Midtrans Snap Script --> <script src=\"https://app.sandbox.midtrans.com/snap/snap.js\" data-client-key=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div><!-- Modal --><div x-show=\"showModal\" class=\"fixed inset-0 z-50 overflow-y-auto\" style=\"display: none;\"><div class=\"flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0\"><!-- Background overlay --><div x-show=\"showModal\" x-transition:enter=\"ease-out duration-300\" x-transition:enter-start=\"opacity-0\" x-transition:enter-end=\"opacity-100\" x-transition:leave=\"ease-in duration-200\" x-transition:leave-start=\"opacity-100\" x-transition:leave-end=\"opacity-0\" class=\"fixed inset-0 transition-opacity\" aria-hidden=\"true\"><div class=\"absolute inset-0 bg-gray-500 opacity-75\"></div></div><!-- Modal panel --><div x-show=\"showModal\" x-transition:enter=\"ease-out duration-300\" x-transition:enter-start=\"opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95\" x-transition:enter-end=\"opacity-100 translate-y-0 sm:scale-100\" x-transition:leave=\"ease-in duration-200\" x-transition:leave-start=\"opacity-100 translate-y-0 sm:scale-100\" x-transition:leave-end=\"opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95\" class=\"inline-block align-bottom bg-bg-card rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-border\"><div class=\"bg-bg-card px-4 pt-5 pb-4 sm:p-6 sm:pb-4\"><div class=\"sm:flex sm:items-start\"><div class=\"mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10\"><svg class=\"h-6 w-6 text-blue-600\" xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\" aria-hidden=\"true\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z\"></path></svg></div><div class=\"mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left\"><h3 class=\"text-lg leading-6 font-medium text-text-primary\" id=\"modal-title\">Active Payment Session Found</h3><div class=\"mt-2\"><p class=\"text-sm text-text-secondary\">You have an unfinished payment session. Would you like to continue with the existing session or start a new one?</p></div></div></div></div><div class=\"bg-bg-body px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2\"><button type=\"button\" @click=\"continueSession()\" class=\"w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm\">Continue Session</button> <button type=\"button\" @click=\"startNewSession()\" class=\"mt-3 w-full inline-flex justify-center rounded-md border border-border shadow-sm px-4 py-2 bg-bg-card text-base font-medium text-text-primary hover:bg-bg-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm\">Start New Session</button> <button type=\"button\" @click=\"showModal = false\" class=\"mt-3 w-full inline-flex justify-center rounded-md border border-border shadow-sm px-4 py-2 bg-bg-card text-base font-medium text-text-secondary hover:bg-bg-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm\">Cancel</button></div></div></div></div></div><!-- Midtrans Snap Script --> <script src=\"https://app.sandbox.midtrans.com/snap/snap.js\" data-client-key=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var10 string
-			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(props.MidtransClientKey)
+			var templ_7745c5c3_Var11 string
+			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(props.MidtransClientKey)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/public_payment_due.templ`, Line: 237, Col: 103}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/pages/public_payment_due.templ`, Line: 258, Col: 103}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\"></script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\"></script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

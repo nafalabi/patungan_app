@@ -6,7 +6,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
@@ -258,7 +257,7 @@ func (h *PaymentDueHandler) InitiatePayment(c echo.Context) error {
 	if err != nil {
 		if err.Error() == "payment already made" {
 			// Specific handling for already paid
-			return c.JSON(http.StatusBadRequest, map[string]string{"message": "Payment is already made. Please refresh the page."})
+			return c.JSON(http.StatusBadRequest, map[string]string{"message": "Payment is already made. Please check the status."})
 		}
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to initiate payment: "+err.Error())
 	}
@@ -343,76 +342,9 @@ func (h *PaymentDueHandler) MidtransCallback(c echo.Context) error {
 	}
 
 	// Handle status
-	h.handleTransactionStatus(&due, orderID, transactionStatus, fraudStatus, notificationPayload["payment_type"].(string), notificationPayload["gross_amount"].(string))
+	h.paymentService.HandleTransactionStatus(&due, orderID, transactionStatus, fraudStatus, notificationPayload["payment_type"].(string), notificationPayload["gross_amount"].(string))
 
 	return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
-}
-
-func (h *PaymentDueHandler) handleTransactionStatus(due *models.PaymentDue, orderID, transactionStatus, fraudStatus, paymentType, grossAmount string) {
-	switch transactionStatus {
-	case "capture":
-		switch fraudStatus {
-		case "accept":
-			h.markAsPaid(due, map[string]interface{}{
-				"payment_type": paymentType,
-				"gross_amount": grossAmount,
-			})
-		case "deny", "challenge":
-			// do nothing
-		}
-	case "settlement":
-		h.markAsPaid(due, map[string]interface{}{
-			"payment_type": paymentType,
-			"gross_amount": grossAmount,
-		})
-	case "deny", "expire", "cancel", "failure":
-		var session models.PaymentSession
-		if err := h.db.Where("order_id = ?", orderID).First(&session).Error; err == nil {
-			session.IsActive = false
-			h.db.Save(&session)
-		}
-	}
-}
-
-func (h *PaymentDueHandler) markAsPaid(due *models.PaymentDue, payload map[string]interface{}) {
-	if due.PaymentStatus == models.PaymentStatusPaid {
-		return
-	}
-
-	// 1. Update PaymentDue status
-	due.PaymentStatus = models.PaymentStatusPaid
-	h.db.Save(due)
-
-	// 2. Create UserPayment record
-	paymentType, _ := payload["payment_type"].(string)
-	paymentGatewayStr, ok := payload["payment_gateway"].(string)
-	var paymentGateway models.PaymentGateway
-	if ok {
-		paymentGateway = models.PaymentGateway(paymentGatewayStr)
-	} else {
-		paymentGateway = models.PaymentGatewayMidtrans // Default to midtrans for existing calls
-	}
-
-	// Helper to get float from interface safely
-	// Gross amount is usually string in JSON payload from Midtrans?
-	// Check doc: gross_amount is string.
-	var grossAmt float64
-	if val, ok := payload["gross_amount"].(string); ok {
-		grossAmt, _ = strconv.ParseFloat(val, 64)
-	} else if val, ok := payload["gross_amount"].(float64); ok {
-		grossAmt = val
-	}
-
-	userPayment := models.UserPayment{
-		PlanID:         due.PlanID,
-		PaymentDueID:   due.ID,
-		UserID:         due.UserID,
-		TotalPay:       grossAmt,
-		ChannelPayment: paymentType,
-		PaymentGateway: paymentGateway,
-		PaymentDate:    time.Now(),
-	}
-	h.db.Create(&userPayment)
 }
 
 // HandleMarkAsComplete allows admins to manually mark a payment due as paid
@@ -437,7 +369,7 @@ func (h *PaymentDueHandler) HandleMarkAsComplete(c echo.Context) error {
 
 	// 3. Mark as Paid using helper
 	if due.PaymentStatus != models.PaymentStatusPaid {
-		h.markAsPaid(&due, map[string]interface{}{
+		h.paymentService.MarkAsPaid(&due, map[string]interface{}{
 			"payment_type":    "manual",
 			"gross_amount":    due.CalculatedPayAmount,
 			"payment_gateway": string(models.PaymentGatewayManual), // Pass as string, helper converts back
@@ -475,20 +407,12 @@ func (h *PaymentDueHandler) CheckPaymentStatus(c echo.Context) error {
 	}
 	currentUserID := getUintFromContext(c, "userID")
 
-	// 1. Find latest active session for this due
-	var session models.PaymentSession
-	h.db.Where("payment_due_id = ? AND is_active = ?", dueID, true).Order("created_at desc").First(&session)
-
-	// 2. Call Midtrans Check Transaction only if we have a session
-	if session.ID != 0 {
-		resp, err := h.midtransClient.CheckTransaction(session.OrderID)
-		if err == nil {
-			// 3. Process Response & Update Local State
-			var due models.PaymentDue
-			if err := h.db.First(&due, dueID).Error; err == nil {
-				h.handleTransactionStatus(&due, session.OrderID, resp.TransactionStatus, resp.FraudStatus, resp.PaymentType, resp.GrossAmount)
-			}
-		}
+	// Use PaymentService to verify status
+	if err := h.paymentService.VerifyPaymentStatus(uint(dueID)); err != nil {
+		// Log error but proceed to show current state, or return error?
+		// For now, let's proceed so user sees something even if check failed (e.g. network issue)
+		// Or maybe return error to let user know check failed.
+		// h.paymentService.VerifyPaymentStatus already handles common errors.
 	}
 
 	// 4. Reload PaymentDue with Associations for Rendering

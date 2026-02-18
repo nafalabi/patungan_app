@@ -118,6 +118,7 @@ func main() {
 	e.GET("/p/:uuid", publicHandler.ShowPaymentDue)
 	e.POST("/p/:uuid/initiate", publicHandler.InitiatePayment)
 	e.GET("/p/:uuid/active-session", publicHandler.CheckActiveSession)
+	e.GET("/p/:uuid/status", publicHandler.CheckStatus)
 
 	// Protected routes
 	protected := e.Group("")
