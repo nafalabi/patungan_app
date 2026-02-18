@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 
 	"patungan_app_echo/internal/models"
@@ -56,6 +57,7 @@ func ProcessPlanScheduleHandler(ctx context.Context, db *gorm.DB, args map[strin
 			CalculatedPayAmount: amount,
 			PaymentStatus:       models.PaymentStatusPending,
 			DueDate:             plan.ScheduledTask.Due,
+			UUID:                uuid.New().String(),
 		}
 		if err := db.Create(&due).Error; err != nil {
 			log.Printf("Failed to create PaymentDue for user %d: %v", p.UserID, err)

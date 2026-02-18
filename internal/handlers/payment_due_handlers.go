@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"os"
 	"strconv"
@@ -25,10 +24,11 @@ type PaymentDueHandler struct {
 	db             *gorm.DB
 	cache          *services.RedisCache
 	midtransClient *services.MidtransService
+	paymentService *services.PaymentService
 }
 
-func NewPaymentDueHandler(db *gorm.DB, cache *services.RedisCache, midtransClient *services.MidtransService) *PaymentDueHandler {
-	return &PaymentDueHandler{db: db, cache: cache, midtransClient: midtransClient}
+func NewPaymentDueHandler(db *gorm.DB, cache *services.RedisCache, midtransClient *services.MidtransService, paymentService *services.PaymentService) *PaymentDueHandler {
+	return &PaymentDueHandler{db: db, cache: cache, midtransClient: midtransClient, paymentService: paymentService}
 }
 
 // ListPaymentDues renders the list of payment dues with filtering and sorting
@@ -250,104 +250,22 @@ func (h *PaymentDueHandler) InitiatePayment(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Payment due is already paid")
 	}
 
-	// 3.5 Check for existing active session
+	// 4. Initiate Payment using PaymentService
 	forceNew := c.QueryParam("force_new") == "true"
-	var existingSession models.PaymentSession
-	if err := h.db.Where("payment_due_id = ? AND is_active = ?", due.ID, true).Order("created_at desc").First(&existingSession).Error; err == nil {
-		// Check to midtrans for existing session status
-		statusResp, err := h.midtransClient.CheckTransaction(existingSession.OrderID)
-		if err == nil {
-			// Case 1: Payment already successful
-			if statusResp.TransactionStatus == "settlement" || statusResp.TransactionStatus == "capture" {
-				h.handleTransactionStatus(&due, existingSession.OrderID, statusResp.TransactionStatus, statusResp.FraudStatus, statusResp.PaymentType, statusResp.GrossAmount)
-				return c.JSON(http.StatusBadRequest, map[string]string{"message": "Payment is already made. Please refresh the page."})
-			}
+	callbackURL := getEnv("APP_URL", "http://localhost:8080") + "/payment-dues"
 
-			// Case 2: Payment failed/expired/canceled
-			if statusResp.TransactionStatus == "deny" || statusResp.TransactionStatus == "expire" || statusResp.TransactionStatus == "cancel" || statusResp.TransactionStatus == "failure" {
-				// Deactivate local session (Midtrans is already in terminal state)
-				existingSession.IsActive = false
-				h.db.Save(&existingSession)
-				// Proceed to create new transaction
-			} else {
-				// Case 3: Payment is Pending
-				if forceNew {
-					// User wants to force new -> Cancel existing at Midtrans
-					h.midtransClient.CancelTransaction(existingSession.OrderID)
-					existingSession.IsActive = false
-					h.db.Save(&existingSession)
-					// Proceed to create new transaction
-				} else {
-					// User wants to continue -> Return existing session
-					var midtransResp snap.Response
-					if err := json.Unmarshal(existingSession.ResponseMetadata, &midtransResp); err == nil {
-						return c.JSON(http.StatusOK, map[string]interface{}{
-							"token":        midtransResp.Token,
-							"redirect_url": midtransResp.RedirectURL,
-						})
-					}
-					// If unmarshal fails, treat as broken and proceed to create new
-					existingSession.IsActive = false
-					h.db.Save(&existingSession)
-				}
-			}
-		} else {
-			// If check failed (e.g. not found), just deactivate local session and create new
-			existingSession.IsActive = false
-			h.db.Save(&existingSession)
-		}
-	}
-
-	// 4. Create Snap Transaction
-	// Generate unique Order ID: payment-due-{id}-{timestamp}
-	orderID := fmt.Sprintf("payment-due-%d-%d", due.ID, time.Now().Unix())
-
-	req := &snap.Request{
-		TransactionDetails: midtrans.TransactionDetails{
-			OrderID:  orderID,
-			GrossAmt: int64(due.CalculatedPayAmount),
-		},
-		CustomerDetail: &midtrans.CustomerDetails{
-			FName: due.User.Name,
-			Email: due.User.Email,
-		},
-		Items: &[]midtrans.ItemDetails{
-			{
-				ID:    fmt.Sprintf("plan-%d", due.PlanID),
-				Name:  fmt.Sprintf("Payment for %s", due.Plan.Name),
-				Price: int64(due.CalculatedPayAmount),
-				Qty:   1,
-			},
-		},
-		Callbacks: &snap.Callbacks{
-			Finish: getEnv("APP_URL", "http://localhost:8080") + "/payment-dues",
-		},
-	}
-
-	resp, err := h.midtransClient.CreateTransaction(orderID, int64(due.CalculatedPayAmount), req)
+	result, err := h.paymentService.InitiatePayment(&due, forceNew, callbackURL)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create transaction: "+err.Error())
+		if err.Error() == "payment already made" {
+			// Specific handling for already paid
+			return c.JSON(http.StatusBadRequest, map[string]string{"message": "Payment is already made. Please refresh the page."})
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to initiate payment: "+err.Error())
 	}
-
-	// 5. Create PaymentSession
-	reqBytes, _ := json.Marshal(req)
-	respBytes, _ := json.Marshal(resp)
-
-	session := models.PaymentSession{
-		PlanID:           due.PlanID,
-		PaymentDueID:     due.ID,
-		UserID:           currentUserID,
-		PaymentGateway:   models.PaymentGatewayMidtrans,
-		OrderID:          orderID,
-		IsActive:         true,
-		RequestMetadata:  reqBytes,
-		ResponseMetadata: respBytes,
-	}
-	h.db.Create(&session)
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"token":        resp.Token,
-		"redirect_url": resp.RedirectURL,
+		"token":        result.Token,
+		"redirect_url": result.RedirectURL,
 	})
 }
 
@@ -359,10 +277,14 @@ func (h *PaymentDueHandler) CheckActiveSession(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid payment due ID")
 	}
 
-	var existingSession models.PaymentSession
-	if err := h.db.Where("payment_due_id = ? AND is_active = ?", dueID, true).Order("created_at desc").First(&existingSession).Error; err == nil {
+	session, err := h.paymentService.CheckActiveSession(uint(dueID))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to check session: "+err.Error())
+	}
+
+	if session != nil {
 		var midtransResp snap.Response
-		if err := json.Unmarshal(existingSession.ResponseMetadata, &midtransResp); err == nil {
+		if err := json.Unmarshal(session.ResponseMetadata, &midtransResp); err == nil {
 			return c.JSON(http.StatusOK, map[string]interface{}{
 				"active": true,
 				"token":  midtransResp.Token,

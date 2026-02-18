@@ -25,6 +25,7 @@ type PaymentDue struct {
 	UserID              uint      `gorm:"index" json:"user_id"`
 	Portion             int       `json:"portion"`
 	DueDate             time.Time `json:"due_date"`
+	UUID                string    `gorm:"uniqueIndex;type:uuid;default:gen_random_uuid()" json:"uuid"`
 	CalculatedPayAmount float64   `gorm:"type:decimal(15,2)" json:"calculated_pay_amount"`
 	PaymentStatus       string    `gorm:"type:varchar(50)" json:"payment_status"` // e.g., "pending", "paid", "overdue"
 

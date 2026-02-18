@@ -98,18 +98,26 @@ func main() {
 	// Static file serving
 	e.Static("/static", "web/static")
 
+	// Initialize PaymentService
+	paymentService := services.NewPaymentService(db, midtransService)
+
 	// Initialize handlers
 	authHandler := handlers.NewAuthHandler(authClient, db)
 	dashboardHandler := handlers.NewDashboardHandler(db)
 	planHandler := handlers.NewPlanHandler(db, cache)
 	userHandler := handlers.NewUserHandler(db, cache)
-	paymentDueHandler := handlers.NewPaymentDueHandler(db, cache, midtransService)
+	paymentDueHandler := handlers.NewPaymentDueHandler(db, cache, midtransService, paymentService)
 	userPrefHandler := handlers.NewUserPreferenceHandler(db)
 
 	// Public routes
 	e.GET("/login", authHandler.LoginPage)
 	e.POST("/auth/login", authHandler.HandleLogin)
 	e.POST("/auth/logout", authHandler.HandleLogout)
+
+	publicHandler := handlers.NewPublicHandler(db, cache, midtransService, paymentService)
+	e.GET("/p/:uuid", publicHandler.ShowPaymentDue)
+	e.POST("/p/:uuid/initiate", publicHandler.InitiatePayment)
+	e.GET("/p/:uuid/active-session", publicHandler.CheckActiveSession)
 
 	// Protected routes
 	protected := e.Group("")

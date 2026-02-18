@@ -1,0 +1,239 @@
+package pages
+
+import (
+	"fmt"
+	"patungan_app_echo/internal/models"
+	"patungan_app_echo/web/templates/layouts"
+)
+
+type PublicPaymentDueProps struct {
+	Title             string
+	Due               models.PaymentDue
+	MidtransClientKey string
+}
+
+templ PublicPaymentDue(props PublicPaymentDueProps) {
+	@layouts.PublicBase(layouts.PublicBaseProps{
+		Title: props.Title,
+	}) {
+		<div 
+			class="max-w-sm mx-auto"
+			x-data="{ 
+				showModal: false, 
+				activeUUID: null,
+				initiatePayment(uuid, forceNew = false) {
+					this.activeUUID = uuid;
+					
+					// If forcing new, skip check and go directly to initiate
+					if (forceNew) {
+						this.callInitiateAPI(uuid, true);
+						this.showModal = false;
+						return;
+					}
+
+					// Check for active session
+					fetch(`/p/${uuid}/active-session`)
+						.then(response => response.json())
+						.then(data => {
+							if (data.active) {
+								// Found active session, show modal
+								this.showModal = true;
+							} else {
+								// No active session, create new
+								this.callInitiateAPI(uuid, false);
+							}
+						})
+						.catch(error => {
+							console.error('Error checking session:', error);
+							alert('An error occurred while checking payment status');
+						});
+				},
+				continueSession() {
+					// Call initiate without force_new to get existing token
+					this.callInitiateAPI(this.activeUUID, false);
+					this.showModal = false;
+				},
+				startNewSession() {
+					// Call initiate with force_new=true
+					this.callInitiateAPI(this.activeUUID, true);
+					this.showModal = false;
+				},
+				callInitiateAPI(uuid, forceNew) {
+					let url = `/p/${uuid}/initiate`;
+					if (forceNew) {
+						url += '?force_new=true';
+					}
+
+					fetch(url, { method: 'POST' })
+						.then(response => response.json())
+						.then(data => {
+							if (data.token) {
+								snap.pay(data.token, {
+									onSuccess: function(result){ window.location.reload(); },
+									onPending: function(result){ window.location.reload(); },
+									onError: function(result){ alert('Payment failed!'); },
+									onClose: function(){ console.log('customer closed the popup without finishing the payment'); }
+								});
+							} else {
+								alert(data.message || 'Failed to initiate payment');
+								if (data.message && data.message.includes('already made')) {
+									window.location.reload();
+								}
+							}
+						})
+						.catch(error => {
+							console.error('Error:', error);
+							alert('An error occurred');
+						});
+				}
+			}"
+		>
+			<div class="bg-bg-card rounded-2xl border border-border overflow-hidden shadow-sm">
+				<!-- Header Section -->
+				<div class="bg-primary/5 border-b border-border p-6 text-center">
+					<h1 class="text-2xl font-bold text-text-primary mb-1">Payment Request</h1>
+					<p class="text-text-secondary">Please review the payment details below</p>
+				</div>
+
+				<!-- Amount Section -->
+				<div class="p-8 text-center border-b border-border">
+					<p class="text-sm font-medium text-text-secondary uppercase tracking-wider mb-2">Total Amount</p>
+					<div class="text-4xl font-bold text-primary">
+						Rp { fmt.Sprintf("%.2f", props.Due.CalculatedPayAmount) }
+					</div>
+					<div class="mt-4 flex justify-center">
+						@PaymentStatusBadge(props.Due.PaymentStatus)
+					</div>
+				</div>
+
+				<!-- Details Section -->
+				<div class="p-6 space-y-4">
+					<div class="flex justify-between items-center py-2 border-b border-border/50">
+						<span class="text-text-secondary">Plan Name</span>
+						<span class="font-medium text-text-primary">{ props.Due.Plan.Name }</span>
+					</div>
+					<div class="flex justify-between items-center py-2 border-b border-border/50">
+						<span class="text-text-secondary">Participant</span>
+						<span class="font-medium text-text-primary">{ props.Due.User.Name }</span>
+					</div>
+					<div class="flex justify-between items-center py-2 border-b border-border/50">
+						<span class="text-text-secondary">Email</span>
+						<span class="font-medium text-text-primary">{ props.Due.User.Email }</span>
+					</div>
+					<div class="flex justify-between items-center py-2 border-b border-border/50">
+						<span class="text-text-secondary">Due Date</span>
+						<span class="font-medium text-text-primary">{ props.Due.DueDate.Format("02 January 2006") }</span>
+					</div>
+					if props.Due.Portion > 0 {
+						<div class="flex justify-between items-center py-2 border-b border-border/50">
+							<span class="text-text-secondary">Portion</span>
+							<span class="font-medium text-text-primary">{ fmt.Sprintf("%d", props.Due.Portion) }</span>
+						</div>
+					}
+				</div>
+
+				<!-- Action Section -->
+				if props.Due.PaymentStatus != "paid" && props.Due.PaymentStatus != "canceled" {
+					<div class="p-6 bg-bg-body border-t border-border">
+						<button
+							@click={ fmt.Sprintf("initiatePayment('%s')", props.Due.UUID) }
+							class="w-full py-3 px-4 bg-primary text-white font-semibold rounded-xl hover:bg-primary-hover transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+						>
+							Pay Now
+						</button>
+					</div>
+				} else if props.Due.PaymentStatus == "paid" {
+					<div class="p-6 bg-green-50/50 border-t border-border text-center">
+						<div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-100 text-green-600 mb-3">
+							<i data-lucide="check" class="w-6 h-6"></i>
+						</div>
+						<h3 class="text-lg font-medium text-green-800">Payment Completed</h3>
+						<p class="text-green-600 text-sm mt-1">Thank you for your payment!</p>
+					</div>
+				}
+			</div>
+
+			<!-- Modal -->
+			<div
+				x-show="showModal"
+				class="fixed inset-0 z-50 overflow-y-auto"
+				style="display: none;"
+			>
+				<div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+					<!-- Background overlay -->
+					<div
+						x-show="showModal"
+						x-transition:enter="ease-out duration-300"
+						x-transition:enter-start="opacity-0"
+						x-transition:enter-end="opacity-100"
+						x-transition:leave="ease-in duration-200"
+						x-transition:leave-start="opacity-100"
+						x-transition:leave-end="opacity-0"
+						class="fixed inset-0 transition-opacity"
+						aria-hidden="true"
+					>
+						<div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+					</div>
+
+					<!-- Modal panel -->
+					<div
+						x-show="showModal"
+						x-transition:enter="ease-out duration-300"
+						x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+						x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+						x-transition:leave="ease-in duration-200"
+						x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+						x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+						class="inline-block align-bottom bg-bg-card rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-border"
+					>
+						<div class="bg-bg-card px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+							<div class="sm:flex sm:items-start">
+								<div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
+									<svg class="h-6 w-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+									</svg>
+								</div>
+								<div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+									<h3 class="text-lg leading-6 font-medium text-text-primary" id="modal-title">
+										Active Payment Session Found
+									</h3>
+									<div class="mt-2">
+										<p class="text-sm text-text-secondary">
+											You have an unfinished payment session. Would you like to continue with the existing session or start a new one?
+										</p>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="bg-bg-body px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2">
+							<button
+								type="button"
+								@click="continueSession()"
+								class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
+							>
+								Continue Session
+							</button>
+							<button
+								type="button"
+								@click="startNewSession()"
+								class="mt-3 w-full inline-flex justify-center rounded-md border border-border shadow-sm px-4 py-2 bg-bg-card text-base font-medium text-text-primary hover:bg-bg-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+							>
+								Start New Session
+							</button>
+							<button
+								type="button"
+								@click="showModal = false"
+								class="mt-3 w-full inline-flex justify-center rounded-md border border-border shadow-sm px-4 py-2 bg-bg-card text-base font-medium text-text-secondary hover:bg-bg-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+							>
+								Cancel
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Midtrans Snap Script -->
+		<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key={ props.MidtransClientKey }></script>
+	}
+}
