@@ -96,10 +96,30 @@ func CustomErrorHandler(err error, c echo.Context) {
 	// Set status code
 	c.Response().Status = code
 
+	// Check if this is a public route or authentication route
+	path := c.Request().URL.Path
+	isPublic := false
+	if len(path) >= 3 && path[:3] == "/p/" { // Public payment pages
+		isPublic = true
+	} else if len(path) >= 6 && path[:6] == "/login" {
+		isPublic = true
+	} else if len(path) >= 5 && path[:5] == "/auth" {
+		isPublic = true
+	} else if len(path) >= 7 && path[:7] == "/static" {
+		isPublic = true
+	}
+
 	// Try to render the error page template
-	if err := pages.ErrorPage(props).Render(c.Request().Context(), c.Response()); err != nil {
+	var renderErr error
+	if isPublic {
+		renderErr = pages.PublicErrorPage(props).Render(c.Request().Context(), c.Response())
+	} else {
+		renderErr = pages.ErrorPage(props).Render(c.Request().Context(), c.Response())
+	}
+
+	if renderErr != nil {
 		// Fallback to plain text if template fails
-		c.Logger().Error(fmt.Errorf("failed to render error page: %w", err))
+		c.Logger().Error(fmt.Errorf("failed to render error page: %w", renderErr))
 		c.String(code, errorMessage)
 	}
 }
