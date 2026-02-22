@@ -55,15 +55,11 @@ func main() {
 		cancel()
 	}()
 
-	// Ticker for 5 minutes
-	ticker := time.NewTicker(5 * time.Minute)
+	// Ticker for 1 minutes
+	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
 
-	// Run immediately on start? User said "in every 5 minutes it will check",
-	// usually implies ticker. But useful to run once on start for debugging.
-	// We'll stick to ticker for strictly complying with "in every 5 minutes".
-	// But commonly we trigger one run at startup or wait for first tick.
-	// Let's run once immediately for convenience/testing visibility, then tick.
+	// Run immediately on start
 	processScheduledTasks(ctx, db)
 
 	for {
