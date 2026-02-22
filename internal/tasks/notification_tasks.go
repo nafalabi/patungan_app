@@ -141,12 +141,12 @@ func sendWhatsappNotif(user NotificationUser, args SendNotificationArgs, pref mo
 		if chatId == "" {
 			return fmt.Errorf("group ID is empty")
 		}
+		if !strings.HasSuffix(chatId, "@g.us") {
+			chatId = chatId + "@g.us"
+		}
 	} else {
 		// Personal
 		chatId = user.PhoneNumber
-		if !strings.Contains(chatId, "@") {
-			chatId = chatId + "@c.us"
-		}
 	}
 
 	return wahaService.SendMessage(chatId, msg)

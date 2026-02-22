@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -89,8 +90,31 @@ func (s *WahaService) sendText(chatId, text string) error {
 	})
 }
 
+// NormalizeChatID normalizes WhatsApp chat IDs by adding required suffixes and standardizing country codes
+func NormalizeChatID(chatId string) string {
+	chatId = strings.TrimSpace(chatId)
+
+	// If it's already a group ID, it's correct
+	if strings.HasSuffix(chatId, "@g.us") {
+		return chatId
+	}
+
+	// Remove @c.us suffix temporarily if it exists for easier processing
+	chatId = strings.TrimSuffix(chatId, "@c.us")
+
+	// Standardize Indonesian numbers starting with '0' to '62'
+	if strings.HasPrefix(chatId, "0") {
+		chatId = "62" + strings.TrimPrefix(chatId, "0")
+	}
+
+	// Re-add required suffix
+	return chatId + "@c.us"
+}
+
 // SendMessage sends a message with authentic behavior (seen -> typing -> stop typing -> send)
 func (s *WahaService) SendMessage(chatId, text string) error {
+	chatId = NormalizeChatID(chatId)
+
 	// a. sendSeen request, wait for 100ms
 	if err := s.sendSeen(chatId); err != nil {
 		return fmt.Errorf("failed to send seen: %w", err)
