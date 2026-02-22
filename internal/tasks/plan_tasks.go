@@ -2,8 +2,11 @@ package tasks
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
+
+	"time"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -11,23 +14,46 @@ import (
 	"patungan_app_echo/internal/models"
 )
 
-// ProcessPlanScheduleHandler handles the processing of plan schedules
-func ProcessPlanScheduleHandler(ctx context.Context, db *gorm.DB, args map[string]interface{}) (map[string]interface{}, error) {
-	planIDFloat, ok := args["plan_id"].(float64)
-	if !ok {
-		// Try other types
-		if val, ok := args["plan_id"].(int); ok {
-			planIDFloat = float64(val)
-		} else if val, ok := args["plan_id"].(uint); ok {
-			planIDFloat = float64(val)
-		} else {
-			return nil, fmt.Errorf("plan_id not provided or invalid")
-		}
+// ProcessPlanScheduleArgs defines the arguments for a plan schedule task
+type ProcessPlanScheduleArgs struct {
+	PlanID            uint      `json:"plan_id"`
+	Due               time.Time `json:"-"`
+	RecurringInterval *string   `json:"-"`
+}
+
+// ProcessPlanScheduleTaskDef encapsulates the plan schedule processing logic
+type ProcessPlanScheduleTaskDef struct{}
+
+// TaskID returns the unique identifier for this task
+func (t *ProcessPlanScheduleTaskDef) TaskID() string {
+	return "process_plan_schedule"
+}
+
+// CreateTask builds a ScheduledTask record for this task
+func (t *ProcessPlanScheduleTaskDef) CreateTask(args ProcessPlanScheduleArgs) (*models.ScheduledTask, error) {
+	taskType := models.ScheduledTaskTypeOneTime
+	if args.RecurringInterval != nil && *args.RecurringInterval != "" {
+		taskType = models.ScheduledTaskTypeRecurring
 	}
-	planID := uint(planIDFloat)
+	return BuildScheduledTask(t.TaskID(), args, args.Due, args.RecurringInterval, taskType, 3)
+}
+
+// HandleExecution handles the processing of plan schedules
+func (t *ProcessPlanScheduleTaskDef) HandleExecution(ctx context.Context, db *gorm.DB, args map[string]interface{}) (map[string]interface{}, error) {
+	argsBytes, err := json.Marshal(args)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal args: %w", err)
+	}
+
+	var parsedArgs ProcessPlanScheduleArgs
+	if err := json.Unmarshal(argsBytes, &parsedArgs); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal args: %w", err)
+	}
+
+	planID := parsedArgs.PlanID
 
 	var plan models.Plan
-	if err := db.Preload("Participants").Preload("ScheduledTask").First(&plan, planID).Error; err != nil {
+	if err := db.Preload("Participants.User").Preload("ScheduledTask").First(&plan, planID).Error; err != nil {
 		return nil, fmt.Errorf("failed to fetch plan: %w", err)
 	}
 
@@ -47,6 +73,8 @@ func ProcessPlanScheduleHandler(ctx context.Context, db *gorm.DB, args map[strin
 	pricePerPortion := plan.TotalPrice / float64(totalPortions)
 
 	var createdDues []uint
+	var notificationUsers []NotificationUser
+
 	for _, p := range plan.Participants {
 		amount := pricePerPortion * float64(p.Portion)
 
@@ -64,6 +92,44 @@ func ProcessPlanScheduleHandler(ctx context.Context, db *gorm.DB, args map[strin
 			continue
 		}
 		createdDues = append(createdDues, due.ID)
+
+		notificationUsers = append(notificationUsers, NotificationUser{
+			UserID:      p.UserID,
+			Username:    p.User.Name,
+			Email:       p.User.Email,
+			PhoneNumber: p.User.Phone,
+		})
+	}
+
+	if len(notificationUsers) > 0 {
+		notifArgs := SendNotificationArgs{
+			Users:         notificationUsers,
+			NotifTemplate: "Halo $name, tagihan untuk plan $plan_name sudah jatuh tempo. Yuk segera dibayar!",
+			Subject:       "Tagihan Plan " + plan.Name,
+			PlanName:      plan.Name,
+			Amount:        pricePerPortion,
+			DueDate:       plan.ScheduledTask.Due.Format("02 Jan 2006"),
+		}
+
+		notifTask, err := SendNotificationTask.CreateTask(notifArgs)
+		if err != nil {
+			log.Printf("Failed to create notification task args: %v", err)
+		} else {
+			if err := db.Create(notifTask).Error; err != nil {
+				log.Printf("Failed to create notification task: %v", err)
+			}
+		}
+
+		// Serialize the argument explicitly as requested for logging
+		serializedArgs, _ := json.Marshal(notifArgs)
+		log.Printf("[Task ProcessPlanSchedule] Generated notification args: %s", string(serializedArgs))
+
+		return map[string]interface{}{
+			"status":            "success",
+			"created_count":     len(createdDues),
+			"total_portions":    totalPortions,
+			"notification_args": string(serializedArgs),
+		}, nil
 	}
 
 	return map[string]interface{}{
@@ -72,3 +138,6 @@ func ProcessPlanScheduleHandler(ctx context.Context, db *gorm.DB, args map[strin
 		"total_portions": totalPortions,
 	}, nil
 }
+
+// ProcessPlanScheduleTask is the singleton instance of ProcessPlanScheduleTaskDef
+var ProcessPlanScheduleTask = &ProcessPlanScheduleTaskDef{}

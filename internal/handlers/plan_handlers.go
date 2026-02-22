@@ -457,48 +457,43 @@ func (h *PlanHandler) SchedulePlan(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, "Plan not found")
 	}
 
-	taskName := tasks.TaskProcessPlanSchedule
-	arguments := map[string]interface{}{"plan_id": plan.ID}
+	due := plan.PlanStartDate
+	if plan.ScheduledTaskID != nil && plan.ScheduledTask != nil {
+		due = plan.NextDue()
+	}
 
-	status := models.ScheduledTaskStatusActive
+	taskArgs := tasks.ProcessPlanScheduleArgs{
+		PlanID:            plan.ID,
+		Due:               due,
+		RecurringInterval: plan.RecurringInterval,
+	}
 
-	var taskType models.ScheduledTaskType
-	if plan.PaymentType == "recurring" {
-		taskType = models.ScheduledTaskTypeRecurring
-	} else {
-		taskType = models.ScheduledTaskTypeOneTime
+	createdTask, err := tasks.ProcessPlanScheduleTask.CreateTask(taskArgs)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create task args")
 	}
 
 	if plan.ScheduledTaskID == nil {
 		// Create new task
-		task := models.ScheduledTask{
-			TaskName:          taskName,
-			Arguments:         arguments,
-			Due:               plan.PlanStartDate,
-			RecurringInterval: plan.RecurringInterval,
-			Status:            status,
-			TaskType:          taskType,
-			MaxAttempt:        3,
-		}
-		if err := h.db.Create(&task).Error; err != nil {
+		if err := h.db.Create(createdTask).Error; err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create scheduled task")
 		}
 
 		// Update plan
-		plan.ScheduledTaskID = &task.ID
+		plan.ScheduledTaskID = &createdTask.ID
 		if err := h.db.Save(&plan).Error; err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to update plan")
 		}
 	} else {
 		// Update existing task
 		task := plan.ScheduledTask
-		task.TaskName = taskName
-		task.Arguments = arguments
-		task.Due = plan.NextDue()
-		task.RecurringInterval = plan.RecurringInterval
-		task.Status = status
-		task.TaskType = taskType
-		task.MaxAttempt = 3
+		task.TaskName = createdTask.TaskName
+		task.Arguments = createdTask.Arguments
+		task.Due = createdTask.Due
+		task.RecurringInterval = createdTask.RecurringInterval
+		task.Status = createdTask.Status
+		task.TaskType = createdTask.TaskType
+		task.MaxAttempt = createdTask.MaxAttempt
 		task.LastRun = nil // Reset last run
 
 		if err := h.db.Save(task).Error; err != nil {

@@ -3,11 +3,11 @@ package tasks
 // DefineTasks registers all available tasks
 func DefineTasks() {
 	// Register general tasks
-	RegisterHandler(TaskLogInfo, LogInfoHandler)
+	RegisterHandler(LogInfoTask.TaskID(), LogInfoTask.HandleExecution)
 
 	// Register plan tasks
-	RegisterHandler(TaskProcessPlanSchedule, ProcessPlanScheduleHandler)
+	RegisterHandler(ProcessPlanScheduleTask.TaskID(), ProcessPlanScheduleTask.HandleExecution)
 
 	// Register notification tasks
-	RegisterHandler(TaskSendNotification, SendNotificationHandler)
+	RegisterHandler(SendNotificationTask.TaskID(), SendNotificationTask.HandleExecution)
 }

@@ -7,8 +7,16 @@ import (
 	"gorm.io/gorm"
 )
 
-// LogInfoHandler handles logging information
-func LogInfoHandler(ctx context.Context, db *gorm.DB, args map[string]interface{}) (map[string]interface{}, error) {
+// LogInfoTaskDef encapsulates the log info task
+type LogInfoTaskDef struct{}
+
+// TaskID returns the unique identifier for this task
+func (t *LogInfoTaskDef) TaskID() string {
+	return "log_info"
+}
+
+// HandleExecution handles logging information
+func (t *LogInfoTaskDef) HandleExecution(ctx context.Context, db *gorm.DB, args map[string]interface{}) (map[string]interface{}, error) {
 	message, ok := args["message"].(string)
 	if !ok {
 		message = "No message provided"
@@ -23,3 +31,6 @@ func LogInfoHandler(ctx context.Context, db *gorm.DB, args map[string]interface{
 		"max_attempts_info": maxAttempt,
 	}, nil
 }
+
+// LogInfoTask is the singleton instance of LogInfoTaskDef
+var LogInfoTask = &LogInfoTaskDef{}
