@@ -113,7 +113,7 @@ func (t *ProcessPlanScheduleTaskDef) HandleExecution(ctx context.Context, db *go
 	if len(notificationUsers) > 0 {
 		notifArgs := SendNotificationArgs{
 			Users:         notificationUsers,
-			NotifTemplate: "Halo $name, tagihan untuk plan $plan_name sudah jatuh tempo. Yuk segera dibayar di $paymentlink !",
+			NotifTemplate: "Halo $name, tagihan untuk plan $plan_name sudah jatuh tempo. Yuk segera dibayar di $paymentlink",
 			Subject:       "Tagihan Plan " + plan.Name,
 			PlanName:      plan.Name,
 			Amount:        pricePerPortion,
