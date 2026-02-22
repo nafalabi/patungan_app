@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -167,12 +168,84 @@ func (h *PlanHandler) CreatePlanPage(c echo.Context) error {
 
 // StorePlan handles the creation of a new plan
 func (h *PlanHandler) StorePlan(c echo.Context) error {
-	name := c.FormValue("name")
+	renderError := func(errMsg string) error {
+		var users []models.User
+		h.db.Find(&users)
+
+		breadcrumbs := []shared.Breadcrumb{
+			{Title: "Home", URL: "/"},
+			{Title: "Plans", URL: "/plans"},
+			{Title: "Create Plan", URL: ""},
+		}
+
+		priceStr := c.FormValue("total_price")
+		totalPrice, _ := strconv.ParseFloat(priceStr, 64)
+
+		participantPortions := make(map[uint]int)
+		for _, idStr := range c.Request().Form["participants"] {
+			if uid, err := strconv.ParseUint(idStr, 10, 32); err == nil {
+				portionStr := c.FormValue("portion_" + idStr)
+				portion := 1
+				if p, err := strconv.Atoi(portionStr); err == nil && p > 0 {
+					portion = p
+				}
+				participantPortions[uint(uid)] = portion
+			}
+		}
+
+		recurringInterval := c.FormValue("recurring_interval")
+		var recurringIntervalPtr *string
+		if recurringInterval != "" {
+			recurringIntervalPtr = &recurringInterval
+		}
+
+		plan := models.Plan{
+			Name:                    c.FormValue("name"),
+			TotalPrice:              totalPrice,
+			PaymentType:             c.FormValue("payment_type"),
+			RecurringInterval:       recurringIntervalPtr,
+			AllowInvitationAfterPay: c.FormValue("allow_invitation") == "on",
+		}
+
+		startDateStr := c.FormValue("plan_start_date")
+		if startDateStr == "" {
+			startDateStr = time.Now().Format("2006-01-02")
+		}
+
+		props := pages.PlanFormProps{
+			Title:               "Create New Plan",
+			ActiveNav:           "plans",
+			Breadcrumbs:         breadcrumbs,
+			UserEmail:           getStringFromContext(c, "userEmail"),
+			UserUID:             getStringFromContext(c, "userUID"),
+			IsEdit:              false,
+			Plan:                plan,
+			FormattedStartDate:  startDateStr,
+			AllUsers:            users,
+			ParticipantPortions: participantPortions,
+			ErrorMessage:        errMsg,
+		}
+
+		return pages.PlanForm(props).Render(c.Request().Context(), c.Response())
+	}
+
+	name := strings.TrimSpace(c.FormValue("name"))
+	if name == "" {
+		return renderError("Plan name is required")
+	}
+
 	priceStr := c.FormValue("total_price")
+	totalPrice, err := strconv.ParseFloat(priceStr, 64)
+	if err != nil || totalPrice < 1000 {
+		return renderError("Total price must be at least 1000")
+	}
+
+	formParticipants := c.Request().Form["participants"]
+	if len(formParticipants) < 1 {
+		return renderError("At least one participant is required")
+	}
 
 	startDateStr := c.FormValue("plan_start_date")
-
-	totalPrice, _ := strconv.ParseFloat(priceStr, 64)
 
 	// Basic parsing - assuming standard date format YYYY-MM-DD from HTML date input
 	planStartDate, err := timeFromForm(startDateStr)
@@ -205,7 +278,6 @@ func (h *PlanHandler) StorePlan(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create plan")
 	}
 
-	// Handle participants
 	// Handle participants
 	participantIDs := c.Request().Form["participants"]
 	if len(participantIDs) > 0 {
