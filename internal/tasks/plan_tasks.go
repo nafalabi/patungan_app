@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 
 	"time"
 
@@ -75,6 +76,11 @@ func (t *ProcessPlanScheduleTaskDef) HandleExecution(ctx context.Context, db *go
 	var createdDues []uint
 	var notificationUsers []NotificationUser
 
+	appBaseURL := os.Getenv("APP_BASE_URL")
+	if appBaseURL == "" {
+		appBaseURL = "http://localhost:8080"
+	}
+
 	for _, p := range plan.Participants {
 		amount := pricePerPortion * float64(p.Portion)
 
@@ -93,18 +99,21 @@ func (t *ProcessPlanScheduleTaskDef) HandleExecution(ctx context.Context, db *go
 		}
 		createdDues = append(createdDues, due.ID)
 
+		paymentLink := fmt.Sprintf("%s/p/%s", appBaseURL, due.UUID)
+
 		notificationUsers = append(notificationUsers, NotificationUser{
 			UserID:      p.UserID,
 			Username:    p.User.Name,
 			Email:       p.User.Email,
 			PhoneNumber: p.User.Phone,
+			PaymentLink: paymentLink,
 		})
 	}
 
 	if len(notificationUsers) > 0 {
 		notifArgs := SendNotificationArgs{
 			Users:         notificationUsers,
-			NotifTemplate: "Halo $name, tagihan untuk plan $plan_name sudah jatuh tempo. Yuk segera dibayar!",
+			NotifTemplate: "Halo $name, tagihan untuk plan $plan_name sudah jatuh tempo. Yuk segera dibayar di $paymentlink !",
 			Subject:       "Tagihan Plan " + plan.Name,
 			PlanName:      plan.Name,
 			Amount:        pricePerPortion,

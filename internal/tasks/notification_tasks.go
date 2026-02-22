@@ -20,6 +20,7 @@ type NotificationUser struct {
 	Username    string      `json:"username"`
 	Email       string      `json:"email"`
 	PhoneNumber string      `json:"phonenumber"`
+	PaymentLink string      `json:"payment_link"`
 }
 
 // SendNotificationArgs defines the arguments for a notification task
@@ -182,6 +183,7 @@ func replacePlaceholders(template string, user NotificationUser, args SendNotifi
 	res = strings.ReplaceAll(res, "$plan_name", args.PlanName)
 	res = strings.ReplaceAll(res, "$amount", fmt.Sprintf("%v", args.Amount))
 	res = strings.ReplaceAll(res, "$due_date", args.DueDate)
+	res = strings.ReplaceAll(res, "$paymentlink", user.PaymentLink)
 
 	return res
 }
