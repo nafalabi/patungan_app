@@ -6,11 +6,13 @@ import (
 	"sync"
 
 	"gorm.io/gorm"
+
+	"patungan_app_echo/internal/models"
 )
 
 // TaskHandler is the function signature for a task handler
-// It takes context, db connection, and arguments, and returns a result map and error
-type TaskHandler func(ctx context.Context, db *gorm.DB, args map[string]interface{}) (map[string]interface{}, error)
+// It takes context, db connection, and the scheduled task models, and returns a result map and error
+type TaskHandler func(ctx context.Context, db *gorm.DB, task models.ScheduledTask) (map[string]interface{}, error)
 
 // Registry stores the mapping of task names to handlers
 type Registry struct {
@@ -51,8 +53,8 @@ func GetHandler(name string) (TaskHandler, bool) {
 // Initialize registers default tasks (can be expanded)
 func Initialize() {
 	// Example task
-	RegisterHandler("example_task", func(ctx context.Context, db *gorm.DB, args map[string]interface{}) (map[string]interface{}, error) {
-		fmt.Printf("Executing example_task with args: %v\n", args)
+	RegisterHandler("example_task", func(ctx context.Context, db *gorm.DB, task models.ScheduledTask) (map[string]interface{}, error) {
+		fmt.Printf("Executing example_task with args: %v\n", task.Arguments)
 		return map[string]interface{}{"status": "success", "message": "Example task executed"}, nil
 	})
 }

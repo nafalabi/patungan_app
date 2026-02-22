@@ -31,6 +31,7 @@ type SendNotificationArgs struct {
 	PlanName      string             `json:"plan_name"`
 	Amount        float64            `json:"amount"`
 	DueDate       string             `json:"due_date"`
+	AttemptCount  int                `json:"attempt_count"`
 }
 
 // SendNotificationTaskDef encapsulates the notification task logic
@@ -47,8 +48,8 @@ func (t *SendNotificationTaskDef) CreateTask(args SendNotificationArgs) (*models
 }
 
 // HandleExecution handles sending notifications based on user preference
-func (t *SendNotificationTaskDef) HandleExecution(ctx context.Context, db *gorm.DB, args map[string]interface{}) (map[string]interface{}, error) {
-	argsBytes, err := json.Marshal(args)
+func (t *SendNotificationTaskDef) HandleExecution(ctx context.Context, db *gorm.DB, task models.ScheduledTask) (map[string]interface{}, error) {
+	argsBytes, err := json.Marshal(task.Arguments)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal args: %w", err)
 	}
@@ -63,6 +64,7 @@ func (t *SendNotificationTaskDef) HandleExecution(ctx context.Context, db *gorm.
 	skippedCount := 0
 	failureCount := 0
 	var failures []string
+	var failedUsers []NotificationUser
 
 	for _, user := range parsedArgs.Users {
 		// Fetch preference
@@ -79,6 +81,7 @@ func (t *SendNotificationTaskDef) HandleExecution(ctx context.Context, db *gorm.
 			log.Printf("Error fetching preference for %s: %v", user.Username, err)
 			failureCount++
 			failures = append(failures, fmt.Sprintf("%s: db error", user.Username))
+			failedUsers = append(failedUsers, user)
 			continue
 		}
 
@@ -103,6 +106,7 @@ func (t *SendNotificationTaskDef) HandleExecution(ctx context.Context, db *gorm.
 			log.Printf("Failed to send notification to %s via %s: %v", user.Username, pref.Channel, sendErr)
 			failureCount++
 			failures = append(failures, fmt.Sprintf("%s: %v", user.Username, sendErr))
+			failedUsers = append(failedUsers, user)
 		} else {
 			successCount++
 		}
@@ -115,8 +119,32 @@ func (t *SendNotificationTaskDef) HandleExecution(ctx context.Context, db *gorm.
 		"failure": failureCount,
 	}
 
-	if len(failures) > 0 {
+	if failureCount > 0 {
 		result["errors"] = failures
+
+		attempt := parsedArgs.AttemptCount
+		maxRetries := task.MaxAttempt
+
+		if attempt < maxRetries {
+			log.Printf("Partial failure: %d users failed. Rescheduling for Attempt %d", len(failedUsers), attempt+1)
+
+			newArgs := parsedArgs
+			newArgs.Users = failedUsers
+			newArgs.AttemptCount = attempt + 1
+
+			// Re-schedule in 5 minutes
+			nextRun := time.Now().Add(5 * time.Minute)
+
+			newTask, err := BuildScheduledTask(t.TaskID(), newArgs, nextRun, nil, models.ScheduledTaskTypeOneTime, maxRetries)
+			if err == nil {
+				db.Create(newTask)
+			} else {
+				log.Printf("Failed to create retry task: %v", err)
+			}
+		} else {
+			log.Printf("Max attempts (%d) reached for %d failed users.", maxRetries, len(failedUsers))
+			return result, fmt.Errorf("max attempts reached, failed to deliver to %d users", len(failedUsers))
+		}
 	}
 
 	return result, nil

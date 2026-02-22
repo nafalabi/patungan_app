@@ -158,7 +158,7 @@ func executeTask(ctx context.Context, db *gorm.DB, task models.ScheduledTask, cu
 
 	// Execute task
 	startTime := time.Now()
-	result, err := handler(ctx, db, task.Arguments)
+	result, err := handler(ctx, db, task)
 	duration := time.Since(startTime)
 	runtimeMs := int(duration.Milliseconds())
 

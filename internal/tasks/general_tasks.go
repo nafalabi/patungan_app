@@ -3,6 +3,7 @@ package tasks
 import (
 	"context"
 	"log"
+	"patungan_app_echo/internal/models"
 
 	"gorm.io/gorm"
 )
@@ -16,14 +17,14 @@ func (t *LogInfoTaskDef) TaskID() string {
 }
 
 // HandleExecution handles logging information
-func (t *LogInfoTaskDef) HandleExecution(ctx context.Context, db *gorm.DB, args map[string]interface{}) (map[string]interface{}, error) {
-	message, ok := args["message"].(string)
+func (t *LogInfoTaskDef) HandleExecution(ctx context.Context, db *gorm.DB, task models.ScheduledTask) (map[string]interface{}, error) {
+	message, ok := task.Arguments["message"].(string)
 	if !ok {
 		message = "No message provided"
 	}
 	log.Printf("[Task: log_info] Message: %s", message)
 
-	maxAttempt, _ := args["max_attempt"].(int) // retrieve max_limit just in case
+	maxAttempt := task.MaxAttempt
 
 	return map[string]interface{}{
 		"status":            "success",

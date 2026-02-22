@@ -40,8 +40,8 @@ func (t *ProcessPlanScheduleTaskDef) CreateTask(args ProcessPlanScheduleArgs) (*
 }
 
 // HandleExecution handles the processing of plan schedules
-func (t *ProcessPlanScheduleTaskDef) HandleExecution(ctx context.Context, db *gorm.DB, args map[string]interface{}) (map[string]interface{}, error) {
-	argsBytes, err := json.Marshal(args)
+func (t *ProcessPlanScheduleTaskDef) HandleExecution(ctx context.Context, db *gorm.DB, task models.ScheduledTask) (map[string]interface{}, error) {
+	argsBytes, err := json.Marshal(task.Arguments)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal args: %w", err)
 	}
