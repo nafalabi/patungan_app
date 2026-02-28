@@ -76,7 +76,7 @@ func (t *ProcessPlanScheduleTaskDef) HandleExecution(ctx context.Context, db *go
 	var createdDues []uint
 	var notificationUsers []NotificationUser
 
-	appBaseURL := os.Getenv("APP_BASE_URL")
+	appBaseURL := os.Getenv("APP_URL")
 	if appBaseURL == "" {
 		appBaseURL = "http://localhost:8080"
 	}
