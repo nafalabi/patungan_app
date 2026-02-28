@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"os"
 	"patungan_app_echo/internal/models"
 	"patungan_app_echo/web/templates/layouts"
 	"patungan_app_echo/web/templates/shared"
@@ -233,7 +234,11 @@ templ PaymentDues(props PaymentDuesProps) {
 			</div>
 		}
 		<!-- Midtrans Snap Script -->
-		<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key={ props.MidtransClientKey }></script>
+		if os.Getenv("MIDTRANS_IS_PRODUCTION") == "true" {
+			<script src="https://app.midtrans.com/snap/snap.js" data-client-key={ props.MidtransClientKey }></script>
+		} else {
+			<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key={ props.MidtransClientKey }></script>
+		}
 		
 		<!-- Payment Logic with Modal -->
 		<div 
