@@ -63,10 +63,13 @@ func (h *PublicHandler) InitiatePayment(c echo.Context) error {
 
 	// Initiate Payment using PaymentService
 	forceNew := c.QueryParam("force_new") == "true"
-	gateway := models.PaymentGateway(c.QueryParam("gateway"))
 	callbackURL := getEnv("APP_URL", "http://localhost:8080") + "/p/" + uuid
 
-	result, err := h.paymentService.InitiatePayment(&due, forceNew, callbackURL, gateway)
+	result, err := h.paymentService.InitiatePayment(services.InitiatePaymentRequest{
+		Due:         &due,
+		ForceNew:    forceNew,
+		CallbackURL: callbackURL,
+	})
 	if err != nil {
 		if err.Error() == "payment already made" {
 			return c.JSON(http.StatusBadRequest, map[string]string{"message": "Payment is already made. Please check the status."})

@@ -43,10 +43,17 @@ type InitiatePaymentResult struct {
 	IsExisting  bool
 }
 
+type InitiatePaymentRequest struct {
+	Due             *models.PaymentDue
+	ForceNew        bool
+	CallbackURL     string
+	GatewayOverride models.PaymentGateway
+}
+
 // InitiatePayment handles the logic for starting or resuming a payment session
-func (s *PaymentService) InitiatePayment(due *models.PaymentDue, forceNew bool, callbackURL string, gatewayOverride models.PaymentGateway) (*InitiatePaymentResult, error) {
+func (s *PaymentService) InitiatePayment(req InitiatePaymentRequest) (*InitiatePaymentResult, error) {
 	// 1. Check for existing active session
-	existingSession, err := s.CheckActiveSession(due.ID)
+	existingSession, err := s.CheckActiveSession(req.Due.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -61,17 +68,17 @@ func (s *PaymentService) InitiatePayment(due *models.PaymentDue, forceNew bool, 
 			}
 
 			// Case 2: Payment failed/expired/canceled
-			if statusResp.TransactionStatus == payment_gateway.StatusDeny || 
-			   statusResp.TransactionStatus == payment_gateway.StatusExpire || 
-			   statusResp.TransactionStatus == payment_gateway.StatusCancel || 
-			   statusResp.TransactionStatus == payment_gateway.StatusFailure {
+			if statusResp.TransactionStatus == payment_gateway.StatusDeny ||
+				statusResp.TransactionStatus == payment_gateway.StatusExpire ||
+				statusResp.TransactionStatus == payment_gateway.StatusCancel ||
+				statusResp.TransactionStatus == payment_gateway.StatusFailure {
 				// Deactivate local session
 				existingSession.IsActive = false
 				s.db.Save(existingSession)
 				// Proceed to create new
 			} else {
 				// Case 3: Payment is Pending
-				if forceNew {
+				if req.ForceNew {
 					// Cancel via Manager
 					s.gatewayManager.CancelTransaction(existingSession.OrderID, existingSession.PaymentGateway)
 					existingSession.IsActive = false
@@ -100,39 +107,39 @@ func (s *PaymentService) InitiatePayment(due *models.PaymentDue, forceNew bool, 
 	}
 
 	// 2. Create New Transaction
-	orderID := fmt.Sprintf("payment-due-%d-%d", due.ID, time.Now().Unix())
+	orderID := fmt.Sprintf("payment-due-%d-%d", req.Due.ID, time.Now().Unix())
 
-	req := &payment_gateway.PaymentRequest{
-		OrderID:  orderID,
-		Amount:   int64(due.CalculatedPayAmount),
+	gwReq := &payment_gateway.PaymentRequest{
+		OrderID: orderID,
+		Amount:  int64(req.Due.CalculatedPayAmount),
 		Customer: payment_gateway.CustomerDetails{
-			Name:  due.User.Name,
-			Email: due.User.Email,
+			Name:  req.Due.User.Name,
+			Email: req.Due.User.Email,
 		},
 		Items: []payment_gateway.ItemDetails{
 			{
-				ID:    fmt.Sprintf("plan-%d", due.PlanID),
-				Name:  fmt.Sprintf("Payment for %s", due.Plan.Name),
-				Price: int64(due.CalculatedPayAmount),
+				ID:    fmt.Sprintf("plan-%d", req.Due.PlanID),
+				Name:  fmt.Sprintf("Payment for %s", req.Due.Plan.Name),
+				Price: int64(req.Due.CalculatedPayAmount),
 				Qty:   1,
 			},
 		},
-		CallbackURL: callbackURL,
+		CallbackURL: req.CallbackURL,
 	}
 
-	resp, selectedGateway, err := s.gatewayManager.CreateTransaction(req, gatewayOverride)
+	resp, selectedGateway, err := s.gatewayManager.CreateTransaction(gwReq, req.GatewayOverride)
 	if err != nil {
 		return nil, err
 	}
 
 	// 3. Create Session Record
-	reqBytes, _ := json.Marshal(req)
+	reqBytes, _ := json.Marshal(gwReq)
 	respBytes, _ := json.Marshal(resp)
 
 	session := models.PaymentSession{
-		PlanID:           due.PlanID,
-		PaymentDueID:     due.ID,
-		UserID:           due.UserID,
+		PlanID:           req.Due.PlanID,
+		PaymentDueID:     req.Due.ID,
+		UserID:           req.Due.UserID,
 		PaymentGateway:   selectedGateway,
 		OrderID:          orderID,
 		IsActive:         true,
