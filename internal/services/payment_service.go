@@ -60,8 +60,11 @@ func (s *PaymentService) InitiatePayment(req InitiatePaymentRequest) (*InitiateP
 	}
 
 	if existingSession != nil {
+		// Get correct identifier for the gateway
+		identifier := s.gatewayManager.GetTransactionIdentifier(existingSession.PaymentGateway, existingSession.OrderID, existingSession.ResponseMetadata)
+
 		// active session exists, check status via Manager
-		statusResp, err := s.gatewayManager.CheckTransaction(existingSession.OrderID, existingSession.PaymentGateway)
+		statusResp, err := s.gatewayManager.CheckTransaction(identifier, existingSession.PaymentGateway)
 		if err == nil {
 			// Case 1: Payment already successful
 			if statusResp.TransactionStatus == payment_gateway.StatusSettlement || statusResp.TransactionStatus == payment_gateway.StatusCapture {
@@ -170,7 +173,9 @@ func (s *PaymentService) VerifyPaymentStatus(dueID uint) error {
 	}
 
 	// 2. Call Manager Check Transaction
-	resp, err := s.gatewayManager.CheckTransaction(session.OrderID, session.PaymentGateway)
+	identifier := s.gatewayManager.GetTransactionIdentifier(session.PaymentGateway, session.OrderID, session.ResponseMetadata)
+
+	resp, err := s.gatewayManager.CheckTransaction(identifier, session.PaymentGateway)
 	if err != nil {
 		return err
 	}

@@ -34,15 +34,15 @@ type mayarCreateResponse struct {
 	Status  int    `json:"status"`
 	Message string `json:"message"`
 	Data    struct {
-		ID      string `json:"id"`
-		Link    string `json:"link"`
-		Status  string `json:"status"`
+		ID     string `json:"id"`
+		Link   string `json:"link"`
+		Status string `json:"status"`
 	} `json:"data"`
 }
 
 func (g *MayarGateway) CreateTransaction(req *PaymentRequest) (*PaymentResponse, error) {
 	url := fmt.Sprintf("%s/payment/create", g.BaseURL)
-	
+
 	payload := map[string]interface{}{
 		"name":         req.Customer.Name,
 		"email":        req.Customer.Email,
@@ -53,7 +53,7 @@ func (g *MayarGateway) CreateTransaction(req *PaymentRequest) (*PaymentResponse,
 	}
 
 	jsonPayload, _ := json.Marshal(payload)
-	
+
 	httpReq, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
 	if err != nil {
 		return nil, err
@@ -86,9 +86,9 @@ func (g *MayarGateway) CreateTransaction(req *PaymentRequest) (*PaymentResponse,
 	}, nil
 }
 
-func (g *MayarGateway) CheckTransaction(orderID string) (*TransactionStatusResponse, error) {
-	// Mayar typically uses 'payment/status/{id}'
-	url := fmt.Sprintf("%s/payment/%s", g.BaseURL, orderID)
+func (g *MayarGateway) CheckTransaction(paymentID string) (*TransactionStatusResponse, error) {
+	// Mayar typically uses 'payment/{id}'
+	url := fmt.Sprintf("%s/payment/%s", g.BaseURL, paymentID)
 
 	httpReq, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -105,7 +105,7 @@ func (g *MayarGateway) CheckTransaction(orderID string) (*TransactionStatusRespo
 	defer resp.Body.Close()
 
 	body, _ := io.ReadAll(resp.Body)
-	
+
 	// Map Mayar status to generic status
 	var mayarStatus struct {
 		Data struct {
@@ -117,6 +117,10 @@ func (g *MayarGateway) CheckTransaction(orderID string) (*TransactionStatusRespo
 
 	status := StatusUnknown
 	switch mayarStatus.Data.Status {
+	case "unpaid":
+		status = StatusPending
+	case "paid":
+		status = StatusSettlement
 	case "pending":
 		status = StatusPending
 	case "success":
@@ -129,7 +133,7 @@ func (g *MayarGateway) CheckTransaction(orderID string) (*TransactionStatusRespo
 
 	return &TransactionStatusResponse{
 		TransactionStatus: status,
-		OrderID:           orderID,
+		OrderID:           paymentID,
 		GrossAmount:       fmt.Sprintf("%d", mayarStatus.Data.Amount),
 		RawResponse:       body,
 	}, nil

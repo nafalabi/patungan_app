@@ -1,6 +1,7 @@
 package payment_gateway
 
 import (
+	"encoding/json"
 	"fmt"
 	"patungan_app_echo/internal/models"
 
@@ -141,4 +142,18 @@ func (m *GatewayManager) VerifyNotification(payload []byte, headers map[string]s
 		return false, err
 	}
 	return gw.VerifyNotification(payload, headers)
+}
+
+// GetTransactionIdentifier returns the correct identifier for a transaction based on the gateway.
+// Some gateways (like Mayar) use their own internal IDs for status checks.
+func (m *GatewayManager) GetTransactionIdentifier(gateway models.PaymentGateway, orderID string, responseMetadata []byte) string {
+	if gateway == models.PaymentGatewayMayar {
+		var metadata struct {
+			Token string `json:"token"`
+		}
+		if err := json.Unmarshal(responseMetadata, &metadata); err == nil && metadata.Token != "" {
+			return metadata.Token
+		}
+	}
+	return orderID
 }
