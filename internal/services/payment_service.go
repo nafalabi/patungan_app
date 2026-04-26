@@ -40,6 +40,7 @@ func (s *PaymentService) CheckActiveSession(paymentDueID uint) (*models.PaymentS
 type InitiatePaymentResult struct {
 	Token       string
 	RedirectURL string
+	Gateway     models.PaymentGateway
 	IsExisting  bool
 }
 
@@ -91,6 +92,7 @@ func (s *PaymentService) InitiatePayment(req InitiatePaymentRequest) (*InitiateP
 						return &InitiatePaymentResult{
 							Token:       resp.Token,
 							RedirectURL: resp.RedirectURL,
+							Gateway:     existingSession.PaymentGateway,
 							IsExisting:  true,
 						}, nil
 					}
@@ -151,6 +153,7 @@ func (s *PaymentService) InitiatePayment(req InitiatePaymentRequest) (*InitiateP
 	return &InitiatePaymentResult{
 		Token:       resp.Token,
 		RedirectURL: resp.RedirectURL,
+		Gateway:     selectedGateway,
 		IsExisting:  false,
 	}, nil
 }

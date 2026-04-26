@@ -80,6 +80,7 @@ func (h *PublicHandler) InitiatePayment(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"token":        result.Token,
 		"redirect_url": result.RedirectURL,
+		"gateway":      result.Gateway,
 	})
 }
 

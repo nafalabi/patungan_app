@@ -612,6 +612,10 @@ body {
   z-index: 50;
 }
 
+.z-\[60\] {
+  z-index: 60;
+}
+
 .mx-auto {
   margin-left: auto;
   margin-right: auto;
@@ -765,6 +769,10 @@ body {
   height: 0.75rem;
 }
 
+.h-8 {
+  height: 2rem;
+}
+
 .max-h-60 {
   max-height: 15rem;
 }
@@ -815,6 +823,10 @@ body {
 
 .w-3 {
   width: 0.75rem;
+}
+
+.w-8 {
+  width: 2rem;
 }
 
 .min-w-\[100px\] {
@@ -1086,12 +1098,31 @@ body {
   border-radius: 0.75rem;
 }
 
+.rounded-b-2xl {
+  border-bottom-right-radius: 1rem;
+  border-bottom-left-radius: 1rem;
+}
+
+.rounded-t-2xl {
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+}
+
 .border {
   border-width: 1px;
 }
 
 .border-2 {
   border-width: 2px;
+}
+
+.border-4 {
+  border-width: 4px;
+}
+
+.border-x {
+  border-left-width: 1px;
+  border-right-width: 1px;
 }
 
 .border-b {
@@ -1135,6 +1166,10 @@ body {
 
 .border-transparent {
   border-color: transparent;
+}
+
+.border-primary\/20 {
+  border-color: rgb(37 99 235 / 0.2);
 }
 
 .border-t-primary {
@@ -1275,6 +1310,10 @@ body {
 
 .bg-yellow-600\/20 {
   background-color: rgb(202 138 4 / 0.2);
+}
+
+.bg-black\/60 {
+  background-color: rgb(0 0 0 / 0.6);
 }
 
 .p-12 {
@@ -1608,6 +1647,10 @@ body {
   color: rgb(202 138 4 / var(--tw-text-opacity));
 }
 
+.text-white\/80 {
+  color: rgb(255 255 255 / 0.8);
+}
+
 .no-underline {
   text-decoration-line: none;
 }
@@ -1666,6 +1709,11 @@ body {
 
 .backdrop-blur-sm {
   --tw-backdrop-blur: blur(4px);
+  backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
+}
+
+.backdrop-blur-md {
+  --tw-backdrop-blur: blur(12px);
   backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
 }
 
@@ -2013,6 +2061,10 @@ body {
 
   .md\:p-10 {
     padding: 2.5rem;
+  }
+
+  .md\:p-4 {
+    padding: 1rem;
   }
 }
 
