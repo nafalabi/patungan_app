@@ -13,45 +13,14 @@ import (
 )
 
 type PaymentService struct {
-	db *gorm.DB
+	db             *gorm.DB
+	gatewayManager *payment_gateway.GatewayManager
 }
 
-func NewPaymentService(db *gorm.DB) *PaymentService {
+func NewPaymentService(db *gorm.DB, gatewayManager *payment_gateway.GatewayManager) *PaymentService {
 	return &PaymentService{
-		db: db,
-	}
-}
-
-// GetSettings fetches the singleton settings record
-func (s *PaymentService) GetSettings() (*models.Settings, error) {
-	var settings models.Settings
-	if err := s.db.First(&settings).Error; err != nil {
-		return nil, err
-	}
-	return &settings, nil
-}
-
-func (s *PaymentService) getGateway(gateway models.PaymentGateway) (payment_gateway.Gateway, error) {
-	settings, err := s.GetSettings()
-	if err != nil {
-		return nil, fmt.Errorf("failed to fetch settings: %v", err)
-	}
-
-	switch gateway {
-	case models.PaymentGatewayMidtrans:
-		return payment_gateway.NewMidtransGateway(payment_gateway.MidtransConfig{
-			MerchantID:   settings.MidtransMerchantID,
-			ServerKey:    settings.MidtransServerKey,
-			ClientKey:    settings.MidtransClientKey,
-			IsProduction: settings.MidtransIsProduction,
-		}), nil
-	case models.PaymentGatewayMayar:
-		return payment_gateway.NewMayarGateway(payment_gateway.MayarConfig{
-			APIKey:       settings.MayarAPIKey,
-			IsProduction: settings.MayarIsProduction,
-		}), nil
-	default:
-		return nil, fmt.Errorf("gateway %s not supported", gateway)
+		db:             db,
+		gatewayManager: gatewayManager,
 	}
 }
 
@@ -75,22 +44,7 @@ type InitiatePaymentResult struct {
 }
 
 // InitiatePayment handles the logic for starting or resuming a payment session
-func (s *PaymentService) InitiatePayment(due *models.PaymentDue, forceNew bool, callbackURL string, gateway models.PaymentGateway) (*InitiatePaymentResult, error) {
-	settings, err := s.GetSettings()
-	if err != nil {
-		return nil, err
-	}
-
-	// Use active gateway from settings if not specified
-	if gateway == "" {
-		gateway = settings.ActivePaymentGateway
-	}
-
-	g, err := s.getGateway(gateway)
-	if err != nil {
-		return nil, err
-	}
-
+func (s *PaymentService) InitiatePayment(due *models.PaymentDue, forceNew bool, callbackURL string, gatewayOverride models.PaymentGateway) (*InitiatePaymentResult, error) {
 	// 1. Check for existing active session
 	existingSession, err := s.CheckActiveSession(due.ID)
 	if err != nil {
@@ -98,8 +52,8 @@ func (s *PaymentService) InitiatePayment(due *models.PaymentDue, forceNew bool, 
 	}
 
 	if existingSession != nil {
-		// active session exists, check status with Gateway
-		statusResp, err := g.CheckTransaction(existingSession.OrderID)
+		// active session exists, check status via Manager
+		statusResp, err := s.gatewayManager.CheckTransaction(existingSession.OrderID, existingSession.PaymentGateway)
 		if err == nil {
 			// Case 1: Payment already successful
 			if statusResp.TransactionStatus == payment_gateway.StatusSettlement || statusResp.TransactionStatus == payment_gateway.StatusCapture {
@@ -118,8 +72,8 @@ func (s *PaymentService) InitiatePayment(due *models.PaymentDue, forceNew bool, 
 			} else {
 				// Case 3: Payment is Pending
 				if forceNew {
-					// Cancel at Gateway
-					g.CancelTransaction(existingSession.OrderID)
+					// Cancel via Manager
+					s.gatewayManager.CancelTransaction(existingSession.OrderID, existingSession.PaymentGateway)
 					existingSession.IsActive = false
 					s.db.Save(existingSession)
 					// Proceed to create new
@@ -166,7 +120,7 @@ func (s *PaymentService) InitiatePayment(due *models.PaymentDue, forceNew bool, 
 		CallbackURL: callbackURL,
 	}
 
-	resp, err := g.CreateTransaction(req)
+	resp, selectedGateway, err := s.gatewayManager.CreateTransaction(req, gatewayOverride)
 	if err != nil {
 		return nil, err
 	}
@@ -179,7 +133,7 @@ func (s *PaymentService) InitiatePayment(due *models.PaymentDue, forceNew bool, 
 		PlanID:           due.PlanID,
 		PaymentDueID:     due.ID,
 		UserID:           due.UserID,
-		PaymentGateway:   gateway,
+		PaymentGateway:   selectedGateway,
 		OrderID:          orderID,
 		IsActive:         true,
 		RequestMetadata:  reqBytes,
@@ -194,7 +148,7 @@ func (s *PaymentService) InitiatePayment(due *models.PaymentDue, forceNew bool, 
 	}, nil
 }
 
-// VerifyPaymentStatus checks the status of a payment due with the Gateway and updates local state
+// VerifyPaymentStatus checks the status of a payment due via the Manager and updates local state
 func (s *PaymentService) VerifyPaymentStatus(dueID uint) error {
 	// 1. Find latest active session for this due
 	var session models.PaymentSession
@@ -205,13 +159,8 @@ func (s *PaymentService) VerifyPaymentStatus(dueID uint) error {
 		return err
 	}
 
-	// 2. Call Gateway Check Transaction
-	g, err := s.getGateway(session.PaymentGateway)
-	if err != nil {
-		return err
-	}
-
-	resp, err := g.CheckTransaction(session.OrderID)
+	// 2. Call Manager Check Transaction
+	resp, err := s.gatewayManager.CheckTransaction(session.OrderID, session.PaymentGateway)
 	if err != nil {
 		return err
 	}

@@ -14,6 +14,7 @@ import (
 	authMiddleware "patungan_app_echo/internal/middleware"
 	"patungan_app_echo/internal/models"
 	"patungan_app_echo/internal/services"
+	"patungan_app_echo/internal/services/payment_gateway"
 )
 
 func main() {
@@ -118,7 +119,8 @@ func main() {
 	e.Static("/static", "web/static")
 
 	// Initialize PaymentService
-	paymentService := services.NewPaymentService(db)
+	gatewayManager := payment_gateway.NewGatewayManager(db)
+	paymentService := services.NewPaymentService(db, gatewayManager)
 
 	// Initialize handlers
 	authHandler := handlers.NewAuthHandler(authClient, db)
@@ -127,7 +129,7 @@ func main() {
 	userHandler := handlers.NewUserHandler(db, cache)
 	paymentDueHandler := handlers.NewPaymentDueHandler(db, cache, paymentService)
 	userPrefHandler := handlers.NewUserPreferenceHandler(db)
-	settingsHandler := handlers.NewSettingsHandler(db, paymentService)
+	settingsHandler := handlers.NewSettingsHandler(db, gatewayManager)
 
 	// Public routes
 	e.GET("/login", authHandler.LoginPage)

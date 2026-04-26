@@ -7,18 +7,18 @@ import (
 	"gorm.io/gorm"
 
 	"patungan_app_echo/internal/models"
-	"patungan_app_echo/internal/services"
+	"patungan_app_echo/internal/services/payment_gateway"
 	"patungan_app_echo/web/templates/pages"
 	"patungan_app_echo/web/templates/shared"
 )
 
 type SettingsHandler struct {
 	db             *gorm.DB
-	paymentService *services.PaymentService
+	gatewayManager *payment_gateway.GatewayManager
 }
 
-func NewSettingsHandler(db *gorm.DB, paymentService *services.PaymentService) *SettingsHandler {
-	return &SettingsHandler{db: db, paymentService: paymentService}
+func NewSettingsHandler(db *gorm.DB, gatewayManager *payment_gateway.GatewayManager) *SettingsHandler {
+	return &SettingsHandler{db: db, gatewayManager: gatewayManager}
 }
 
 func (h *SettingsHandler) GetSettings(c echo.Context) error {
@@ -28,7 +28,7 @@ func (h *SettingsHandler) GetSettings(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusForbidden, "Only admins can access settings")
 	}
 
-	settings, err := h.paymentService.GetSettings()
+	settings, err := h.gatewayManager.GetSettings()
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to fetch settings")
 	}
@@ -56,7 +56,7 @@ func (h *SettingsHandler) UpdateSettings(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusForbidden, "Only admins can update settings")
 	}
 
-	settings, err := h.paymentService.GetSettings()
+	settings, err := h.gatewayManager.GetSettings()
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to fetch settings")
 	}
