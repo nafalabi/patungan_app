@@ -12,7 +12,6 @@ import (
 
 	"patungan_app_echo/internal/models"
 	"patungan_app_echo/internal/services"
-	"patungan_app_echo/internal/services/payment_gateway"
 	"patungan_app_echo/web/templates/pages"
 	"patungan_app_echo/web/templates/shared"
 )
@@ -219,79 +218,6 @@ func (h *PaymentDueHandler) ListPaymentDues(c echo.Context) error {
 	}
 
 	return pages.PaymentDues(props).Render(c.Request().Context(), c.Response())
-}
-
-// InitiatePayment handles the creation of a Snap transaction
-func (h *PaymentDueHandler) InitiatePayment(c echo.Context) error {
-	id := c.Param("id")
-	dueID, err := strconv.ParseUint(id, 10, 32)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid payment due ID")
-	}
-
-	// 1. Fetch PaymentDue
-	var due models.PaymentDue
-	if err := h.db.Preload("Plan").Preload("User").First(&due, dueID).Error; err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, "Payment due not found")
-	}
-
-	// 2. Validate Ownership
-	currentUserID := getUintFromContext(c, "userID")
-	if due.UserID != currentUserID {
-		return echo.NewHTTPError(http.StatusForbidden, "You can only pay for your own dues")
-	}
-
-	// 3. Check if already paid
-	if due.PaymentStatus == models.PaymentStatusPaid {
-		return echo.NewHTTPError(http.StatusBadRequest, "Payment due is already paid")
-	}
-
-	// 4. Initiate Payment using PaymentService
-	forceNew := c.QueryParam("force_new") == "true"
-	gateway := models.PaymentGateway(c.QueryParam("gateway"))
-	callbackURL := getEnv("APP_URL", "http://localhost:8080") + "/payment-dues"
-
-	result, err := h.paymentService.InitiatePayment(&due, forceNew, callbackURL, gateway)
-	if err != nil {
-		if err.Error() == "payment already made" {
-			// Specific handling for already paid
-			return c.JSON(http.StatusBadRequest, map[string]string{"message": "Payment is already made. Please check the status."})
-		}
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to initiate payment: "+err.Error())
-	}
-
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"token":        result.Token,
-		"redirect_url": result.RedirectURL,
-	})
-}
-
-// CheckActiveSession checks if there is an active payment session for a due
-func (h *PaymentDueHandler) CheckActiveSession(c echo.Context) error {
-	id := c.Param("id")
-	dueID, err := strconv.ParseUint(id, 10, 32)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid payment due ID")
-	}
-
-	session, err := h.paymentService.CheckActiveSession(uint(dueID))
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to check session: "+err.Error())
-	}
-
-	if session != nil {
-		var midtransResp payment_gateway.PaymentResponse
-		if err := json.Unmarshal(session.ResponseMetadata, &midtransResp); err == nil {
-			return c.JSON(http.StatusOK, map[string]interface{}{
-				"active": true,
-				"token":  midtransResp.Token,
-			})
-		}
-	}
-
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"active": false,
-	})
 }
 
 // MidtransCallback handles validation of Midtrans notifications
