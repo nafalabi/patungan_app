@@ -118,7 +118,29 @@ func MobileNav(activeNav string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\"><i data-lucide=\"users\" class=\"w-5 h-5\"></i> <span>Users</span></a> <button class=\"flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-text-secondary hover:bg-bg-hover hover:text-text-primary w-full text-left logout-btn\"><i data-lucide=\"log-out\" class=\"w-5 h-5\"></i> <span>Logout</span></button></nav></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\"><i data-lucide=\"users\" class=\"w-5 h-5\"></i> <span>Users</span></a> ")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var10 = []any{"flex items-center gap-3 px-4 py-3 rounded-lg transition-colors", templ.KV("bg-primary/10 text-primary font-medium", activeNav == "settings"), templ.KV("text-text-secondary hover:bg-bg-hover hover:text-text-primary", activeNav != "settings")}
+		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var10...)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<a href=\"/admin/settings\" class=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var11 string
+		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(templ.CSSClasses(templ_7745c5c3_Var10).String())
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/layouts/mobile_nav.templ`, Line: 1, Col: 0}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\"><i data-lucide=\"settings\" class=\"w-5 h-5\"></i> <span>Settings</span></a> <button class=\"flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-text-secondary hover:bg-bg-hover hover:text-text-primary w-full text-left logout-btn\"><i data-lucide=\"log-out\" class=\"w-5 h-5\"></i> <span>Logout</span></button></nav></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

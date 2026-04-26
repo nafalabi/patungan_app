@@ -11,6 +11,7 @@ type PaymentGateway string
 
 const (
 	PaymentGatewayMidtrans PaymentGateway = "midtrans"
+	PaymentGatewayMayar    PaymentGateway = "mayar"
 	PaymentGatewayManual   PaymentGateway = "manual"
 )
 

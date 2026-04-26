@@ -57,6 +57,13 @@ templ MobileNav(activeNav string) {
 					<i data-lucide="users" class="w-5 h-5"></i>
 					<span>Users</span>
 				</a>
+				<a
+					href="/admin/settings"
+					class={ "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors", templ.KV("bg-primary/10 text-primary font-medium", activeNav == "settings"), templ.KV("text-text-secondary hover:bg-bg-hover hover:text-text-primary", activeNav != "settings") }
+				>
+					<i data-lucide="settings" class="w-5 h-5"></i>
+					<span>Settings</span>
+				</a>
 				<button
 					class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-text-secondary hover:bg-bg-hover hover:text-text-primary w-full text-left logout-btn"
 				>

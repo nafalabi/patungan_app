@@ -12,6 +12,7 @@ import (
 
 	"patungan_app_echo/internal/handlers"
 	authMiddleware "patungan_app_echo/internal/middleware"
+	"patungan_app_echo/internal/models"
 	"patungan_app_echo/internal/services"
 )
 
@@ -47,6 +48,25 @@ func main() {
 		if err := services.AutoMigrate(db); err != nil {
 			log.Fatalf("Failed to run database migrations: %v", err)
 		}
+		if err := db.AutoMigrate(&models.Settings{}); err != nil {
+			log.Printf("Warning: Settings migration failed: %v", err)
+		}
+
+		// Seed initial settings if none exist
+		var count int64
+		db.Model(&models.Settings{}).Count(&count)
+		if count == 0 {
+			db.Create(&models.Settings{
+				ActivePaymentGateway: models.PaymentGatewayMidtrans,
+				MidtransMerchantID:   os.Getenv("MIDTRANS_MERCHANT_ID"),
+				MidtransServerKey:    os.Getenv("MIDTRANS_SERVER_KEY"),
+				MidtransClientKey:    os.Getenv("MIDTRANS_CLIENT_KEY"),
+				MidtransIsProduction: os.Getenv("MIDTRANS_IS_PRODUCTION") == "true",
+				MayarAPIKey:          os.Getenv("MAYAR_API_KEY"),
+				MayarIsProduction:    os.Getenv("MAYAR_IS_PRODUCTION") == "true",
+			})
+			log.Println("Initialized default settings from environment variables")
+		}
 	} else {
 		log.Println("Warning: DATABASE_URL not set, database features disabled")
 	}
@@ -65,8 +85,7 @@ func main() {
 		log.Println("Warning: REDIS_URL not set, caching disabled")
 	}
 
-	// Initialize Midtrans
-	midtransService := services.NewMidtransService()
+	// Initialize Payment Gateways (now handled dynamically within PaymentService)
 
 	// Initialize Email
 	emailService := services.NewEmailService()
@@ -99,22 +118,23 @@ func main() {
 	e.Static("/static", "web/static")
 
 	// Initialize PaymentService
-	paymentService := services.NewPaymentService(db, midtransService)
+	paymentService := services.NewPaymentService(db)
 
 	// Initialize handlers
 	authHandler := handlers.NewAuthHandler(authClient, db)
 	dashboardHandler := handlers.NewDashboardHandler(db)
 	planHandler := handlers.NewPlanHandler(db, cache)
 	userHandler := handlers.NewUserHandler(db, cache)
-	paymentDueHandler := handlers.NewPaymentDueHandler(db, cache, midtransService, paymentService)
+	paymentDueHandler := handlers.NewPaymentDueHandler(db, cache, paymentService)
 	userPrefHandler := handlers.NewUserPreferenceHandler(db)
+	settingsHandler := handlers.NewSettingsHandler(db, paymentService)
 
 	// Public routes
 	e.GET("/login", authHandler.LoginPage)
 	e.POST("/auth/login", authHandler.HandleLogin)
 	e.POST("/auth/logout", authHandler.HandleLogout)
 
-	publicHandler := handlers.NewPublicHandler(db, cache, midtransService, paymentService)
+	publicHandler := handlers.NewPublicHandler(db, cache, paymentService)
 	e.GET("/p/:uuid", publicHandler.ShowPaymentDue)
 	e.POST("/p/:uuid/initiate", publicHandler.InitiatePayment)
 	e.GET("/p/:uuid/active-session", publicHandler.CheckActiveSession)
@@ -154,6 +174,10 @@ func main() {
 	protected.GET("/api/payments/:id/active-session", paymentDueHandler.CheckActiveSession)
 	protected.GET("/payments/:id/status", paymentDueHandler.CheckPaymentStatus)
 	protected.POST("/payments/:id/mark-complete", paymentDueHandler.HandleMarkAsComplete)
+
+	// Settings routes (Admin only)
+	protected.GET("/admin/settings", settingsHandler.GetSettings)
+	protected.POST("/admin/settings", settingsHandler.UpdateSettings)
 
 	// Webhook does not need auth protection, so it should be outside 'protected' group or explicitly allowed
 	// However, we usually put it under public routes

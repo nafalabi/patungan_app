@@ -9,25 +9,53 @@ import (
 	"gorm.io/gorm"
 
 	"patungan_app_echo/internal/models"
-
-	"github.com/midtrans/midtrans-go"
-	"github.com/midtrans/midtrans-go/snap"
+	"patungan_app_echo/internal/services/payment_gateway"
 )
 
 type PaymentService struct {
-	db             *gorm.DB
-	midtransClient *MidtransService
+	db *gorm.DB
 }
 
-func NewPaymentService(db *gorm.DB, midtransClient *MidtransService) *PaymentService {
+func NewPaymentService(db *gorm.DB) *PaymentService {
 	return &PaymentService{
-		db:             db,
-		midtransClient: midtransClient,
+		db: db,
+	}
+}
+
+// GetSettings fetches the singleton settings record
+func (s *PaymentService) GetSettings() (*models.Settings, error) {
+	var settings models.Settings
+	if err := s.db.First(&settings).Error; err != nil {
+		return nil, err
+	}
+	return &settings, nil
+}
+
+func (s *PaymentService) getGateway(gateway models.PaymentGateway) (payment_gateway.Gateway, error) {
+	settings, err := s.GetSettings()
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch settings: %v", err)
+	}
+
+	switch gateway {
+	case models.PaymentGatewayMidtrans:
+		return payment_gateway.NewMidtransGateway(payment_gateway.MidtransConfig{
+			MerchantID:   settings.MidtransMerchantID,
+			ServerKey:    settings.MidtransServerKey,
+			ClientKey:    settings.MidtransClientKey,
+			IsProduction: settings.MidtransIsProduction,
+		}), nil
+	case models.PaymentGatewayMayar:
+		return payment_gateway.NewMayarGateway(payment_gateway.MayarConfig{
+			APIKey:       settings.MayarAPIKey,
+			IsProduction: settings.MayarIsProduction,
+		}), nil
+	default:
+		return nil, fmt.Errorf("gateway %s not supported", gateway)
 	}
 }
 
 // CheckActiveSession checks if there is an active session for the given due ID
-// Returns the session if active and valid, otherwise nil or error
 func (s *PaymentService) CheckActiveSession(paymentDueID uint) (*models.PaymentSession, error) {
 	var existingSession models.PaymentSession
 	err := s.db.Where("payment_due_id = ? AND is_active = ?", paymentDueID, true).Order("created_at desc").First(&existingSession).Error
@@ -40,7 +68,6 @@ func (s *PaymentService) CheckActiveSession(paymentDueID uint) (*models.PaymentS
 	return &existingSession, nil
 }
 
-// InitiatePaymentResult holds the result of an initiation attempt
 type InitiatePaymentResult struct {
 	Token       string
 	RedirectURL string
@@ -48,7 +75,22 @@ type InitiatePaymentResult struct {
 }
 
 // InitiatePayment handles the logic for starting or resuming a payment session
-func (s *PaymentService) InitiatePayment(due *models.PaymentDue, forceNew bool, callbackURL string) (*InitiatePaymentResult, error) {
+func (s *PaymentService) InitiatePayment(due *models.PaymentDue, forceNew bool, callbackURL string, gateway models.PaymentGateway) (*InitiatePaymentResult, error) {
+	settings, err := s.GetSettings()
+	if err != nil {
+		return nil, err
+	}
+
+	// Use active gateway from settings if not specified
+	if gateway == "" {
+		gateway = settings.ActivePaymentGateway
+	}
+
+	g, err := s.getGateway(gateway)
+	if err != nil {
+		return nil, err
+	}
+
 	// 1. Check for existing active session
 	existingSession, err := s.CheckActiveSession(due.ID)
 	if err != nil {
@@ -56,16 +98,19 @@ func (s *PaymentService) InitiatePayment(due *models.PaymentDue, forceNew bool, 
 	}
 
 	if existingSession != nil {
-		// active session exists, check status with Midtrans
-		statusResp, err := s.midtransClient.CheckTransaction(existingSession.OrderID)
+		// active session exists, check status with Gateway
+		statusResp, err := g.CheckTransaction(existingSession.OrderID)
 		if err == nil {
 			// Case 1: Payment already successful
-			if statusResp.TransactionStatus == "settlement" || statusResp.TransactionStatus == "capture" {
+			if statusResp.TransactionStatus == payment_gateway.StatusSettlement || statusResp.TransactionStatus == payment_gateway.StatusCapture {
 				return nil, fmt.Errorf("payment already made")
 			}
 
 			// Case 2: Payment failed/expired/canceled
-			if statusResp.TransactionStatus == "deny" || statusResp.TransactionStatus == "expire" || statusResp.TransactionStatus == "cancel" || statusResp.TransactionStatus == "failure" {
+			if statusResp.TransactionStatus == payment_gateway.StatusDeny || 
+			   statusResp.TransactionStatus == payment_gateway.StatusExpire || 
+			   statusResp.TransactionStatus == payment_gateway.StatusCancel || 
+			   statusResp.TransactionStatus == payment_gateway.StatusFailure {
 				// Deactivate local session
 				existingSession.IsActive = false
 				s.db.Save(existingSession)
@@ -73,18 +118,18 @@ func (s *PaymentService) InitiatePayment(due *models.PaymentDue, forceNew bool, 
 			} else {
 				// Case 3: Payment is Pending
 				if forceNew {
-					// Cancel at Midtrans
-					s.midtransClient.CancelTransaction(existingSession.OrderID)
+					// Cancel at Gateway
+					g.CancelTransaction(existingSession.OrderID)
 					existingSession.IsActive = false
 					s.db.Save(existingSession)
 					// Proceed to create new
 				} else {
 					// Reuse existing
-					var midtransResp snap.Response
-					if err := json.Unmarshal(existingSession.ResponseMetadata, &midtransResp); err == nil {
+					var resp payment_gateway.PaymentResponse
+					if err := json.Unmarshal(existingSession.ResponseMetadata, &resp); err == nil {
 						return &InitiatePaymentResult{
-							Token:       midtransResp.Token,
-							RedirectURL: midtransResp.RedirectURL,
+							Token:       resp.Token,
+							RedirectURL: resp.RedirectURL,
 							IsExisting:  true,
 						}, nil
 					}
@@ -103,16 +148,14 @@ func (s *PaymentService) InitiatePayment(due *models.PaymentDue, forceNew bool, 
 	// 2. Create New Transaction
 	orderID := fmt.Sprintf("payment-due-%d-%d", due.ID, time.Now().Unix())
 
-	req := &snap.Request{
-		TransactionDetails: midtrans.TransactionDetails{
-			OrderID:  orderID,
-			GrossAmt: int64(due.CalculatedPayAmount),
-		},
-		CustomerDetail: &midtrans.CustomerDetails{
-			FName: due.User.Name,
+	req := &payment_gateway.PaymentRequest{
+		OrderID:  orderID,
+		Amount:   int64(due.CalculatedPayAmount),
+		Customer: payment_gateway.CustomerDetails{
+			Name:  due.User.Name,
 			Email: due.User.Email,
 		},
-		Items: &[]midtrans.ItemDetails{
+		Items: []payment_gateway.ItemDetails{
 			{
 				ID:    fmt.Sprintf("plan-%d", due.PlanID),
 				Name:  fmt.Sprintf("Payment for %s", due.Plan.Name),
@@ -120,12 +163,10 @@ func (s *PaymentService) InitiatePayment(due *models.PaymentDue, forceNew bool, 
 				Qty:   1,
 			},
 		},
-		Callbacks: &snap.Callbacks{
-			Finish: callbackURL,
-		},
+		CallbackURL: callbackURL,
 	}
 
-	resp, err := s.midtransClient.CreateTransaction(orderID, int64(due.CalculatedPayAmount), req)
+	resp, err := g.CreateTransaction(req)
 	if err != nil {
 		return nil, err
 	}
@@ -138,7 +179,7 @@ func (s *PaymentService) InitiatePayment(due *models.PaymentDue, forceNew bool, 
 		PlanID:           due.PlanID,
 		PaymentDueID:     due.ID,
 		UserID:           due.UserID,
-		PaymentGateway:   models.PaymentGatewayMidtrans,
+		PaymentGateway:   gateway,
 		OrderID:          orderID,
 		IsActive:         true,
 		RequestMetadata:  reqBytes,
@@ -153,7 +194,7 @@ func (s *PaymentService) InitiatePayment(due *models.PaymentDue, forceNew bool, 
 	}, nil
 }
 
-// VerifyPaymentStatus checks the status of a payment due with Midtrans and updates local state
+// VerifyPaymentStatus checks the status of a payment due with the Gateway and updates local state
 func (s *PaymentService) VerifyPaymentStatus(dueID uint) error {
 	// 1. Find latest active session for this due
 	var session models.PaymentSession
@@ -164,8 +205,13 @@ func (s *PaymentService) VerifyPaymentStatus(dueID uint) error {
 		return err
 	}
 
-	// 2. Call Midtrans Check Transaction
-	resp, err := s.midtransClient.CheckTransaction(session.OrderID)
+	// 2. Call Gateway Check Transaction
+	g, err := s.getGateway(session.PaymentGateway)
+	if err != nil {
+		return err
+	}
+
+	resp, err := g.CheckTransaction(session.OrderID)
 	if err != nil {
 		return err
 	}
@@ -176,29 +222,26 @@ func (s *PaymentService) VerifyPaymentStatus(dueID uint) error {
 		return err
 	}
 
-	s.HandleTransactionStatus(&due, session.OrderID, resp.TransactionStatus, resp.FraudStatus, resp.PaymentType, resp.GrossAmount)
+	s.HandleTransactionStatus(&due, session.OrderID, string(resp.TransactionStatus), resp.FraudStatus, resp.PaymentType, resp.GrossAmount)
 
 	return nil
 }
 
 func (s *PaymentService) HandleTransactionStatus(due *models.PaymentDue, orderID, transactionStatus, fraudStatus, paymentType, grossAmount string) {
 	switch transactionStatus {
-	case "capture":
-		switch fraudStatus {
-		case "accept":
+	case "capture", "success": // "success" is for Mayar, "capture" for Midtrans
+		if fraudStatus == "" || fraudStatus == "accept" {
 			s.MarkAsPaid(due, map[string]interface{}{
 				"payment_type": paymentType,
 				"gross_amount": grossAmount,
 			})
-		case "deny", "challenge":
-			// do nothing
 		}
 	case "settlement":
 		s.MarkAsPaid(due, map[string]interface{}{
 			"payment_type": paymentType,
 			"gross_amount": grossAmount,
 		})
-	case "deny", "expire", "cancel", "failure":
+	case "deny", "expire", "cancel", "failure", "failed":
 		var session models.PaymentSession
 		if err := s.db.Where("order_id = ?", orderID).First(&session).Error; err == nil {
 			session.IsActive = false
@@ -223,7 +266,13 @@ func (s *PaymentService) MarkAsPaid(due *models.PaymentDue, payload map[string]i
 	if ok {
 		paymentGateway = models.PaymentGateway(paymentGatewayStr)
 	} else {
-		paymentGateway = models.PaymentGatewayMidtrans // Default to midtrans for existing calls
+		// Try to find the session to get the gateway
+		var session models.PaymentSession
+		if err := s.db.Where("payment_due_id = ? AND is_active = ?", due.ID, true).Order("created_at desc").First(&session).Error; err == nil {
+			paymentGateway = session.PaymentGateway
+		} else {
+			paymentGateway = models.PaymentGatewayMidtrans // Default fallback
+		}
 	}
 
 	// Helper to get float from interface safely

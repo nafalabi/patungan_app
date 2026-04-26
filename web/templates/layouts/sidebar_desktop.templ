@@ -35,6 +35,13 @@ templ Sidebar(activeNav string) {
 			>
 				<span class="text-xl"><i data-lucide="users"></i></span>
 			</a>
+			<a 
+				href="/admin/settings" 
+				class={ "flex items-center justify-center w-10 h-10 rounded-lg mb-4 transition-all duration-200 hover:bg-bg-hover hover:text-primary", templ.KV("bg-primary/10 text-primary", activeNav == "settings"), templ.KV("text-text-secondary", activeNav != "settings") }
+				title="Settings"
+			>
+				<span class="text-xl"><i data-lucide="settings"></i></span>
+			</a>
 		</nav>
 	</aside>
 }

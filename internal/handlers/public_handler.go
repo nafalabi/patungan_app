@@ -3,6 +3,7 @@ package handlers
 import (
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
@@ -10,23 +11,16 @@ import (
 	"patungan_app_echo/internal/models"
 	"patungan_app_echo/internal/services"
 	"patungan_app_echo/web/templates/pages"
-
-	"github.com/midtrans/midtrans-go"
 )
 
 type PublicHandler struct {
 	db             *gorm.DB
 	cache          *services.RedisCache
-	midtransClient *services.MidtransService
 	paymentService *services.PaymentService
 }
 
-func NewPublicHandler(db *gorm.DB, cache *services.RedisCache, midtransClient *services.MidtransService, paymentService *services.PaymentService) *PublicHandler {
-	if midtransClient == nil {
-		// Initialize Midtrans if not provided (fallback)
-		midtransClient = services.NewMidtransService()
-	}
-	return &PublicHandler{db: db, cache: cache, midtransClient: midtransClient, paymentService: paymentService}
+func NewPublicHandler(db *gorm.DB, cache *services.RedisCache, paymentService *services.PaymentService) *PublicHandler {
+	return &PublicHandler{db: db, cache: cache, paymentService: paymentService}
 }
 
 // ShowPaymentDue renders the public payment due page
@@ -45,7 +39,7 @@ func (h *PublicHandler) ShowPaymentDue(c echo.Context) error {
 	props := pages.PublicPaymentDueProps{
 		Title:             "Payment Due Details",
 		Due:               due,
-		MidtransClientKey: midtrans.ClientKey,
+		MidtransClientKey: os.Getenv("MIDTRANS_CLIENT_KEY"),
 	}
 
 	return pages.PublicPaymentDue(props).Render(c.Request().Context(), c.Response())
@@ -69,9 +63,10 @@ func (h *PublicHandler) InitiatePayment(c echo.Context) error {
 
 	// Initiate Payment using PaymentService
 	forceNew := c.QueryParam("force_new") == "true"
+	gateway := models.PaymentGateway(c.QueryParam("gateway"))
 	callbackURL := getEnv("APP_URL", "http://localhost:8080") + "/p/" + uuid
 
-	result, err := h.paymentService.InitiatePayment(&due, forceNew, callbackURL)
+	result, err := h.paymentService.InitiatePayment(&due, forceNew, callbackURL, gateway)
 	if err != nil {
 		if err.Error() == "payment already made" {
 			return c.JSON(http.StatusBadRequest, map[string]string{"message": "Payment is already made. Please check the status."})
