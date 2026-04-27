@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 	"strconv"
@@ -246,7 +247,7 @@ func (h *PaymentDueHandler) MidtransCallback(c echo.Context) error {
 	// Note: Signature verification should be done via the gateway interface
 	// For now, we'll assume the callback is coming from a trusted source or implement it in the gateway implementation
 	// We'll refactor this to use the gateway's VerifyNotification if needed.
-	
+
 	// Quick hack for signature verification using environment key directly if needed
 	// But better to move this logic to MidtransGateway
 
@@ -270,6 +271,73 @@ func (h *PaymentDueHandler) MidtransCallback(c echo.Context) error {
 
 	// Handle status
 	h.paymentService.HandleTransactionStatus(&due, orderID, transactionStatus, fraudStatus, notificationPayload["payment_type"].(string), notificationPayload["gross_amount"].(string))
+
+	return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
+}
+
+// MayarCallback handles validation of Mayar notifications
+func (h *PaymentDueHandler) MayarCallback(c echo.Context) error {
+	var notificationPayload map[string]interface{}
+	if err := c.Bind(&notificationPayload); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid JSON payload")
+	}
+
+	// 1. Log to history
+	payloadBytes, _ := json.Marshal(notificationPayload)
+	history := models.PaymentCallbackHistory{
+		PaymentGateway: models.PaymentGatewayMayar,
+		Metadata:       payloadBytes,
+	}
+	h.db.Create(&history)
+
+	// 2. Extract Data (Mayar often wraps in a 'data' field)
+	data, ok := notificationPayload["data"].(map[string]interface{})
+	if !ok {
+		data = notificationPayload
+	}
+
+	description, _ := data["description"].(string)
+	orderID := strings.TrimPrefix(description, "Payment for ")
+
+	status, _ := data["status"].(string)
+	amount := data["amount"]
+	paymentType, _ := data["type"].(string)
+
+	// 3. Parse Order ID to get PaymentDueID
+	// Format: payment-due-{id}-{timestamp}
+	parts := strings.Split(orderID, "-")
+	if len(parts) < 3 {
+		// Fallback: search for session by Token if description doesn't match
+		paymentID, _ := data["id"].(string)
+		var session models.PaymentSession
+		if err := h.db.Where("payment_gateway = ? AND response_metadata LIKE ?", models.PaymentGatewayMayar, "%"+paymentID+"%").Order("created_at desc").First(&session).Error; err == nil {
+			orderID = session.OrderID
+			parts = strings.Split(orderID, "-")
+		} else {
+			// return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
+			return echo.NewHTTPError(http.StatusBadRequest, "Invalid order ID format and session not found")
+		}
+	}
+
+	dueIDStr := parts[2]
+	dueID, err := strconv.ParseUint(dueIDStr, 10, 32)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid payment due ID in order ID")
+	}
+
+	// 4. Fetch PaymentDue
+	var due models.PaymentDue
+	if err := h.db.First(&due, uint(dueID)).Error; err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, "Payment due not found")
+	}
+
+	// 5. Handle status
+	grossAmount := "0"
+	if amount != nil {
+		grossAmount = fmt.Sprintf("%v", amount)
+	}
+
+	h.paymentService.HandleTransactionStatus(&due, orderID, status, "", paymentType, grossAmount)
 
 	return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
 }

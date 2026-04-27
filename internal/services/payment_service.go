@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"gorm.io/gorm"
@@ -192,19 +193,15 @@ func (s *PaymentService) VerifyPaymentStatus(dueID uint) error {
 }
 
 func (s *PaymentService) HandleTransactionStatus(due *models.PaymentDue, orderID, transactionStatus, fraudStatus, paymentType, grossAmount string) {
-	switch transactionStatus {
-	case "capture", "success": // "success" is for Mayar, "capture" for Midtrans
+	status := strings.ToLower(transactionStatus)
+	switch status {
+	case "capture", "success", "paid", "settlement": // "success"/"paid" for Mayar, "capture"/"settlement" for Midtrans
 		if fraudStatus == "" || fraudStatus == "accept" {
 			s.MarkAsPaid(due, map[string]interface{}{
 				"payment_type": paymentType,
 				"gross_amount": grossAmount,
 			})
 		}
-	case "settlement":
-		s.MarkAsPaid(due, map[string]interface{}{
-			"payment_type": paymentType,
-			"gross_amount": grossAmount,
-		})
 	case "deny", "expire", "cancel", "failure", "failed":
 		var session models.PaymentSession
 		if err := s.db.Where("order_id = ?", orderID).First(&session).Error; err == nil {
