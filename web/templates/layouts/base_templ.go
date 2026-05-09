@@ -8,7 +8,7 @@ package layouts
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "patungan_app_echo/web/templates/shared"
+import shared "patungan_app_echo/web/templates/shared"
 
 // BaseProps contains props for the base layout
 type BaseProps struct {

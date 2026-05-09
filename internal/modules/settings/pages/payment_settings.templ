@@ -1,0 +1,176 @@
+package payment_pages
+import (	
+
+	"patungan_app_echo/internal/models"
+	"patungan_app_echo/web/templates/layouts"
+	shared "patungan_app_echo/web/templates/shared"
+)
+
+type PaymentSettingsProps struct {
+	Title       string
+	ActiveNav   string
+	Breadcrumbs []shared.Breadcrumb
+	UserEmail   string
+	UserUID     string
+	Settings    models.Settings
+}
+
+templ PaymentSettings(props PaymentSettingsProps) {
+	@layouts.Base(layouts.BaseProps{
+		Title:       props.Title,
+		ActiveNav:   props.ActiveNav,
+		Breadcrumbs: props.Breadcrumbs,
+		UserEmail:   props.UserEmail,
+		UserUID:     props.UserUID,
+	}) {
+		<div class="max-w-4xl mx-auto">
+			<div class="mb-6">
+				<h1 class="text-2xl font-bold text-text-primary">Application Settings</h1>
+				<p class="text-sm text-text-secondary mt-1">Manage payment gateways and global configurations</p>
+			</div>
+
+			<form action="/admin/settings" method="POST" class="space-y-6">
+				<!-- Active Gateway Selection -->
+				<div class="bg-bg-card rounded-xl border border-border overflow-hidden">
+					<div class="p-5 border-b border-border bg-bg-body">
+						<h3 class="text-lg font-semibold text-text-primary flex items-center gap-2">
+							<i data-lucide="settings" class="w-5 h-5"></i>
+							General Settings
+						</h3>
+					</div>
+					<div class="p-5">
+						<label class="block text-sm font-medium text-text-secondary mb-2">Active Payment Gateway</label>
+						<select 
+							name="active_payment_gateway" 
+							class="w-full px-4 py-2.5 bg-bg-body border border-border rounded-lg text-text-primary focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+						>
+							<option value="midtrans" selected?={ props.Settings.ActivePaymentGateway == "midtrans" }>Midtrans</option>
+							<option value="mayar" selected?={ props.Settings.ActivePaymentGateway == "mayar" }>Mayar.id</option>
+						</select>
+						<p class="mt-2 text-xs text-text-secondary">This gateway will be used for all new payment initiations by default.</p>
+					</div>
+				</div>
+
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+					<!-- Midtrans Configuration -->
+					<div class="bg-bg-card rounded-xl border border-border overflow-hidden">
+						<div class="p-5 border-b border-border bg-bg-body">
+							<h3 class="text-lg font-semibold text-text-primary flex items-center gap-2">
+								<i data-lucide="credit-card" class="w-5 h-5"></i>
+								Midtrans
+							</h3>
+						</div>
+						<div class="p-5 space-y-4">
+							<div>
+								<label class="block text-sm font-medium text-text-secondary mb-1.5">Merchant ID</label>
+								<input 
+									type="text" 
+									name="midtrans_merchant_id" 
+									value={ props.Settings.MidtransMerchantID }
+									class="w-full px-4 py-2 bg-bg-body border border-border rounded-lg text-text-primary focus:ring-2 focus:ring-primary outline-none"
+									placeholder="e.g. G123456789"
+								/>
+							</div>
+							<div x-data="{ show: false }">
+								<label class="block text-sm font-medium text-text-secondary mb-1.5">Server Key</label>
+								<div class="relative">
+									<input 
+										:type="show ? 'text' : 'password'" 
+										name="midtrans_server_key" 
+										value={ props.Settings.MidtransServerKey }
+										class="w-full px-4 py-2 bg-bg-body border border-border rounded-lg text-text-primary focus:ring-2 focus:ring-primary outline-none pr-10"
+									/>
+									<button 
+										type="button" 
+										@click="show = !show"
+										class="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-primary transition-colors"
+									>
+										<i :data-lucide="show ? 'eye-off' : 'eye'" class="w-4 h-4"></i>
+									</button>
+								</div>
+							</div>
+							<div>
+								<label class="block text-sm font-medium text-text-secondary mb-1.5">Client Key</label>
+								<input 
+									type="text" 
+									name="midtrans_client_key" 
+									value={ props.Settings.MidtransClientKey }
+									class="w-full px-4 py-2 bg-bg-body border border-border rounded-lg text-text-primary focus:ring-2 focus:ring-primary outline-none"
+								/>
+							</div>
+							<div class="flex items-center gap-3 mt-2">
+								<input 
+									type="checkbox" 
+									id="midtrans_is_production" 
+									name="midtrans_is_production" 
+									value="true" 
+									checked?={ props.Settings.MidtransIsProduction }
+									class="w-4 h-4 rounded border-border text-primary focus:ring-primary"
+								/>
+								<label for="midtrans_is_production" class="text-sm font-medium text-text-primary">Enable Production Mode</label>
+							</div>
+						</div>
+					</div>
+
+					<!-- Mayar Configuration -->
+					<div class="bg-bg-card rounded-xl border border-border overflow-hidden">
+						<div class="p-5 border-b border-border bg-bg-body">
+							<h3 class="text-lg font-semibold text-text-primary flex items-center gap-2">
+								<i data-lucide="zap" class="w-5 h-5 text-yellow-500"></i>
+								Mayar.id
+							</h3>
+						</div>
+						<div class="p-5 space-y-4">
+							<div x-data="{ show: false }">
+								<label class="block text-sm font-medium text-text-secondary mb-1.5">API Key</label>
+								<div class="relative">
+									<input 
+										:type="show ? 'text' : 'password'" 
+										name="mayar_api_key" 
+										value={ props.Settings.MayarAPIKey }
+										class="w-full px-4 py-2 bg-bg-body border border-border rounded-lg text-text-primary focus:ring-2 focus:ring-primary outline-none pr-10"
+									/>
+									<button 
+										type="button" 
+										@click="show = !show"
+										class="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-primary transition-colors"
+									>
+										<i :data-lucide="show ? 'eye-off' : 'eye'" class="w-4 h-4"></i>
+									</button>
+								</div>
+							</div>
+							<div class="flex items-center gap-3 mt-6">
+								<input 
+									type="checkbox" 
+									id="mayar_is_production" 
+									name="mayar_is_production" 
+									value="true" 
+									checked?={ props.Settings.MayarIsProduction }
+									class="w-4 h-4 rounded border-border text-primary focus:ring-primary"
+								/>
+								<label for="mayar_is_production" class="text-sm font-medium text-text-primary">Enable Production Mode</label>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="flex justify-end pt-4">
+					<button 
+						type="submit" 
+						class="px-8 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-hover hover:-translate-y-px transition-all shadow-lg shadow-primary/20"
+					>
+						Save Settings
+					</button>
+				</div>
+			</form>
+		</div>
+		<script>
+			// Re-initialize lucide icons when Alpine.js toggles them
+			document.addEventListener('alpine:init', () => {
+				Alpine.effect(() => {
+					setTimeout(() => lucide.createIcons(), 0);
+				});
+			});
+		</script>
+	}
+}

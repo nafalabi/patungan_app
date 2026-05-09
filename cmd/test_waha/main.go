@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"log"
-	"patungan_app_echo/internal/services"
+	"patungan_app_echo/internal/services/waha"
 	"strings"
 
 	"github.com/joho/godotenv"
@@ -23,7 +23,7 @@ func main() {
 		log.Println("Note: .env file not found")
 	}
 
-	service := services.NewWahaService()
+	service := waha.NewWahaService()
 
 	// Format chat ID
 	chatId := *phone

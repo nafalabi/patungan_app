@@ -3,11 +3,11 @@ package middleware
 import (
 	"fmt"
 	"net/http"
+	shared_pages "patungan_app_echo/internal/shared/pages"
 
 	"github.com/labstack/echo/v4"
 
-	"patungan_app_echo/web/templates/pages"
-	"patungan_app_echo/web/templates/shared"
+	shared "patungan_app_echo/web/templates/shared"
 )
 
 // CustomErrorHandler creates a custom error handler for Echo
@@ -81,7 +81,7 @@ func CustomErrorHandler(err error, c echo.Context) {
 	}
 
 	// Prepare error page props
-	props := pages.ErrorPageProps{
+	props := shared_pages.ErrorPageProps{
 		Title:        errorTitle,
 		ActiveNav:    "", // No active nav for error pages
 		Breadcrumbs:  breadcrumbs,
@@ -112,9 +112,9 @@ func CustomErrorHandler(err error, c echo.Context) {
 	// Try to render the error page template
 	var renderErr error
 	if isPublic {
-		renderErr = pages.PublicErrorPage(props).Render(c.Request().Context(), c.Response())
+		renderErr = shared_pages.PublicErrorPage(props).Render(c.Request().Context(), c.Response())
 	} else {
-		renderErr = pages.ErrorPage(props).Render(c.Request().Context(), c.Response())
+		renderErr = shared_pages.ErrorPage(props).Render(c.Request().Context(), c.Response())
 	}
 
 	if renderErr != nil {

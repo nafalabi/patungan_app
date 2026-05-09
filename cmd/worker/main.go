@@ -12,9 +12,13 @@ import (
 	"github.com/joho/godotenv"
 	"gorm.io/gorm"
 
-	"patungan_app_echo/internal/models"
-	"patungan_app_echo/internal/services"
 	"patungan_app_echo/internal/tasks"
+
+	"patungan_app_echo/internal/models"
+	"patungan_app_echo/internal/modules/notification"
+	"patungan_app_echo/internal/modules/plan"
+	"patungan_app_echo/internal/modules/scheduler"
+	"patungan_app_echo/internal/services/database"
 )
 
 const MaxConcurrentTasks = 10
@@ -31,13 +35,16 @@ func main() {
 		log.Fatal("DATABASE_URL not set")
 	}
 
-	db, err := services.InitDB(databaseURL)
+	db, err := database.InitDB(databaseURL)
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
 	// Initialize Task Registry
 	tasks.Initialize()
+	tasks.RegisterHandler(scheduler.LogInfoTask.TaskID(), scheduler.LogInfoTask.HandleExecution)
+	tasks.RegisterHandler(plan.ProcessPlanScheduleTask.TaskID(), plan.ProcessPlanScheduleTask.HandleExecution)
+	tasks.RegisterHandler(notification.SendNotificationTask.TaskID(), notification.SendNotificationTask.HandleExecution)
 	tasks.DefineTasks()
 
 	log.Println("Worker started. Waiting for next tick...")
@@ -187,7 +194,7 @@ func executeTask(ctx context.Context, db *gorm.DB, task models.ScheduledTask, cu
 	}
 	db.Create(&history)
 
-	// Update ScheduledTask
+	// Update models.ScheduledTask
 	taskUpdates := map[string]interface{}{
 		"last_run": &startTime,
 	}

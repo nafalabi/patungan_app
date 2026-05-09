@@ -8,10 +8,10 @@ import (
 	"os"
 	"time"
 
-	"patungan_app_echo/internal/models"
-	"patungan_app_echo/internal/services"
-
 	"github.com/joho/godotenv"
+
+	"patungan_app_echo/internal/models"
+	"patungan_app_echo/internal/services/database"
 )
 
 func main() {
@@ -43,7 +43,7 @@ func main() {
 	}
 
 	// Init DB
-	db, err := services.InitDB(dsn)
+	db, err := database.InitDB(dsn)
 	if err != nil {
 		log.Fatalf("Failed to connect DB: %v", err)
 	}

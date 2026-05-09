@@ -8,7 +8,7 @@ package layouts
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "patungan_app_echo/web/templates/shared"
+import shared "patungan_app_echo/web/templates/shared"
 
 // Header renders the top bar with breadcrumbs
 func Header(breadcrumbs []shared.Breadcrumb, userEmail string) templ.Component {

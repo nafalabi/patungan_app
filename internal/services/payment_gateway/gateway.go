@@ -3,9 +3,10 @@ package payment_gateway
 import (
 	"encoding/json"
 	"fmt"
-	"patungan_app_echo/internal/models"
 
 	"gorm.io/gorm"
+
+	"patungan_app_echo/internal/models"
 )
 
 type TransactionStatus string

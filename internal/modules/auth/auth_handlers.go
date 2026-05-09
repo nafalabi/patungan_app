@@ -1,0 +1,116 @@
+package auth
+
+import (
+	fbauth "firebase.google.com/go/v4/auth"
+	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
+	"net/http"
+	"os"
+	"patungan_app_echo/internal/models"
+	auth_pages "patungan_app_echo/internal/modules/auth/pages"
+)
+
+// AuthHandler handles authentication endpoints
+type AuthHandler struct {
+	authClient *fbauth.Client
+	db         *gorm.DB
+}
+
+// NewAuthHandler creates a new AuthHandler
+func NewAuthHandler(authClient *fbauth.Client, db *gorm.DB) *AuthHandler {
+	return &AuthHandler{authClient: authClient, db: db}
+}
+
+// LoginPage renders the login page
+func (h *AuthHandler) LoginPage(c echo.Context) error {
+	props := auth_pages.LoginProps{
+		FirebaseAPIKey:     os.Getenv("FIREBASE_API_KEY"),
+		FirebaseAuthDomain: os.Getenv("FIREBASE_AUTH_DOMAIN"),
+		FirebaseProjectID:  os.Getenv("FIREBASE_PROJECT_ID"),
+	}
+	return auth_pages.Login(props).Render(c.Request().Context(), c.Response())
+}
+
+// HandleLogin verifies the Firebase ID token and creates a session cookie
+func (h *AuthHandler) HandleLogin(c echo.Context) error {
+	if h.authClient == nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error": "Firebase not initialized",
+		})
+	}
+
+	// Get ID Token from Authorization Header
+	authHeader := c.Request().Header.Get("Authorization")
+	if authHeader == "" {
+		return c.JSON(http.StatusUnauthorized, map[string]string{
+			"error": "Missing authorization header",
+		})
+	}
+
+	tokenString := authHeader
+	if len(authHeader) > 7 && authHeader[:7] == "Bearer " {
+		tokenString = authHeader[7:]
+	} else {
+		return c.JSON(http.StatusUnauthorized, map[string]string{
+			"error": "Invalid authorization format",
+		})
+	}
+
+	// Verify ID Token
+	decodedToken, err := h.authClient.VerifyIDToken(c.Request().Context(), tokenString)
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, map[string]string{
+			"error": "Invalid token",
+		})
+	}
+
+	// Check if user exists in database
+	email, _ := decodedToken.Claims["email"].(string)
+	var user models.User
+	if err := h.db.Where("email = ?", email).First(&user).Error; err != nil {
+		return c.JSON(http.StatusForbidden, map[string]string{
+			"error": "models.User not registered in the system",
+		})
+	}
+
+	// Create Session Cookie (valid for 5 days)
+	expiresIn := 5 * 24 * 60 * 60 * 1000                                                                      // 5 days in milliseconds for cookie
+	cookieValue, err := h.authClient.SessionCookie(c.Request().Context(), tokenString, 5*24*60*60*1000000000) // 5 days in nanoseconds
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error": "Failed to create session",
+		})
+	}
+
+	// Set HTTP-Only Cookie
+	cookie := &http.Cookie{
+		Name:     "session",
+		Value:    cookieValue,
+		MaxAge:   expiresIn / 1000.0, // convert ms to seconds
+		HttpOnly: true,
+		Secure:   os.Getenv("ENV") == "production",
+		Path:     "/",
+		SameSite: http.SameSiteLaxMode,
+	}
+	c.SetCookie(cookie)
+
+	return c.JSON(http.StatusOK, map[string]string{
+		"status": "success",
+	})
+}
+
+// HandleLogout clears the session cookie
+func (h *AuthHandler) HandleLogout(c echo.Context) error {
+	cookie := &http.Cookie{
+		Name:     "session",
+		Value:    "",
+		MaxAge:   -1,
+		HttpOnly: true,
+		Path:     "/",
+	}
+	c.SetCookie(cookie)
+
+	return c.JSON(http.StatusOK, map[string]string{
+		"status": "logged out",
+	})
+}

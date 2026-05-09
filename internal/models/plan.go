@@ -24,9 +24,9 @@ type Plan struct {
 	AllowInvitationAfterPay bool `gorm:"default:false" json:"allow_invitation_after_pay"`
 
 	// Relationships
+	PaymentDues  []PaymentDue      `gorm:"foreignKey:PlanID" json:"payment_dues,omitempty"`
 	Owner        User              `gorm:"foreignKey:OwnerID" json:"owner,omitempty"`
 	Participants []PlanParticipant `gorm:"foreignKey:PlanID" json:"participants,omitempty"`
-	PaymentDues  []PaymentDue      `gorm:"foreignKey:PlanID" json:"payment_dues,omitempty"`
 
 	// Scheduled Task
 	ScheduledTaskID *uint          `json:"scheduled_task_id"`
