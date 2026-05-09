@@ -7,7 +7,7 @@ import (
 	"patungan_app_echo/internal/models"
 	settings_pages "patungan_app_echo/internal/modules/settings/pages"
 	"patungan_app_echo/internal/services/payment_gateway"
-	"patungan_app_echo/internal/shared/utils"
+	"patungan_app_echo/internal/middleware"
 	types "patungan_app_echo/internal/template/types"
 )
 
@@ -41,7 +41,7 @@ func (h *SettingsHandler) GetSettings(c echo.Context) error {
 		Title:       "Application models.Settings",
 		ActiveNav:   "settings",
 		Breadcrumbs: breadcrumbs,
-		UserEmail:   utils.GetStringFromContext(c, "userEmail"),
+		UserEmail:   middleware.GetString(c, "userEmail"),
 		Settings:    *settings,
 	}
 

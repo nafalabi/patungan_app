@@ -7,7 +7,7 @@ import (
 	"patungan_app_echo/internal/models"
 	user_pages "patungan_app_echo/internal/modules/user/pages"
 	"patungan_app_echo/internal/services/cache"
-	"patungan_app_echo/internal/shared/utils"
+	"patungan_app_echo/internal/middleware"
 	types "patungan_app_echo/internal/template/types"
 	"strconv"
 )
@@ -37,8 +37,8 @@ func (h *UserHandler) ListUsers(c echo.Context) error {
 		Title:       "models.User Management",
 		ActiveNav:   "users",
 		Breadcrumbs: breadcrumbs,
-		UserEmail:   utils.GetStringFromContext(c, "userEmail"),
-		UserUID:     utils.GetStringFromContext(c, "userUID"),
+		UserEmail:   middleware.GetString(c, "userEmail"),
+		UserUID:     middleware.GetString(c, "userUID"),
 		Users:       users,
 	}
 
@@ -57,8 +57,8 @@ func (h *UserHandler) CreateUserPage(c echo.Context) error {
 		Title:       "Create New models.User",
 		ActiveNav:   "users",
 		Breadcrumbs: breadcrumbs,
-		UserEmail:   utils.GetStringFromContext(c, "userEmail"),
-		UserUID:     utils.GetStringFromContext(c, "userUID"),
+		UserEmail:   middleware.GetString(c, "userEmail"),
+		UserUID:     middleware.GetString(c, "userUID"),
 		IsEdit:      false,
 	}
 
@@ -103,8 +103,8 @@ func (h *UserHandler) EditUserPage(c echo.Context) error {
 		Title:       "Edit models.User",
 		ActiveNav:   "users",
 		Breadcrumbs: breadcrumbs,
-		UserEmail:   utils.GetStringFromContext(c, "userEmail"),
-		UserUID:     utils.GetStringFromContext(c, "userUID"),
+		UserEmail:   middleware.GetString(c, "userEmail"),
+		UserUID:     middleware.GetString(c, "userUID"),
 		IsEdit:      true,
 		User:        user,
 	}

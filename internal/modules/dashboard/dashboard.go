@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"patungan_app_echo/internal/models"
 	dashboard_pages "patungan_app_echo/internal/modules/dashboard/pages"
-	"patungan_app_echo/internal/shared/utils"
+	"patungan_app_echo/internal/middleware"
 	types "patungan_app_echo/internal/template/types"
 )
 
@@ -22,9 +22,9 @@ func NewDashboardHandler(db *gorm.DB) *DashboardHandler {
 
 // Dashboard renders the dashboard page
 func (h *DashboardHandler) Dashboard(c echo.Context) error {
-	userID := utils.GetUintFromContext(c, "userID")
-	userEmail := utils.GetStringFromContext(c, "userEmail")
-	userUID := utils.GetStringFromContext(c, "userUID")
+	userID := middleware.GetUint(c, "userID")
+	userEmail := middleware.GetString(c, "userEmail")
+	userUID := middleware.GetString(c, "userUID")
 
 	// Fetch current user to get role
 	var user models.User

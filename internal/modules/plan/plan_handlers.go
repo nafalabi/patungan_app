@@ -7,7 +7,7 @@ import (
 	"patungan_app_echo/internal/models"
 	plan_pages "patungan_app_echo/internal/modules/plan/pages"
 	"patungan_app_echo/internal/services/cache"
-	"patungan_app_echo/internal/shared/utils"
+	"patungan_app_echo/internal/middleware"
 	types "patungan_app_echo/internal/template/types"
 	"strconv"
 	"strings"
@@ -118,8 +118,8 @@ func (h *PlanHandler) ListPlans(c echo.Context) error {
 		Title:       "models.Plan Management",
 		ActiveNav:   "plans",
 		Breadcrumbs: breadcrumbs,
-		UserEmail:   utils.GetStringFromContext(c, "userEmail"),
-		UserUID:     utils.GetStringFromContext(c, "userUID"),
+		UserEmail:   middleware.GetString(c, "userEmail"),
+		UserUID:     middleware.GetString(c, "userUID"),
 		Plans:       plans,
 		FilterOwner: filterOwner,
 		FilterType:  filterType,
@@ -152,8 +152,8 @@ func (h *PlanHandler) CreatePlanPage(c echo.Context) error {
 		Title:              "Create New models.Plan",
 		ActiveNav:          "plans",
 		Breadcrumbs:        breadcrumbs,
-		UserEmail:          utils.GetStringFromContext(c, "userEmail"),
-		UserUID:            utils.GetStringFromContext(c, "userUID"),
+		UserEmail:          middleware.GetString(c, "userEmail"),
+		UserUID:            middleware.GetString(c, "userUID"),
 		IsEdit:             false,
 		FormattedStartDate: time.Now().Format("2006-01-02"),
 		AllUsers:           users,
@@ -214,8 +214,8 @@ func (h *PlanHandler) StorePlan(c echo.Context) error {
 			Title:               "Create New models.Plan",
 			ActiveNav:           "plans",
 			Breadcrumbs:         breadcrumbs,
-			UserEmail:           utils.GetStringFromContext(c, "userEmail"),
-			UserUID:             utils.GetStringFromContext(c, "userUID"),
+			UserEmail:           middleware.GetString(c, "userEmail"),
+			UserUID:             middleware.GetString(c, "userUID"),
 			IsEdit:              false,
 			Plan:                plan,
 			FormattedStartDate:  startDateStr,
@@ -260,7 +260,7 @@ func (h *PlanHandler) StorePlan(c echo.Context) error {
 	}
 
 	// Get current user plan.ID for owner
-	ownerID := utils.GetUintFromContext(c, "userID")
+	ownerID := middleware.GetUint(c, "userID")
 
 	plan := models.Plan{
 		Name:                    name,
@@ -337,8 +337,8 @@ func (h *PlanHandler) EditPlanPage(c echo.Context) error {
 		Title:              "Edit models.Plan",
 		ActiveNav:          "plans",
 		Breadcrumbs:        breadcrumbs,
-		UserEmail:          utils.GetStringFromContext(c, "userEmail"),
-		UserUID:            utils.GetStringFromContext(c, "userUID"),
+		UserEmail:          middleware.GetString(c, "userEmail"),
+		UserUID:            middleware.GetString(c, "userUID"),
 		IsEdit:             true,
 		Plan:               plan,
 		FormattedStartDate: plan.PlanStartDate.Format("2006-01-02"),
@@ -352,7 +352,7 @@ func (h *PlanHandler) EditPlanPage(c echo.Context) error {
 
 // UpdatePlan handles updating an existing plan
 func (h *PlanHandler) UpdatePlan(c echo.Context) error {
-	userID := utils.GetUintFromContext(c, "userID")
+	userID := middleware.GetUint(c, "userID")
 	if userID == 0 {
 		return echo.NewHTTPError(http.StatusUnauthorized, "Invalid user session")
 	}

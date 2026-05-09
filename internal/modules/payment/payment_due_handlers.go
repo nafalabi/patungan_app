@@ -9,7 +9,7 @@ import (
 	payment_pages "patungan_app_echo/internal/modules/payment/pages"
 	"patungan_app_echo/internal/services/cache"
 	"patungan_app_echo/internal/services/payment_service"
-	"patungan_app_echo/internal/shared/utils"
+	"patungan_app_echo/internal/middleware"
 	types "patungan_app_echo/internal/template/types"
 	"strconv"
 	"strings"
@@ -196,8 +196,8 @@ func (h *PaymentDueHandler) ListPaymentDues(c echo.Context) error {
 		Title:         "Payment Dues",
 		ActiveNav:     "payment-dues",
 		Breadcrumbs:   breadcrumbs,
-		UserEmail:     utils.GetStringFromContext(c, "userEmail"),
-		UserUIDString: utils.GetStringFromContext(c, "userUID"),
+		UserEmail:     middleware.GetString(c, "userEmail"),
+		UserUIDString: middleware.GetString(c, "userUID"),
 		PlanWithDues:  planWithDues,
 		UserWithDues:  userWithDues,
 		FlatDues:      flatDues,
@@ -214,7 +214,7 @@ func (h *PaymentDueHandler) ListPaymentDues(c echo.Context) error {
 		TotalPages:        totalPages,
 		TotalCount:        int(totalCount),
 		PageSize:          pageSize,
-		CurrentUserID:     utils.GetUintFromContext(c, "userID"),
+		CurrentUserID:     middleware.GetUint(c, "userID"),
 		CurrentUserType:   currentUserType,
 		MidtransClientKey: os.Getenv("MIDTRANS_CLIENT_KEY"),
 	}
@@ -379,7 +379,7 @@ func (h *PaymentDueHandler) HandleMarkAsComplete(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to refresh payment due")
 	}
 
-	currentUserID := utils.GetUintFromContext(c, "userID")
+	currentUserID := middleware.GetUint(c, "userID")
 	// Retrieve display mode from query or default
 	displayMode := c.QueryParam("display_mode")
 	if displayMode == "" {
@@ -401,7 +401,7 @@ func (h *PaymentDueHandler) CheckPaymentStatus(c echo.Context) error {
 	if displayMode == "" {
 		displayMode = "user" // Default fallback
 	}
-	currentUserID := utils.GetUintFromContext(c, "userID")
+	currentUserID := middleware.GetUint(c, "userID")
 
 	// Use PaymentService to verify status
 	if err := h.paymentService.VerifyPaymentStatus(uint(dueID)); err != nil {

@@ -1,8 +1,8 @@
-package utils
+package middleware
 
 import "github.com/labstack/echo/v4"
 
-func GetStringFromContext(c echo.Context, key string) string {
+func GetString(c echo.Context, key string) string {
 	val := c.Get(key)
 	if val == nil {
 		return ""
@@ -14,7 +14,7 @@ func GetStringFromContext(c echo.Context, key string) string {
 	return strVal
 }
 
-func GetUintFromContext(c echo.Context, key string) uint {
+func GetUint(c echo.Context, key string) uint {
 	val := c.Get(key)
 	if val == nil {
 		return 0
