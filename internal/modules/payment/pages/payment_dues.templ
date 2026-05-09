@@ -4,8 +4,8 @@ import (
 
 	"fmt"
 	"patungan_app_echo/internal/models"
-	"patungan_app_echo/web/templates/layouts"
-	shared "patungan_app_echo/web/templates/shared"
+	"patungan_app_echo/internal/template/layouts"
+	types "patungan_app_echo/internal/template/types"
 )
 
 // PlanWithDues groups a plan with its payment dues
@@ -24,7 +24,7 @@ type UserWithDues struct {
 type PaymentDuesProps struct {
 	Title             string
 	ActiveNav         string
-	Breadcrumbs       []shared.Breadcrumb
+	Breadcrumbs       []types.Breadcrumb
 	UserEmail         string
 	UserUIDString     string
 	CurrentUserID     uint

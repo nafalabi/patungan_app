@@ -8,7 +8,7 @@ import (
 	plan_pages "patungan_app_echo/internal/modules/plan/pages"
 	"patungan_app_echo/internal/services/cache"
 	"patungan_app_echo/internal/shared/utils"
-	shared "patungan_app_echo/web/templates/shared"
+	types "patungan_app_echo/internal/template/types"
 	"strconv"
 	"strings"
 	"time"
@@ -109,7 +109,7 @@ func (h *PlanHandler) ListPlans(c echo.Context) error {
 	h.db.Find(&allUsers)
 
 	// Breadcrumbs: Home > Plans
-	breadcrumbs := []shared.Breadcrumb{
+	breadcrumbs := []types.Breadcrumb{
 		{Title: "Home", URL: "/"},
 		{Title: "Plans", URL: ""},
 	}
@@ -142,7 +142,7 @@ func (h *PlanHandler) CreatePlanPage(c echo.Context) error {
 	h.db.Find(&users)
 
 	// Breadcrumbs: Home > Plans > Create
-	breadcrumbs := []shared.Breadcrumb{
+	breadcrumbs := []types.Breadcrumb{
 		{Title: "Home", URL: "/"},
 		{Title: "Plans", URL: "/plans"},
 		{Title: "Create models.Plan", URL: ""},
@@ -170,7 +170,7 @@ func (h *PlanHandler) StorePlan(c echo.Context) error {
 		var users []models.User
 		h.db.Find(&users)
 
-		breadcrumbs := []shared.Breadcrumb{
+		breadcrumbs := []types.Breadcrumb{
 			{Title: "Home", URL: "/"},
 			{Title: "Plans", URL: "/plans"},
 			{Title: "Create models.Plan", URL: ""},
@@ -327,7 +327,7 @@ func (h *PlanHandler) EditPlanPage(c echo.Context) error {
 	}
 
 	// Breadcrumbs: Home > Plans > Edit
-	breadcrumbs := []shared.Breadcrumb{
+	breadcrumbs := []types.Breadcrumb{
 		{Title: "Home", URL: "/"},
 		{Title: "Plans", URL: "/plans"},
 		{Title: "Edit models.Plan", URL: ""},

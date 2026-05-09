@@ -1,7 +1,7 @@
-package shared_pages
+package pages
 import (
-	"patungan_app_echo/web/templates/layouts"
-	shared "patungan_app_echo/web/templates/shared"
+	"patungan_app_echo/internal/template/layouts"
+	types "patungan_app_echo/internal/template/types"
 
 	)
 
@@ -9,7 +9,7 @@ import (
 type ErrorPageProps struct {
 	Title       string
 	ActiveNav   string
-	Breadcrumbs []shared.Breadcrumb
+	Breadcrumbs []types.Breadcrumb
 	UserEmail   string
 	UserUID     string
 	

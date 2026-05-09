@@ -1,9 +1,9 @@
 package layouts
 
-import shared "patungan_app_echo/web/templates/shared"
+import types "patungan_app_echo/internal/template/types"
 
 // Header renders the top bar with breadcrumbs
-templ Header(breadcrumbs []shared.Breadcrumb, userEmail string) {
+templ Header(breadcrumbs []types.Breadcrumb, userEmail string) {
 	<header class="bg-bg-card border-b border-border h-16 px-8 hidden md:flex justify-between items-center sticky top-0 z-40">
 		<div class="flex items-center gap-2 text-sm text-text-secondary">
 			for i, crumb := range breadcrumbs {

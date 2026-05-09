@@ -10,7 +10,7 @@ import (
 	"patungan_app_echo/internal/services/cache"
 	"patungan_app_echo/internal/services/payment_service"
 	"patungan_app_echo/internal/shared/utils"
-	shared "patungan_app_echo/web/templates/shared"
+	types "patungan_app_echo/internal/template/types"
 	"strconv"
 	"strings"
 
@@ -179,7 +179,7 @@ func (h *PaymentDueHandler) ListPaymentDues(c echo.Context) error {
 	}
 
 	// Breadcrumbs: Home > Payment Dues
-	breadcrumbs := []shared.Breadcrumb{
+	breadcrumbs := []types.Breadcrumb{
 		{Title: "Home", URL: "/"},
 		{Title: "Payment Dues", URL: ""},
 	}

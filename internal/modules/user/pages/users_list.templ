@@ -2,15 +2,15 @@ package user_pages
 import (
 	"fmt"
 	"patungan_app_echo/internal/models"
-	"patungan_app_echo/web/templates/layouts"
-	shared "patungan_app_echo/web/templates/shared"
+	"patungan_app_echo/internal/template/layouts"
+	types "patungan_app_echo/internal/template/types"
 )
 
 // UsersListProps contains props for the users list page
 type UsersListProps struct {
 	Title       string
 	ActiveNav   string
-	Breadcrumbs []shared.Breadcrumb
+	Breadcrumbs []types.Breadcrumb
 	UserEmail   string
 	UserUID     string
 	Users       []models.User

@@ -3,11 +3,11 @@ package middleware
 import (
 	"fmt"
 	"net/http"
-	shared_pages "patungan_app_echo/internal/shared/pages"
+	shared_pages "patungan_app_echo/internal/template/pages"
 
 	"github.com/labstack/echo/v4"
 
-	shared "patungan_app_echo/web/templates/shared"
+	types "patungan_app_echo/internal/template/types"
 )
 
 // CustomErrorHandler creates a custom error handler for Echo
@@ -75,7 +75,7 @@ func CustomErrorHandler(err error, c echo.Context) {
 	}
 
 	// Build breadcrumbs
-	breadcrumbs := []shared.Breadcrumb{
+	breadcrumbs := []types.Breadcrumb{
 		{Title: "Home", URL: "/"},
 		{Title: "Error", URL: ""},
 	}

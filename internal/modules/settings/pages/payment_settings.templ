@@ -2,14 +2,14 @@ package payment_pages
 import (	
 
 	"patungan_app_echo/internal/models"
-	"patungan_app_echo/web/templates/layouts"
-	shared "patungan_app_echo/web/templates/shared"
+	"patungan_app_echo/internal/template/layouts"
+	types "patungan_app_echo/internal/template/types"
 )
 
 type PaymentSettingsProps struct {
 	Title       string
 	ActiveNav   string
-	Breadcrumbs []shared.Breadcrumb
+	Breadcrumbs []types.Breadcrumb
 	UserEmail   string
 	UserUID     string
 	Settings    models.Settings

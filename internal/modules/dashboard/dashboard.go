@@ -7,7 +7,7 @@ import (
 	"patungan_app_echo/internal/models"
 	dashboard_pages "patungan_app_echo/internal/modules/dashboard/pages"
 	"patungan_app_echo/internal/shared/utils"
-	shared "patungan_app_echo/web/templates/shared"
+	types "patungan_app_echo/internal/template/types"
 )
 
 // DashboardHandler handles dashboard endpoints
@@ -93,7 +93,7 @@ func (h *DashboardHandler) Dashboard(c echo.Context) error {
 	}
 
 	// Breadcrumbs: Home > Dashboard
-	breadcrumbs := []shared.Breadcrumb{
+	breadcrumbs := []types.Breadcrumb{
 		{Title: "Home", URL: "/"},
 		{Title: "Dashboard", URL: ""}, // Current page
 	}

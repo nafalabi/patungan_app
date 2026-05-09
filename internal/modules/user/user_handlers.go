@@ -8,7 +8,7 @@ import (
 	user_pages "patungan_app_echo/internal/modules/user/pages"
 	"patungan_app_echo/internal/services/cache"
 	"patungan_app_echo/internal/shared/utils"
-	shared "patungan_app_echo/web/templates/shared"
+	types "patungan_app_echo/internal/template/types"
 	"strconv"
 )
 
@@ -28,7 +28,7 @@ func (h *UserHandler) ListUsers(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to fetch users")
 	}
 
-	breadcrumbs := []shared.Breadcrumb{
+	breadcrumbs := []types.Breadcrumb{
 		{Title: "Home", URL: "/"},
 		{Title: "Users", URL: ""},
 	}
@@ -47,7 +47,7 @@ func (h *UserHandler) ListUsers(c echo.Context) error {
 
 // CreateUserPage renders the create user form
 func (h *UserHandler) CreateUserPage(c echo.Context) error {
-	breadcrumbs := []shared.Breadcrumb{
+	breadcrumbs := []types.Breadcrumb{
 		{Title: "Home", URL: "/"},
 		{Title: "Users", URL: "/users"},
 		{Title: "Create models.User", URL: ""},
@@ -93,7 +93,7 @@ func (h *UserHandler) EditUserPage(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, "models.User not found")
 	}
 
-	breadcrumbs := []shared.Breadcrumb{
+	breadcrumbs := []types.Breadcrumb{
 		{Title: "Home", URL: "/"},
 		{Title: "Users", URL: "/users"},
 		{Title: "Edit models.User", URL: ""},

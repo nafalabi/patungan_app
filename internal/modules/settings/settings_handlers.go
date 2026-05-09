@@ -8,7 +8,7 @@ import (
 	settings_pages "patungan_app_echo/internal/modules/settings/pages"
 	"patungan_app_echo/internal/services/payment_gateway"
 	"patungan_app_echo/internal/shared/utils"
-	shared "patungan_app_echo/web/templates/shared"
+	types "patungan_app_echo/internal/template/types"
 )
 
 type SettingsHandler struct {
@@ -32,7 +32,7 @@ func (h *SettingsHandler) GetSettings(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to fetch settings")
 	}
 
-	breadcrumbs := []shared.Breadcrumb{
+	breadcrumbs := []types.Breadcrumb{
 		{Title: "Home", URL: "/"},
 		{Title: "models.Settings", URL: ""},
 	}

@@ -3,15 +3,15 @@ import (
 
 	"fmt"
 	"patungan_app_echo/internal/models"
-	"patungan_app_echo/web/templates/layouts"
-	shared "patungan_app_echo/web/templates/shared"
+	"patungan_app_echo/internal/template/layouts"
+	types "patungan_app_echo/internal/template/types"
 )
 
 // PlansListProps contains props for the plans list page
 type PlansListProps struct {
 	Title       string
 	ActiveNav   string
-	Breadcrumbs []shared.Breadcrumb
+	Breadcrumbs []types.Breadcrumb
 	UserEmail   string
 	UserUID     string
 	Plans       []models.Plan
