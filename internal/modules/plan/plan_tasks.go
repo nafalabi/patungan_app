@@ -4,13 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/google/uuid"
-	"gorm.io/gorm"
 	"log"
 	"os"
 	"patungan_app_echo/internal/models"
 	"patungan_app_echo/internal/modules/notification"
 	"time"
+
+	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 // ProcessPlanScheduleArgs defines the arguments for a plan schedule task
@@ -126,7 +127,7 @@ func (t *ProcessPlanScheduleTaskDef) HandleExecution(ctx context.Context, db *go
 		notifArgs := notification.SendNotificationArgs{
 			Users:         notificationUsers,
 			NotifTemplate: "Halo $name, tagihan untuk plan $plan_name sudah jatuh tempo. Yuk segera dibayar di $paymentlink",
-			Subject:       "Tagihan models.Plan " + plan.Name,
+			Subject:       "Tagihan Plan " + plan.Name,
 			PlanName:      plan.Name,
 			Amount:        pricePerPortion,
 			DueDate:       task.Due.Format("02 Jan 2006"),

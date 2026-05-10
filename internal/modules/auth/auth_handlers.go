@@ -1,13 +1,14 @@
 package auth
 
 import (
-	fbauth "firebase.google.com/go/v4/auth"
-	"github.com/labstack/echo/v4"
-	"gorm.io/gorm"
 	"net/http"
 	"os"
 	"patungan_app_echo/internal/models"
 	auth_pages "patungan_app_echo/internal/modules/auth/pages"
+
+	fbauth "firebase.google.com/go/v4/auth"
+	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 // AuthHandler handles authentication endpoints
@@ -69,7 +70,7 @@ func (h *AuthHandler) HandleLogin(c echo.Context) error {
 	var user models.User
 	if err := h.db.Where("email = ?", email).First(&user).Error; err != nil {
 		return c.JSON(http.StatusForbidden, map[string]string{
-			"error": "models.User not registered in the system",
+			"error": "User not registered in the system",
 		})
 	}
 
