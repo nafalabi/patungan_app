@@ -1,0 +1,92 @@
+package payment_pages
+
+import (
+	"fmt"
+	"patungan_app_echo/internal/models"
+)
+
+// ViewByPlans renders payment dues grouped by plans, showing only the latest period per plan
+templ ViewByPlans(planWithDues []PlanWithDues, currentUserID uint, currentUserType models.UserType, nextOffset int) {
+	if len(planWithDues) == 0 {
+		<div class="bg-bg-card rounded-xl border border-border p-8 text-center text-text-secondary">
+			No plans with payment dues found.
+		</div>
+	} else {
+		<div id="plans-container" class="space-y-6">
+			@PlanListItems(planWithDues, currentUserID, currentUserType)
+		</div>
+		
+		@LoadMorePlansButton(nextOffset)
+	}
+}
+
+// PlanListItems renders just the plan cards (useful for HTMX partial updates)
+templ PlanListItems(planWithDues []PlanWithDues, currentUserID uint, currentUserType models.UserType) {
+	for _, pwd := range planWithDues {
+		<div class="bg-bg-card rounded-2xl border border-border overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
+			<!-- Plan header -->
+			<div class="bg-primary/[0.03] border-b border-border p-5">
+				<div class="flex justify-between items-center">
+					<div class="flex items-center gap-3">
+						<div class="p-2.5 bg-primary/10 rounded-xl text-primary">
+							<i data-lucide="layers" class="w-6 h-6"></i>
+						</div>
+						<div>
+							<h3 class="text-xl font-bold text-text-primary leading-tight">{ pwd.Plan.Name }</h3>
+							<p class="text-sm text-text-secondary mt-0.5">
+								Total Price: <span class="font-medium text-text-primary">{ formatRupiah(pwd.Plan.TotalPrice) }</span>
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<!-- Latest Period -->
+			<div class="p-5 bg-white">
+				if len(pwd.Periods) > 0 {
+					for _, pwd_period := range pwd.Periods {
+						<div class="border border-border/60 rounded-xl overflow-hidden bg-bg-body/30">
+							<div class="bg-bg-hover/40 px-4 py-2.5 border-b border-border/60 flex justify-between items-center">
+								<h4 class="font-bold text-text-primary text-sm flex items-center gap-2">
+									<i data-lucide="calendar" class="w-4 h-4 text-primary"></i>
+									if pwd_period.Period.ID != 0 {
+										{ pwd_period.Period.Name }
+									} else {
+										{ pwd_period.Dues[0].DueDate.Format("January 2006") } (Uncategorized)
+									}
+									<span class="ml-2 px-2 py-0.5 bg-primary/10 text-primary text-[10px] uppercase tracking-wider rounded-md">Latest Period</span>
+								</h4>
+							</div>
+							<div class="divide-y divide-border/50">
+								for _, due := range pwd_period.Dues {
+									@PaymentDueItem(due, "user", currentUserID, currentUserType)
+								}
+							</div>
+						</div>
+					}
+				} else {
+					<div class="text-center py-4 text-text-secondary text-sm italic">
+						No active periods found for this plan.
+					</div>
+				}
+			</div>
+		</div>
+	}
+}
+
+templ LoadMorePlansButton(nextOffset int) {
+	<div class="mt-8 flex justify-center" id="load-more-plans-container" hx-swap-oob="true">
+		if nextOffset > 0 {
+			<button
+				hx-get={ fmt.Sprintf("/payment-dues?view=plans&offset=%d", nextOffset) }
+				hx-target="#plans-container"
+				hx-swap="beforeend"
+				hx-indicator="#load-more-spinner"
+				class="px-6 py-2.5 bg-bg-card text-primary border border-primary/20 rounded-xl font-semibold hover:bg-primary hover:text-white transition-all duration-300 shadow-sm flex items-center gap-2"
+			>
+				<span>Load More Plans</span>
+				<div id="load-more-spinner" class="htmx-indicator animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full"></div>
+			</button>
+		}
+	</div>
+}

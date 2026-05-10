@@ -1,0 +1,95 @@
+package payment_pages
+
+import (
+	"fmt"
+	"patungan_app_echo/internal/models"
+)
+
+// ViewByPeriods renders payment dues grouped by billing periods
+templ ViewByPeriods(periodWithPlans []PeriodWithPlans, currentUserID uint, currentUserType models.UserType, nextOffset int) {
+	if len(periodWithPlans) == 0 {
+		<div class="bg-bg-card rounded-xl border border-border p-8 text-center text-text-secondary">
+			No billing periods found.
+		</div>
+	} else {
+		<div id="periods-container" class="space-y-10">
+			@PeriodListItems(periodWithPlans, currentUserID, currentUserType)
+		</div>
+		
+		@LoadMorePeriodsButton(nextOffset)
+	}
+}
+
+// PeriodListItems renders period groups
+templ PeriodListItems(periodWithPlans []PeriodWithPlans, currentUserID uint, currentUserType models.UserType) {
+	for _, pwp := range periodWithPlans {
+		<div class="bg-bg-card rounded-3xl border border-border overflow-hidden shadow-sm">
+			<!-- Period header -->
+			<div class="bg-primary/10 border-b border-border p-6">
+				<div class="flex justify-between items-center">
+					<div class="flex items-center gap-4">
+						<div class="p-3 bg-white rounded-2xl text-primary shadow-sm">
+							<i data-lucide="calendar-range" class="w-7 h-7"></i>
+						</div>
+						<div>
+							<h3 class="text-2xl font-black text-text-primary">
+								if pwp.Period.ID != 0 {
+									{ pwp.Period.Name }
+								} else {
+									{ pwp.Plans[0].Dues[0].DueDate.Format("January 2006") } (Uncategorized)
+								}
+							</h3>
+							<p class="text-sm text-text-secondary">Billing cycle starting { pwp.Period.DueDate.Format("02 Jan 2006") }</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<!-- Plans in this period -->
+			<div class="p-6 space-y-6">
+				<div id={ fmt.Sprintf("period-%d-plans", pwp.Period.ID) } class="space-y-6">
+					@PeriodPlanItems(pwp.Period.ID, pwp.Plans, currentUserID, currentUserType)
+				</div>
+			</div>
+		</div>
+	}
+}
+
+templ LoadMorePeriodsButton(nextOffset int) {
+	<div class="mt-12 flex justify-center" id="load-more-periods-container" hx-swap-oob="true">
+		if nextOffset > 0 {
+			<button
+				hx-get={ fmt.Sprintf("/payment-dues?view=periods&offset=%d", nextOffset) }
+				hx-target="#periods-container"
+				hx-swap="beforeend"
+				hx-indicator="#load-more-periods-spinner"
+				class="px-8 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary-hover transition-all duration-300 shadow-lg shadow-primary/20 flex items-center gap-3"
+			>
+				<span>Load Previous Periods</span>
+				<div id="load-more-periods-spinner" class="htmx-indicator animate-spin h-5 w-5 border-3 border-white border-t-transparent rounded-full"></div>
+			</button>
+		}
+	</div>
+}
+
+// PeriodPlanItems renders plans within a period
+templ PeriodPlanItems(periodID uint, plans []PlanWithDuesInPeriod, currentUserID uint, currentUserType models.UserType) {
+	for _, plan_dues := range plans {
+		<div class="border border-border/80 rounded-2xl overflow-hidden bg-bg-body/50">
+			<div class="bg-white/80 px-5 py-3 border-b border-border/80 flex justify-between items-center">
+				<h4 class="font-bold text-text-primary flex items-center gap-2">
+					<i data-lucide="package" class="w-4 h-4 text-primary"></i>
+					{ plan_dues.Plan.Name }
+				</h4>
+				<span class="text-[11px] font-bold bg-bg-card px-2.5 py-1 rounded-full border border-border text-text-secondary uppercase tracking-tight">
+					{ fmt.Sprintf("%d participants", len(plan_dues.Dues)) }
+				</span>
+			</div>
+			<div class="divide-y divide-border/60">
+				for _, due := range plan_dues.Dues {
+					@PaymentDueItem(due, "user", currentUserID, currentUserType)
+				}
+			</div>
+		</div>
+	}
+}

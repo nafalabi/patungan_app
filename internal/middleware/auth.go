@@ -10,12 +10,13 @@ import (
 	"gorm.io/gorm"
 
 	"patungan_app_echo/internal/models"
-	"patungan_app_echo/internal/services"
+
+	"patungan_app_echo/internal/services/cache"
 )
 
 // RequireAuth returns a middleware that verifies Firebase session cookies
 // and loads user data from the database (with caching)
-func RequireAuth(authClient *auth.Client, db *gorm.DB, cache *services.RedisCache) echo.MiddlewareFunc {
+func RequireAuth(authClient *auth.Client, db *gorm.DB, redisCache *cache.RedisCache) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			// Check if Firebase is initialized
@@ -48,7 +49,7 @@ func RequireAuth(authClient *auth.Client, db *gorm.DB, cache *services.RedisCach
 			email, _ := decodedToken.Claims["email"].(string)
 			name, _ := decodedToken.Claims["name"].(string)
 
-			if db == nil || cache == nil {
+			if db == nil || redisCache == nil {
 				return c.String(http.StatusInternalServerError, "Internal server error")
 			}
 
@@ -56,7 +57,7 @@ func RequireAuth(authClient *auth.Client, db *gorm.DB, cache *services.RedisCach
 			cacheKey := fmt.Sprintf("user:email:%s", email)
 
 			// Use GetOrSet for cached lookup
-			user, err := services.GetOrSet(cache, c.Request().Context(), cacheKey, 5*time.Minute, func() (models.User, error) {
+			user, err := cache.GetOrSet(redisCache, c.Request().Context(), cacheKey, 5*time.Minute, func() (models.User, error) {
 				var user models.User
 				err := db.Where("email = ?", email).First(&user).Error
 				return user, err
