@@ -5,6 +5,9 @@ import (
 	"patungan_app_echo/internal/models"
 	"patungan_app_echo/internal/template/layouts"
 	types "patungan_app_echo/internal/template/types"
+
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 )
 
 // PeriodWithDues groups a billing period with its payment dues
@@ -214,7 +217,7 @@ templ PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID ui
 
 		<div class="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto">
 			<div class="text-right">
-				<p class="text-lg font-black text-text-primary">Rp { fmt.Sprintf("%.2f", due.CalculatedPayAmount) }</p>
+				<p class="text-lg font-black text-text-primary">{ formatRupiah(due.CalculatedPayAmount) }</p>
 				<p class="text-[10px] font-bold text-text-secondary uppercase tracking-wider">Due { due.DueDate.Format("02 Jan 2006") }</p>
 			</div>
 			
@@ -316,6 +319,13 @@ func buildURLWithPage(base string, view string, filterPlan uint, filterUser uint
 		url += fmt.Sprintf("&page=%d", page)
 	}
 	return url
+}
+
+// formatRupiah formats a float64 to Indonesian Rupiah format (e.g., Rp 73.000,00)
+func formatRupiah(amount float64) string {
+	// Separate thousands with dot and decimals with comma
+	p := message.NewPrinter(language.Indonesian)
+	return p.Sprintf("Rp %.2f", amount)
 }
 
 // min returns the minimum of two integers

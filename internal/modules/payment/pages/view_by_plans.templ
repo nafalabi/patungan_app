@@ -34,7 +34,7 @@ templ PlanListItems(planWithDues []PlanWithDues, currentUserID uint, currentUser
 						<div>
 							<h3 class="text-xl font-bold text-text-primary leading-tight">{ pwd.Plan.Name }</h3>
 							<p class="text-sm text-text-secondary mt-0.5">
-								Total Price: <span class="font-medium text-text-primary">Rp { fmt.Sprintf("%.0f", pwd.Plan.TotalPrice) }</span>
+								Total Price: <span class="font-medium text-text-primary">{ formatRupiah(pwd.Plan.TotalPrice) }</span>
 							</p>
 						</div>
 					</div>

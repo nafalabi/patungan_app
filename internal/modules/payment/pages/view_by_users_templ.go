@@ -199,14 +199,14 @@ func UserListItems(userWithDues []UserWithDues, currentUserID uint, currentUserT
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div><div class=\"text-right\"><p class=\"text-sm font-black text-text-primary\">Rp ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div><div class=\"text-right\"><p class=\"text-sm font-black text-text-primary\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var10 string
-				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", due.CalculatedPayAmount))
+				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(formatRupiah(due.CalculatedPayAmount))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/view_by_users.templ`, Line: 70, Col: 106}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/view_by_users.templ`, Line: 70, Col: 96}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {

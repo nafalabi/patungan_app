@@ -13,6 +13,9 @@ import (
 	"patungan_app_echo/internal/models"
 	"patungan_app_echo/internal/template/layouts"
 	types "patungan_app_echo/internal/template/types"
+
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 )
 
 // PeriodWithDues groups a billing period with its payment dues
@@ -131,7 +134,7 @@ func PaymentDues(props PaymentDuesProps) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(props.ViewMode)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 100, Col: 60}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 103, Col: 60}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -149,7 +152,7 @@ func PaymentDues(props PaymentDuesProps) templ.Component {
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", plan.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 107, Col: 50}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 110, Col: 50}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -172,7 +175,7 @@ func PaymentDues(props PaymentDuesProps) templ.Component {
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(plan.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 108, Col: 20}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 111, Col: 20}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -195,7 +198,7 @@ func PaymentDues(props PaymentDuesProps) templ.Component {
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", user.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 119, Col: 50}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 122, Col: 50}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
@@ -218,7 +221,7 @@ func PaymentDues(props PaymentDuesProps) templ.Component {
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(user.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 120, Col: 20}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 123, Col: 20}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
@@ -296,7 +299,7 @@ func PaymentDues(props PaymentDuesProps) templ.Component {
 			var templ_7745c5c3_Var8 templ.SafeURL
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/payment-dues?view=%s", props.ViewMode)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 148, Col: 83}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 151, Col: 83}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -389,7 +392,7 @@ func ViewToggle(props PaymentDuesProps) templ.Component {
 			var templ_7745c5c3_Var11 templ.SafeURL
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildURL("/payment-dues", mode.Value, props.FilterPlan, props.FilterUser, props.SortBy, props.SortOrder)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 178, Col: 129}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 181, Col: 129}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -415,7 +418,7 @@ func ViewToggle(props PaymentDuesProps) templ.Component {
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(mode.Icon)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 185, Col: 29}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 188, Col: 29}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
@@ -428,7 +431,7 @@ func ViewToggle(props PaymentDuesProps) templ.Component {
 			var templ_7745c5c3_Var14 string
 			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(mode.Label)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 186, Col: 15}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 189, Col: 15}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 			if templ_7745c5c3_Err != nil {
@@ -472,7 +475,7 @@ func PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uin
 		var templ_7745c5c3_Var16 string
 		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("payment-due-%d", due.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 194, Col: 44}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 197, Col: 44}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 		if templ_7745c5c3_Err != nil {
@@ -498,7 +501,7 @@ func PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uin
 			var templ_7745c5c3_Var17 string
 			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(due.User.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 201, Col: 73}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 204, Col: 73}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 			if templ_7745c5c3_Err != nil {
@@ -511,7 +514,7 @@ func PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uin
 			var templ_7745c5c3_Var18 string
 			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(due.User.Email)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 202, Col: 67}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 205, Col: 67}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 			if templ_7745c5c3_Err != nil {
@@ -529,7 +532,7 @@ func PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uin
 			var templ_7745c5c3_Var19 string
 			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(due.Plan.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 204, Col: 73}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 207, Col: 73}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 			if templ_7745c5c3_Err != nil {
@@ -542,7 +545,7 @@ func PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uin
 			var templ_7745c5c3_Var20 string
 			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", due.PlanID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 205, Col: 91}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 208, Col: 91}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 			if templ_7745c5c3_Err != nil {
@@ -560,7 +563,7 @@ func PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uin
 			var templ_7745c5c3_Var21 string
 			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(due.Plan.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 208, Col: 74}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 211, Col: 74}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 			if templ_7745c5c3_Err != nil {
@@ -573,7 +576,7 @@ func PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uin
 			var templ_7745c5c3_Var22 string
 			templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(due.User.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 209, Col: 67}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 212, Col: 67}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 			if templ_7745c5c3_Err != nil {
@@ -586,7 +589,7 @@ func PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uin
 			var templ_7745c5c3_Var23 string
 			templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(due.User.Email)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 209, Col: 87}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 212, Col: 87}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 			if templ_7745c5c3_Err != nil {
@@ -597,14 +600,14 @@ func PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uin
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</div></div><div class=\"flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto\"><div class=\"text-right\"><p class=\"text-lg font-black text-text-primary\">Rp ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</div></div><div class=\"flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto\"><div class=\"text-right\"><p class=\"text-lg font-black text-text-primary\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var24 string
-		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", due.CalculatedPayAmount))
+		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(formatRupiah(due.CalculatedPayAmount))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 217, Col: 101}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 220, Col: 91}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 		if templ_7745c5c3_Err != nil {
@@ -617,7 +620,7 @@ func PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uin
 		var templ_7745c5c3_Var25 string
 		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(due.DueDate.Format("02 Jan 2006"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 218, Col: 121}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 221, Col: 121}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 		if templ_7745c5c3_Err != nil {
@@ -635,7 +638,7 @@ func PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uin
 			var templ_7745c5c3_Var26 templ.SafeURL
 			templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/p/%s", due.UUID)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 224, Col: 58}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 227, Col: 58}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 			if templ_7745c5c3_Err != nil {
@@ -648,7 +651,7 @@ func PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uin
 			var templ_7745c5c3_Var27 string
 			templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/payments/%d/status?display_mode=%s", due.ID, displayMode))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 232, Col: 86}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 235, Col: 86}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 			if templ_7745c5c3_Err != nil {
@@ -661,7 +664,7 @@ func PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uin
 			var templ_7745c5c3_Var28 string
 			templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#payment-due-%d", due.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 233, Col: 56}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 236, Col: 56}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 			if templ_7745c5c3_Err != nil {
@@ -680,7 +683,7 @@ func PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uin
 			var templ_7745c5c3_Var29 string
 			templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/payments/%d/mark-complete?display_mode=%s", due.ID, displayMode))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 243, Col: 94}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 246, Col: 94}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 			if templ_7745c5c3_Err != nil {
@@ -693,7 +696,7 @@ func PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uin
 			var templ_7745c5c3_Var30 string
 			templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#payment-due-%d", due.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 244, Col: 56}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 247, Col: 56}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 			if templ_7745c5c3_Err != nil {
@@ -764,7 +767,7 @@ func PaymentStatusIcon(status string) templ.Component {
 		var templ_7745c5c3_Var34 string
 		templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("Status: %s", status))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 268, Col: 43}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 271, Col: 43}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 		if templ_7745c5c3_Err != nil {
@@ -874,6 +877,13 @@ func buildURLWithPage(base string, view string, filterPlan uint, filterUser uint
 		url += fmt.Sprintf("&page=%d", page)
 	}
 	return url
+}
+
+// formatRupiah formats a float64 to Indonesian Rupiah format (e.g., Rp 73.000,00)
+func formatRupiah(amount float64) string {
+	// Separate thousands with dot and decimals with comma
+	p := message.NewPrinter(language.Indonesian)
+	return p.Sprintf("Rp %.2f", amount)
 }
 
 // min returns the minimum of two integers
