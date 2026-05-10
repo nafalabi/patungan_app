@@ -1,0 +1,70 @@
+package payment_pages
+
+import (
+	"fmt"
+	"patungan_app_echo/internal/models"
+)
+
+// ViewAll renders a flat list of payment dues with classic pagination
+templ ViewAll(dues []models.PaymentDue, currentUserID uint, currentUserType models.UserType, currentPage, totalPages, totalCount, pageSize int, viewMode string, filterPlan, filterUser uint, sortBy, sortOrder string) {
+	if len(dues) == 0 {
+		<div class="bg-bg-card rounded-xl border border-border p-8 text-center text-text-secondary">
+			No payment dues found.
+		</div>
+	} else {
+		<div class="space-y-4">
+			<div class="bg-bg-card rounded-xl border border-border overflow-hidden shadow-sm">
+				<div class="divide-y divide-border">
+					for _, due := range dues {
+						@PaymentDueItem(due, "both", currentUserID, currentUserType)
+					}
+				</div>
+			</div>
+		</div>
+
+		<!-- Pagination -->
+		if totalPages > 1 {
+			<div class="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+				<div class="text-sm text-text-secondary order-2 sm:order-1">
+					Showing { fmt.Sprintf("%d-%d", (currentPage-1)*pageSize+1, min((currentPage)*pageSize, totalCount)) } of { fmt.Sprintf("%d", totalCount) } payment dues
+				</div>
+				<div class="flex gap-2 order-1 sm:order-2">
+					if currentPage > 1 {
+						<a
+							href={ templ.SafeURL(buildURLWithPage("/payment-dues", viewMode, filterPlan, filterUser, sortBy, sortOrder, currentPage-1)) }
+							class="px-3 py-2 bg-bg-card text-text-primary border border-border rounded-lg font-medium hover:bg-bg-hover transition-all duration-200 text-sm"
+						>
+							Previous
+						</a>
+					}
+					<div class="flex gap-1 overflow-x-auto max-w-[200px] sm:max-w-none">
+						for i := 1; i <= totalPages; i++ {
+							if i == currentPage {
+								<span class="px-3 py-2 bg-primary text-white rounded-lg font-medium text-sm">
+									{ fmt.Sprintf("%d", i) }
+								</span>
+							} else if i == 1 || i == totalPages || (i >= currentPage-2 && i <= currentPage+2) {
+								<a
+									href={ templ.SafeURL(buildURLWithPage("/payment-dues", viewMode, filterPlan, filterUser, sortBy, sortOrder, i)) }
+									class="px-3 py-2 bg-bg-card text-text-primary border border-border rounded-lg font-medium hover:bg-bg-hover transition-all duration-200 text-sm"
+								>
+									{ fmt.Sprintf("%d", i) }
+								</a>
+							} else if i == currentPage-3 || i == currentPage+3 {
+								<span class="px-3 py-2 text-text-secondary">...</span>
+							}
+						}
+					</div>
+					if currentPage < totalPages {
+						<a
+							href={ templ.SafeURL(buildURLWithPage("/payment-dues", viewMode, filterPlan, filterUser, sortBy, sortOrder, currentPage+1)) }
+							class="px-3 py-2 bg-bg-card text-text-primary border border-border rounded-lg font-medium hover:bg-bg-hover transition-all duration-200 text-sm"
+						>
+							Next
+						</a>
+					}
+				</div>
+			</div>
+		}
+	}
+}

@@ -1,7 +1,6 @@
 package payment_pages
-import (	
-	
 
+import (
 	"fmt"
 	"patungan_app_echo/internal/models"
 	"patungan_app_echo/internal/template/layouts"
@@ -50,10 +49,17 @@ type PaymentDuesProps struct {
 	MidtransClientKey string
 
 	// Data
-	PlanWithDues []PlanWithDues
+	PlanWithDues    []PlanWithDues
 	PeriodWithPlans []PeriodWithPlans
-	UserWithDues []UserWithDues
-	FlatDues     []models.PaymentDue
+	UserWithDues    []UserWithDues
+	FlatDues        []models.PaymentDue
+
+	// Pagination/Offsets
+	CurrentPage int
+	TotalPages  int
+	TotalCount  int
+	PageSize    int
+	NextOffset  int
 
 	// Filter/Sort state
 	ViewMode     string
@@ -66,12 +72,6 @@ type PaymentDuesProps struct {
 	// For dropdowns
 	AllPlans []models.Plan
 	AllUsers []models.User
-
-	// Pagination
-	CurrentPage int
-	TotalPages  int
-	TotalCount  int
-	PageSize    int
 }
 
 // PaymentDues renders the payment dues page
@@ -83,61 +83,25 @@ templ PaymentDues(props PaymentDuesProps) {
 		UserEmail:   props.UserEmail,
 		UserUID:     props.UserUIDString,
 	}) {
-		<div class="mb-6">
-			<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
-				<h1 class="text-2xl font-bold text-text-primary">Payment Dues</h1>
+		<div class="mb-8">
+			<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8">
+				<div>
+					<h1 class="text-2xl font-bold text-text-primary">Payment Dues</h1>
+					<p class="text-text-secondary mt-1">Manage and track shared subscription payments</p>
+				</div>
 				<!-- View mode toggle -->
-				<div class="flex flex-wrap gap-2 w-full sm:w-auto">
-					<a
-						href={ templ.SafeURL(buildURL("/payment-dues", "all", props.FilterPlan, props.FilterUser, props.SortBy, props.SortOrder)) }
-						class={
-							"sm:flex-none text-center px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap",
-							templ.KV("bg-primary text-white", props.ViewMode == "all"),
-							templ.KV("bg-bg-card text-text-secondary border border-border hover:bg-bg-hover", props.ViewMode != "all"),
-						}
-					>
-						View All
-					</a>
-					<a
-						href={ templ.SafeURL(buildURL("/payment-dues", "plans", props.FilterPlan, props.FilterUser, props.SortBy, props.SortOrder)) }
-						class={
-							"sm:flex-none text-center px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap",
-							templ.KV("bg-primary text-white", props.ViewMode == "plans"),
-							templ.KV("bg-bg-card text-text-secondary border border-border hover:bg-bg-hover", props.ViewMode != "plans"),
-						}
-					>
-						View by Plans
-					</a>
-					<a
-						href={ templ.SafeURL(buildURL("/payment-dues", "periods", props.FilterPlan, props.FilterUser, props.SortBy, props.SortOrder)) }
-						class={
-							"sm:flex-none text-center px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap",
-							templ.KV("bg-primary text-white", props.ViewMode == "periods"),
-							templ.KV("bg-bg-card text-text-secondary border border-border hover:bg-bg-hover", props.ViewMode != "periods"),
-						}
-					>
-						View by Periods
-					</a>
-					<a
-						href={ templ.SafeURL(buildURL("/payment-dues", "users", props.FilterPlan, props.FilterUser, props.SortBy, props.SortOrder)) }
-						class={
-							"sm:flex-none text-center px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap",
-							templ.KV("bg-primary text-white", props.ViewMode == "users"),
-							templ.KV("bg-bg-card text-text-secondary border border-border hover:bg-bg-hover", props.ViewMode != "users"),
-						}
-					>
-						View by Users
-					</a>
+				<div class="flex p-1.5 bg-bg-card rounded-2xl border border-border shadow-sm w-full sm:w-auto overflow-x-auto no-scrollbar">
+					@ViewToggle(props)
 				</div>
 			</div>
 			<!-- Filters and sorting -->
-			<div class="bg-bg-card rounded-xl border border-border p-4 mb-4">
-				<form method="GET" action="/payment-dues" class="flex flex-wrap gap-4 items-end">
+			<div class="bg-bg-card rounded-2xl border border-border p-5 shadow-sm">
+				<form method="GET" action="/payment-dues" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5 items-end">
 					<input type="hidden" name="view" value={ props.ViewMode }/>
 					<!-- Filter by Plan -->
-					<div class="flex-1 min-w-[200px]">
-						<label class="block text-sm font-medium text-text-secondary mb-2">Filter by Plan</label>
-						<select name="filter_plan" class="w-full px-3 py-2 bg-bg-body border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary">
+					<div>
+						<label class="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-2 ml-1">Plan</label>
+						<select name="filter_plan" class="w-full px-4 py-2.5 bg-bg-body border border-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
 							<option value="">All Plans</option>
 							for _, plan := range props.AllPlans {
 								<option value={ fmt.Sprintf("%d", plan.ID) } selected?={ props.FilterPlan == plan.ID }>
@@ -147,9 +111,9 @@ templ PaymentDues(props PaymentDuesProps) {
 						</select>
 					</div>
 					<!-- Filter by User -->
-					<div class="flex-1 min-w-[200px]">
-						<label class="block text-sm font-medium text-text-secondary mb-2">Filter by User</label>
-						<select name="filter_user" class="w-full px-3 py-2 bg-bg-body border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary">
+					<div>
+						<label class="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-2 ml-1">User</label>
+						<select name="filter_user" class="w-full px-4 py-2.5 bg-bg-body border border-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
 							<option value="">All Users</option>
 							for _, user := range props.AllUsers {
 								<option value={ fmt.Sprintf("%d", user.ID) } selected?={ props.FilterUser == user.ID }>
@@ -159,211 +123,68 @@ templ PaymentDues(props PaymentDuesProps) {
 						</select>
 					</div>
 					<!-- Sort by -->
-					<div class="flex-1 min-w-[200px]">
-						<label class="block text-sm font-medium text-text-secondary mb-2">Sort by</label>
-						<select name="sort_by" class="w-full px-3 py-2 bg-bg-body border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary">
+					<div>
+						<label class="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-2 ml-1">Sort By</label>
+						<select name="sort_by" class="w-full px-4 py-2.5 bg-bg-body border border-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
 							<option value="created_at" selected?={ props.SortBy == "created_at" }>Created Date</option>
-							<option value="plan" selected?={ props.SortBy == "plan" }>Plan</option>
-							<option value="user" selected?={ props.SortBy == "user" }>User</option>
+							<option value="plan" selected?={ props.SortBy == "plan" }>Plan Name</option>
+							<option value="user" selected?={ props.SortBy == "user" }>User Name</option>
 							<option value="due_date" selected?={ props.SortBy == "due_date" }>Due Date</option>
 						</select>
 					</div>
 					<!-- Sort order -->
-					<div class="flex-1 min-w-[150px]">
-						<label class="block text-sm font-medium text-text-secondary mb-2">Order</label>
-						<select name="sort_order" class="w-full px-3 py-2 bg-bg-body border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary">
+					<div>
+						<label class="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-2 ml-1">Order</label>
+						<select name="sort_order" class="w-full px-4 py-2.5 bg-bg-body border border-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
 							<option value="asc" selected?={ props.SortOrder == "asc" }>Ascending</option>
 							<option value="desc" selected?={ props.SortOrder == "desc" }>Descending</option>
 						</select>
 					</div>
-					<!-- Show canceled checkbox -->
-					<div class="flex items-center gap-2 self-end pb-2">
-						<input
-							type="checkbox"
-							id="show-canceled"
-							name="show_canceled"
-							value="true"
-							checked?={ props.ShowCanceled }
-							class="w-4 h-4 rounded border-border text-primary focus:ring-2 focus:ring-primary"
-						/>
-						<label for="show-canceled" class="text-sm text-text-secondary cursor-pointer">
-							Show canceled
-						</label>
-					</div>
 					<!-- Actions -->
 					<div class="flex gap-2">
-						<button type="submit" class="px-3 py-1.5 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-hover transition-all duration-200">
+						<button type="submit" class="flex-1 px-4 py-2.5 bg-primary text-white rounded-xl font-bold hover:bg-primary-hover transition-all shadow-sm">
 							Apply
 						</button>
-						<a href={ templ.SafeURL(fmt.Sprintf("/payment-dues?view=%s", props.ViewMode)) } class="px-3 py-1.5 bg-bg-body text-text-secondary border border-border rounded-lg text-sm font-medium hover:bg-bg-hover transition-all duration-200">
-							Clear
+						<a href={ templ.SafeURL(fmt.Sprintf("/payment-dues?view=%s", props.ViewMode)) } class="px-4 py-2.5 bg-bg-body text-text-secondary border border-border rounded-xl font-bold hover:bg-bg-hover transition-all">
+							<i data-lucide="rotate-ccw" class="w-5 h-5"></i>
 						</a>
 					</div>
 				</form>
 			</div>
 		</div>
 		<!-- Content -->
-		if props.ViewMode == "plans" {
-			@ViewByPlans(props.PlanWithDues, props.CurrentUserID, props.CurrentUserType)
-		} else if props.ViewMode == "periods" {
-			@ViewByPeriods(props.PeriodWithPlans, props.CurrentUserID, props.CurrentUserType)
-		} else if props.ViewMode == "users" {
-			@ViewByUsers(props.UserWithDues, props.CurrentUserID, props.CurrentUserType)
-		} else {
-			@ViewAll(props.FlatDues, props.CurrentUserID, props.CurrentUserType)
-		}
-		<!-- Pagination -->
-		if props.TotalPages > 1 {
-			<div class="mt-6 flex justify-between items-center">
-				<div class="text-sm text-text-secondary">
-					Showing { fmt.Sprintf("%d-%d", (props.CurrentPage-1)*props.PageSize+1, min((props.CurrentPage)*props.PageSize, props.TotalCount)) } of { fmt.Sprintf("%d", props.TotalCount) } payment dues
-				</div>
-				<div class="flex gap-2">
-					if props.CurrentPage > 1 {
-						<a
-							href={ templ.SafeURL(buildURLWithPage("/payment-dues", props.ViewMode, props.FilterPlan, props.FilterUser, props.SortBy, props.SortOrder, props.CurrentPage-1)) }
-							class="px-3 py-2 bg-bg-card text-text-primary border border-border rounded-lg font-medium hover:bg-bg-hover transition-all duration-200"
-						>
-							Previous
-						</a>
-					} else {
-						<span class="px-3 py-2 bg-bg-body text-text-secondary border border-border rounded-lg font-medium cursor-not-allowed">
-							Previous
-						</span>
-					}
-					<div class="flex gap-1">
-						for i := 1; i <= props.TotalPages; i++ {
-							if i == props.CurrentPage {
-								<span class="px-3 py-2 bg-primary text-white rounded-lg font-medium">
-									{ fmt.Sprintf("%d", i) }
-								</span>
-							} else if i == 1 || i == props.TotalPages || (i >= props.CurrentPage-2 && i <= props.CurrentPage+2) {
-								<a
-									href={ templ.SafeURL(buildURLWithPage("/payment-dues", props.ViewMode, props.FilterPlan, props.FilterUser, props.SortBy, props.SortOrder, i)) }
-									class="px-3 py-2 bg-bg-card text-text-primary border border-border rounded-lg font-medium hover:bg-bg-hover transition-all duration-200"
-								>
-									{ fmt.Sprintf("%d", i) }
-								</a>
-							} else if i == props.CurrentPage-3 || i == props.CurrentPage+3 {
-								<span class="px-3 py-2 text-text-secondary">...</span>
-							}
-						}
-					</div>
-					if props.CurrentPage < props.TotalPages {
-						<a
-							href={ templ.SafeURL(buildURLWithPage("/payment-dues", props.ViewMode, props.FilterPlan, props.FilterUser, props.SortBy, props.SortOrder, props.CurrentPage+1)) }
-							class="px-3 py-2 bg-bg-card text-text-primary border border-border rounded-lg font-medium hover:bg-bg-hover transition-all duration-200"
-						>
-							Next
-						</a>
-					} else {
-						<span class="px-3 py-2 bg-bg-body text-text-secondary border border-border rounded-lg font-medium cursor-not-allowed">
-							Next
-						</span>
-					}
-				</div>
-			</div>
-		}
-	}
-}
-
-// ViewByPlans renders payment dues grouped by plans
-templ ViewByPlans(planWithDues []PlanWithDues, currentUserID uint, currentUserType models.UserType) {
-	if len(planWithDues) == 0 {
-		<div class="bg-bg-card rounded-xl border border-border p-8 text-center text-text-secondary">
-			No payment dues found.
-		</div>
-	} else {
-		<div class="space-y-6">
-			for _, pwd := range planWithDues {
-				<div class="bg-bg-card rounded-xl border border-border overflow-hidden">
-					<!-- Plan header -->
-					<div class="bg-primary/5 border-b border-border p-4">
-						<div class="flex justify-between items-center">
-							<div>
-								<h3 class="text-xl font-bold text-text-primary">{ pwd.Plan.Name }</h3>
-								<p class="text-sm text-text-secondary">Total Price: Rp { fmt.Sprintf("%.0f", pwd.Plan.TotalPrice) }</p>
-							</div>
-						</div>
-					</div>
-					<!-- Periods list -->
-					<div class="p-4 space-y-4">
-						for _, pwd_period := range pwd.Periods {
-							<div class="border border-border rounded-lg overflow-hidden bg-bg-body">
-								<div class="bg-bg-hover/50 px-4 py-2 border-b border-border flex justify-between items-center">
-									<h4 class="font-semibold text-text-primary">
-										if pwd_period.Period.ID != 0 {
-											{ pwd_period.Period.Name }
-										} else {
-											{ pwd_period.Dues[0].DueDate.Format("January 2006") } (Uncategorized)
-										}
-									</h4>
-									<span class="text-xs bg-bg-card px-2 py-1 rounded-full border border-border text-text-secondary">
-										{ fmt.Sprintf("%d dues", len(pwd_period.Dues)) }
-									</span>
-								</div>
-								<div class="divide-y divide-border">
-									for _, due := range pwd_period.Dues {
-										@PaymentDueItem(due, "user", currentUserID, currentUserType)
-									}
-								</div>
-							</div>
-						}
-					</div>
-				</div>
+		<div id="view-content-container">
+			if props.ViewMode == "plans" {
+				@ViewByPlans(props.PlanWithDues, props.CurrentUserID, props.CurrentUserType, props.NextOffset)
+			} else if props.ViewMode == "periods" {
+				@ViewByPeriods(props.PeriodWithPlans, props.CurrentUserID, props.CurrentUserType, props.NextOffset)
+			} else if props.ViewMode == "users" {
+				@ViewByUsers(props.UserWithDues, props.CurrentUserID, props.CurrentUserType, props.NextOffset)
+			} else {
+				@ViewAll(props.FlatDues, props.CurrentUserID, props.CurrentUserType, props.CurrentPage, props.TotalPages, props.TotalCount, props.PageSize, props.ViewMode, props.FilterPlan, props.FilterUser, props.SortBy, props.SortOrder)
 			}
 		</div>
 	}
 }
 
-// ViewByUsers renders payment dues grouped by users
-templ ViewByUsers(userWithDues []UserWithDues, currentUserID uint, currentUserType models.UserType) {
-	if len(userWithDues) == 0 {
-		<div class="bg-bg-card rounded-xl border border-border p-8 text-center text-text-secondary">
-			No payment dues found.
-		</div>
-	} else {
-		<div class="space-y-4">
-			for _, uwd := range userWithDues {
-				<div class="bg-bg-card rounded-xl border border-border overflow-hidden">
-					<!-- User header -->
-					<div class="bg-bg-body border-b border-border p-4">
-						<div class="flex justify-between items-center">
-							<div>
-								<h3 class="text-lg font-semibold text-text-primary">{ uwd.User.Name }</h3>
-								<p class="text-sm text-text-secondary">{ uwd.User.Email }</p>
-							</div>
-							<span class="text-sm text-text-secondary">{ fmt.Sprintf("%d dues", len(uwd.Dues)) }</span>
-						</div>
-					</div>
-					<!-- Dues list -->
-					<div class="divide-y divide-border">
-						for _, due := range uwd.Dues {
-							@PaymentDueItem(due, "plan", currentUserID, currentUserType)
-						}
-					</div>
-				</div>
+templ ViewToggle(props PaymentDuesProps) {
+	for _, mode := range []struct{Value, Label, Icon string}{
+		{"all", "All Dues", "list"},
+		{"plans", "By Plan", "layers"},
+		{"periods", "By Period", "calendar-range"},
+		{"users", "By User", "users"},
+	} {
+		<a
+			href={ templ.SafeURL(buildURL("/payment-dues", mode.Value, props.FilterPlan, props.FilterUser, props.SortBy, props.SortOrder)) }
+			class={
+				"flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 whitespace-nowrap",
+				templ.KV("bg-primary text-white shadow-md", props.ViewMode == mode.Value),
+				templ.KV("text-text-secondary hover:bg-bg-hover hover:text-text-primary", props.ViewMode != mode.Value),
 			}
-		</div>
-	}
-}
-
-// ViewAll renders a flat list of payment dues
-templ ViewAll(dues []models.PaymentDue, currentUserID uint, currentUserType models.UserType) {
-	if len(dues) == 0 {
-		<div class="bg-bg-card rounded-xl border border-border p-8 text-center text-text-secondary">
-			No payment dues found.
-		</div>
-	} else {
-		<div class="space-y-4">
-			<div class="bg-bg-card rounded-xl border border-border overflow-hidden">
-				<div class="divide-y divide-border">
-					for _, due := range dues {
-						@PaymentDueItem(due, "both", currentUserID, currentUserType)
-					}
-				</div>
-			</div>
-		</div>
+		>
+			<i data-lucide={ mode.Icon } class="w-4 h-4"></i>
+			{ mode.Label }
+		</a>
 	}
 }
 
@@ -371,62 +192,63 @@ templ ViewAll(dues []models.PaymentDue, currentUserID uint, currentUserType mode
 templ PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uint, currentUserType models.UserType) {
 	<div 
 		id={ fmt.Sprintf("payment-due-%d", due.ID) }
-		class="p-4 hover:bg-bg-hover transition-colors flex flex-col gap-3"
+		class="p-5 hover:bg-bg-hover/30 transition-colors flex flex-col sm:flex-row justify-between items-center gap-4"
 	>
-		<!-- Top Row: Info and Amount -->
-		<div class="flex justify-between items-start">
-			<div>
-				if displayMode == "user" {
-					<p class="font-medium text-text-primary">{ due.User.Name }</p>
-					<p class="text-sm text-text-secondary">{ due.User.Email }</p>
-				} else if displayMode == "plan" {
-					<p class="font-medium text-text-primary">{ due.Plan.Name }</p>
-					<p class="text-sm text-text-secondary">Plan Total: Rp { fmt.Sprintf("%.0f", due.Plan.TotalPrice) }</p>
+		<div class="flex items-center gap-4 w-full sm:w-auto">
+			<div class={
+				"w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm",
+				templ.KV("bg-green-50 border-green-100 text-green-600", due.PaymentStatus == "paid"),
+				templ.KV("bg-yellow-50 border-yellow-100 text-yellow-600", due.PaymentStatus == "pending"),
+				templ.KV("bg-red-50 border-red-100 text-red-600", due.PaymentStatus == "overdue"),
+			}>
+				if due.PaymentStatus == "paid" {
+					<i data-lucide="check-circle-2" class="w-6 h-6"></i>
+				} else if due.PaymentStatus == "overdue" {
+					<i data-lucide="alert-circle" class="w-6 h-6"></i>
 				} else {
-					// both
-					<div class="flex flex-col sm:flex-row sm:gap-4">
-						<div>
-							<p class="font-medium text-text-primary">{ due.Plan.Name }</p>
-							<p class="text-xs text-text-secondary">Plan Total: Rp { fmt.Sprintf("%.0f", due.Plan.TotalPrice) }</p>
-						</div>
-						<div class="hidden sm:block text-border">|</div>
-						<div>
-							<p class="font-medium text-text-primary">{ due.User.Name }</p>
-							<p class="text-xs text-text-secondary">{ due.User.Email }</p>
-						</div>
+					<i data-lucide="clock" class="w-6 h-6"></i>
+				}
+			</div>
+			<div class="flex-1">
+				if displayMode == "user" {
+					<p class="font-bold text-text-primary leading-tight">{ due.User.Name }</p>
+					<p class="text-xs text-text-secondary mt-0.5">{ due.User.Email }</p>
+				} else if displayMode == "plan" {
+					<p class="font-bold text-text-primary leading-tight">{ due.Plan.Name }</p>
+					<p class="text-xs text-text-secondary mt-0.5">Plan ID: { fmt.Sprintf("%d", due.PlanID) }</p>
+				} else {
+					<div class="flex flex-col">
+						<p class="font-bold text-text-primary leading-tight">{ due.Plan.Name }</p>
+						<p class="text-xs text-text-secondary mt-0.5">{ due.User.Name } ({ due.User.Email })</p>
 					</div>
 				}
 			</div>
-			<div class="text-right">
-				<p class="font-semibold text-text-primary">Rp { fmt.Sprintf("%.2f", due.CalculatedPayAmount) }</p>
-				<p class="text-xs text-text-secondary">Portion: { fmt.Sprintf("%d", due.Portion) }</p>
-			</div>
 		</div>
 
-		<!-- Bottom Row: Status/Date and Actions -->
-		<div class="flex flex-col sm:flex-row justify-between items-center gap-3 pt-2 border-t border-border/50">
-			<div class="flex items-center gap-3 w-full sm:w-auto">
-				@PaymentStatusBadge(due.PaymentStatus)
-				<span class="text-xs text-text-secondary">Due: { due.DueDate.Format("02 Jan 2006") }</span>
+		<div class="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto">
+			<div class="text-right">
+				<p class="text-lg font-black text-text-primary">Rp { fmt.Sprintf("%.2f", due.CalculatedPayAmount) }</p>
+				<p class="text-[10px] font-bold text-text-secondary uppercase tracking-wider">Due { due.DueDate.Format("02 Jan 2006") }</p>
 			</div>
 			
-			<div class="flex flex-wrap gap-2 w-full sm:w-auto justify-end">
+			<div class="flex gap-2">
 				if due.UserID == currentUserID && due.PaymentStatus != "paid" && due.PaymentStatus != "canceled" {
 					<a
 						href={ templ.SafeURL(fmt.Sprintf("/p/%s", due.UUID)) }
 						target="_blank"
-						class="px-3 py-1.5 bg-primary text-white text-xs font-medium rounded-lg hover:bg-primary-hover transition-colors shadow-sm flex items-center gap-1"
+						class="p-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-all shadow-sm"
+						title="Pay Now"
 					>
-						Pay Now
-						<i data-lucide="external-link" class="w-3 h-3"></i>
+						<i data-lucide="external-link" class="w-5 h-5"></i>
 					</a>
 					<button
 						hx-get={ fmt.Sprintf("/payments/%d/status?display_mode=%s", due.ID, displayMode) }
 						hx-target={ fmt.Sprintf("#payment-due-%d", due.ID) }
 						hx-swap="outerHTML"
-						class="px-3 py-1.5 bg-bg-card text-text-primary border border-border text-xs font-medium rounded-lg hover:bg-bg-hover transition-colors"
+						class="p-2 bg-white text-text-primary border border-border rounded-lg hover:bg-bg-hover transition-all shadow-sm"
+						title="Refresh Status"
 					>
-						Check Status
+						<i data-lucide="refresh-cw" class="w-5 h-5"></i>
 					</button>
 				}
 				if currentUserType == "Admin" && due.PaymentStatus != "paid" && due.PaymentStatus != "canceled" {
@@ -435,9 +257,10 @@ templ PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID ui
 						hx-target={ fmt.Sprintf("#payment-due-%d", due.ID) }
 						hx-swap="outerHTML"
 						hx-confirm="Are you sure you want to mark this payment as complete?"
-						class="px-3 py-1.5 bg-green-600 text-white text-xs font-medium rounded-lg hover:bg-green-700 transition-colors shadow-sm"
+						class="p-2 bg-success text-white rounded-lg hover:opacity-90 transition-all shadow-sm"
+						title="Mark as Paid"
 					>
-						Mark Complete
+						<i data-lucide="check" class="w-5 h-5"></i>
 					</button>
 				}
 			</div>
@@ -448,13 +271,13 @@ templ PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID ui
 // PaymentStatusBadge renders a status badge
 templ PaymentStatusBadge(status string) {
 	if status == "paid" {
-		<span class="px-2 py-1 rounded text-xs font-medium bg-green-500/20 text-green-500">Paid</span>
+		<span class="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-tighter bg-success/10 text-success border border-success/20">Paid</span>
 	} else if status == "overdue" {
-		<span class="px-2 py-1 rounded text-xs font-medium bg-red-500/20 text-red-500">Overdue</span>
+		<span class="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-tighter bg-red-500/10 text-red-500 border border-red-500/20">Overdue</span>
 	} else if status == "canceled" {
-		<span class="px-2 py-1 rounded text-xs font-medium bg-gray-500/20 text-gray-500">Canceled</span>
+		<span class="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-tighter bg-gray-500/10 text-gray-500 border border-gray-500/20">Canceled</span>
 	} else {
-		<span class="px-2 py-1 rounded text-xs font-medium bg-yellow-500/20 text-yellow-500">Pending</span>
+		<span class="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-tighter bg-yellow-500/10 text-yellow-500 border border-yellow-500/20">Pending</span>
 	}
 }
 
@@ -482,60 +305,6 @@ func buildURLWithPage(base string, view string, filterPlan uint, filterUser uint
 		url += fmt.Sprintf("&page=%d", page)
 	}
 	return url
-}
-
-// ViewByPeriods renders payment dues grouped by billing periods first, then plans
-templ ViewByPeriods(periodWithPlans []PeriodWithPlans, currentUserID uint, currentUserType models.UserType) {
-	if len(periodWithPlans) == 0 {
-		<div class="bg-bg-card rounded-xl border border-border p-8 text-center text-text-secondary">
-			No payment dues found.
-		</div>
-	} else {
-		<div class="space-y-8">
-			for _, pwp := range periodWithPlans {
-				<div class="bg-bg-card rounded-xl border border-border overflow-hidden shadow-sm">
-					<!-- Period header -->
-					<div class="bg-primary/10 border-b border-border p-4">
-						<div class="flex justify-between items-center">
-							<div class="flex items-center gap-3">
-								<div class="p-2 bg-primary/10 rounded-lg text-primary">
-									<i data-lucide="calendar" class="w-5 h-5"></i>
-								</div>
-								<h3 class="text-xl font-bold text-text-primary">
-									if pwp.Period.ID != 0 {
-										{ pwp.Period.Name }
-									} else {
-										{ pwp.Plans[0].Dues[0].DueDate.Format("January 2006") } (Uncategorized)
-									}
-								</h3>
-							</div>
-						</div>
-					</div>
-					<!-- Plans list in this period -->
-					<div class="p-4 space-y-6">
-						for _, plan_dues := range pwp.Plans {
-							<div class="border border-border rounded-lg overflow-hidden bg-bg-body">
-								<div class="bg-bg-hover/30 px-4 py-2 border-b border-border flex justify-between items-center">
-									<h4 class="font-semibold text-text-primary flex items-center gap-2">
-										<i data-lucide="layout" class="w-4 h-4 text-text-secondary"></i>
-										{ plan_dues.Plan.Name }
-									</h4>
-									<span class="text-xs bg-bg-card px-2 py-1 rounded-full border border-border text-text-secondary">
-										{ fmt.Sprintf("%d dues", len(plan_dues.Dues)) }
-									</span>
-								</div>
-								<div class="divide-y divide-border">
-									for _, due := range plan_dues.Dues {
-										@PaymentDueItem(due, "user", currentUserID, currentUserType)
-									}
-								</div>
-							</div>
-						}
-					</div>
-				</div>
-			}
-		</div>
-	}
 }
 
 // min returns the minimum of two integers
