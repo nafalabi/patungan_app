@@ -5,6 +5,7 @@ import (
 	"patungan_app_echo/internal/models"
 	"patungan_app_echo/internal/template/layouts"
 	types "patungan_app_echo/internal/template/types"
+	"patungan_app_echo/internal/template/utils"
 )
 
 // DashboardProps contains props for the dashboard page
@@ -83,7 +84,7 @@ templ Dashboard(props DashboardProps) {
 						</div>
 						<div>
 							<p class="text-sm font-medium text-text-secondary">Pending Amount</p>
-							<h3 class="text-2xl font-bold text-text-primary">Rp { fmt.Sprintf("%.0f", props.PendingAmount) }</h3>
+							<h3 class="text-2xl font-bold text-text-primary">{ utils.FormatRupiah(props.PendingAmount) }</h3>
 						</div>
 					</div>
 				</div>
@@ -96,7 +97,7 @@ templ Dashboard(props DashboardProps) {
 						</div>
 						<div>
 							<p class="text-sm font-medium text-text-secondary">Total Paid</p>
-							<h3 class="text-2xl font-bold text-text-primary">Rp { fmt.Sprintf("%.0f", props.PaidAmount) }</h3>
+							<h3 class="text-2xl font-bold text-text-primary">{ utils.FormatRupiah(props.PaidAmount) }</h3>
 						</div>
 					</div>
 				</div>
@@ -130,7 +131,7 @@ templ Dashboard(props DashboardProps) {
 										<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-text-primary">{ due.Plan.Name }</td>
 										<td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">{ due.User.Name }</td>
 										<td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">{ due.DueDate.Format("02 Jan 2006") }</td>
-										<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-text-primary text-right">Rp { fmt.Sprintf("%.0f", due.CalculatedPayAmount) }</td>
+										<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-text-primary text-right">{ utils.FormatRupiah(due.CalculatedPayAmount) }</td>
 										<td class="px-6 py-4 whitespace-nowrap text-sm text-center">
 											if due.User.ID == props.UserID {
 												<a href={ templ.SafeURL(fmt.Sprintf("/payment-dues#payment-due-%d", due.ID)) } class="text-primary hover:text-primary-hover font-medium">

@@ -1,15 +1,16 @@
 package user
 
 import (
-	"github.com/labstack/echo/v4"
-	"gorm.io/gorm"
 	"net/http"
+	"patungan_app_echo/internal/middleware"
 	"patungan_app_echo/internal/models"
 	user_pages "patungan_app_echo/internal/modules/user/pages"
 	"patungan_app_echo/internal/services/cache"
-	"patungan_app_echo/internal/middleware"
 	types "patungan_app_echo/internal/template/types"
 	"strconv"
+
+	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 type UserHandler struct {
@@ -34,7 +35,7 @@ func (h *UserHandler) ListUsers(c echo.Context) error {
 	}
 
 	props := user_pages.UsersListProps{
-		Title:       "models.User Management",
+		Title:       "User Management",
 		ActiveNav:   "users",
 		Breadcrumbs: breadcrumbs,
 		UserEmail:   middleware.GetString(c, "userEmail"),
@@ -50,11 +51,11 @@ func (h *UserHandler) CreateUserPage(c echo.Context) error {
 	breadcrumbs := []types.Breadcrumb{
 		{Title: "Home", URL: "/"},
 		{Title: "Users", URL: "/users"},
-		{Title: "Create models.User", URL: ""},
+		{Title: "Create User", URL: ""},
 	}
 
 	props := user_pages.UserFormProps{
-		Title:       "Create New models.User",
+		Title:       "Create New ser",
 		ActiveNav:   "users",
 		Breadcrumbs: breadcrumbs,
 		UserEmail:   middleware.GetString(c, "userEmail"),
@@ -90,17 +91,17 @@ func (h *UserHandler) EditUserPage(c echo.Context) error {
 	id := c.Param("id")
 	var user models.User
 	if err := h.db.First(&user, id).Error; err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, "models.User not found")
+		return echo.NewHTTPError(http.StatusNotFound, "User not found")
 	}
 
 	breadcrumbs := []types.Breadcrumb{
 		{Title: "Home", URL: "/"},
 		{Title: "Users", URL: "/users"},
-		{Title: "Edit models.User", URL: ""},
+		{Title: "Edit User", URL: ""},
 	}
 
 	props := user_pages.UserFormProps{
-		Title:       "Edit models.User",
+		Title:       "Edit User",
 		ActiveNav:   "users",
 		Breadcrumbs: breadcrumbs,
 		UserEmail:   middleware.GetString(c, "userEmail"),
@@ -117,7 +118,7 @@ func (h *UserHandler) UpdateUser(c echo.Context) error {
 	id := c.Param("id")
 	var user models.User
 	if err := h.db.First(&user, id).Error; err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, "models.User not found")
+		return echo.NewHTTPError(http.StatusNotFound, "User not found")
 	}
 
 	user.Name = c.FormValue("name")

@@ -13,6 +13,7 @@ import (
 	"os"
 	"patungan_app_echo/internal/models"
 	"patungan_app_echo/internal/template/layouts"
+	"patungan_app_echo/internal/template/utils"
 )
 
 type PublicPaymentDueProps struct {
@@ -54,14 +55,14 @@ func PublicPaymentDue(props PublicPaymentDueProps) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"max-w-sm mx-auto\" x-data=\"{ \n\t\t\t\tshowModal: false, \n\t\t\t\tshowIframe: false,\n\t\t\t\tpaymentLink: '',\n\t\t\t\tactiveUUID: null,\n\t\t\t\tactiveGateway: '',\n\t\t\t\tinitiatePayment(uuid, forceNew = false) {\n\t\t\t\t\tthis.activeUUID = uuid;\n\t\t\t\t\t\n\t\t\t\t\t// If forcing new, skip check and go directly to initiate\n\t\t\t\t\tif (forceNew) {\n\t\t\t\t\t\tthis.callInitiateAPI(uuid, true);\n\t\t\t\t\t\tthis.showModal = false;\n\t\t\t\t\t\treturn;\n\t\t\t\t\t}\n\n\t\t\t\t\t// Check for active session\n\t\t\t\t\tfetch(`/p/${uuid}/active-session`)\n\t\t\t\t\t\t.then(response => response.json())\n\t\t\t\t\t\t.then(data => {\n\t\t\t\t\t\t\tif (data.active) {\n\t\t\t\t\t\t\t\t// Found active session, show modal\n\t\t\t\t\t\t\t\tthis.showModal = true;\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\t// No active session, create new\n\t\t\t\t\t\t\t\tthis.callInitiateAPI(uuid, false);\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t})\n\t\t\t\t\t\t.catch(error => {\n\t\t\t\t\t\t\tconsole.error('Error checking session:', error);\n\t\t\t\t\t\t\talert('An error occurred while checking payment status');\n\t\t\t\t\t\t});\n\t\t\t\t},\n\t\t\t\tcontinueSession() {\n\t\t\t\t\t// Call initiate without force_new to get existing token\n\t\t\t\t\tthis.callInitiateAPI(this.activeUUID, false);\n\t\t\t\t\tthis.showModal = false;\n\t\t\t\t},\n\t\t\t\tstartNewSession() {\n\t\t\t\t\t// Call initiate with force_new=true\n\t\t\t\t\tthis.callInitiateAPI(this.activeUUID, true);\n\t\t\t\t\tthis.showModal = false;\n\t\t\t\t},\n\t\t\t\tcallInitiateAPI(uuid, forceNew) {\n\t\t\t\t\tlet url = `/p/${uuid}/initiate`;\n\t\t\t\t\tif (forceNew) {\n\t\t\t\t\t\turl += '?force_new=true';\n\t\t\t\t\t}\n\n\t\t\t\t\tfetch(url, { method: 'POST' })\n\t\t\t\t\t\t.then(response => response.json())\n\t\t\t\t\t\t.then(data => {\n\t\t\t\t\t\t\tthis.activeGateway = data.gateway;\n\t\t\t\t\t\t\tif (data.gateway === 'midtrans' && data.token) {\n\t\t\t\t\t\t\t\tsnap.pay(data.token, {\n\t\t\t\t\t\t\t\t\tonSuccess: function(result){ window.location.reload(); },\n\t\t\t\t\t\t\t\t\tonPending: function(result){ window.location.reload(); },\n\t\t\t\t\t\t\t\t\tonError: function(result){ alert('Payment failed!'); },\n\t\t\t\t\t\t\t\t\tonClose: function(){ console.log('customer closed the popup without finishing the payment'); }\n\t\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\t} else if (data.gateway === 'mayar' && data.redirect_url) {\n\t\t\t\t\t\t\t\tthis.paymentLink = data.redirect_url;\n\t\t\t\t\t\t\t\tthis.showIframe = true;\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\talert(data.message || 'Failed to initiate payment');\n\t\t\t\t\t\t\t\tif (data.message && data.message.includes('already made')) {\n\t\t\t\t\t\t\t\t\twindow.location.reload();\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t})\n\t\t\t\t\t\t.catch(error => {\n\t\t\t\t\t\t\tconsole.error('Error:', error);\n\t\t\t\t\t\t\talert('An error occurred');\n\t\t\t\t\t\t});\n\t\t\t\t},\n\t\t\t\tcheckIframeUrl() {\n\t\t\t\t\ttry {\n\t\t\t\t\t\tconst iframe = this.$refs.paymentIframe;\n\t\t\t\t\t\tif (iframe && iframe.contentWindow.location.href.includes('/p/' + this.activeUUID)) {\n\t\t\t\t\t\t\t// Reached callback URL (same origin)\n\t\t\t\t\t\t\twindow.location.reload();\n\t\t\t\t\t\t}\n\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\t// Expected CORS error while iframe is on different domain\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tcheckStatus(uuid) {\n\t\t\t\t\tfetch(`/p/${uuid}/status`)\n\t\t\t\t\t\t.then(response => response.json())\n\t\t\t\t\t\t.then(data => {\n\t\t\t\t\t\t\tif (data.status === 'paid') {\n\t\t\t\t\t\t\t\twindow.location.reload();\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\talert('Payment status: ' + data.status + '. If you have paid, please wait a moment and try again.');\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t})\n\t\t\t\t\t\t.catch(error => {\n\t\t\t\t\t\t\tconsole.error('Error checking status:', error);\n\t\t\t\t\t\t\talert('Failed to check payment status');\n\t\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t}\"><div class=\"bg-bg-card rounded-2xl border border-border overflow-hidden shadow-sm\"><!-- Header Section --><div class=\"bg-primary/5 border-b border-border p-6 text-center\"><h1 class=\"text-2xl font-bold text-text-primary mb-1\">Payment Request</h1><p class=\"text-text-secondary\">Please review the payment details below</p></div><!-- Amount Section --><div class=\"p-8 text-center border-b border-border\"><p class=\"text-sm font-medium text-text-secondary uppercase tracking-wider mb-2\">Total Amount</p><div class=\"text-4xl font-bold text-primary\">Rp ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"max-w-sm mx-auto\" x-data=\"{ \n\t\t\t\tshowModal: false, \n\t\t\t\tshowIframe: false,\n\t\t\t\tpaymentLink: '',\n\t\t\t\tactiveUUID: null,\n\t\t\t\tactiveGateway: '',\n\t\t\t\tinitiatePayment(uuid, forceNew = false) {\n\t\t\t\t\tthis.activeUUID = uuid;\n\t\t\t\t\t\n\t\t\t\t\t// If forcing new, skip check and go directly to initiate\n\t\t\t\t\tif (forceNew) {\n\t\t\t\t\t\tthis.callInitiateAPI(uuid, true);\n\t\t\t\t\t\tthis.showModal = false;\n\t\t\t\t\t\treturn;\n\t\t\t\t\t}\n\n\t\t\t\t\t// Check for active session\n\t\t\t\t\tfetch(`/p/${uuid}/active-session`)\n\t\t\t\t\t\t.then(response => response.json())\n\t\t\t\t\t\t.then(data => {\n\t\t\t\t\t\t\tif (data.active) {\n\t\t\t\t\t\t\t\t// Found active session, show modal\n\t\t\t\t\t\t\t\tthis.showModal = true;\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\t// No active session, create new\n\t\t\t\t\t\t\t\tthis.callInitiateAPI(uuid, false);\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t})\n\t\t\t\t\t\t.catch(error => {\n\t\t\t\t\t\t\tconsole.error('Error checking session:', error);\n\t\t\t\t\t\t\talert('An error occurred while checking payment status');\n\t\t\t\t\t\t});\n\t\t\t\t},\n\t\t\t\tcontinueSession() {\n\t\t\t\t\t// Call initiate without force_new to get existing token\n\t\t\t\t\tthis.callInitiateAPI(this.activeUUID, false);\n\t\t\t\t\tthis.showModal = false;\n\t\t\t\t},\n\t\t\t\tstartNewSession() {\n\t\t\t\t\t// Call initiate with force_new=true\n\t\t\t\t\tthis.callInitiateAPI(this.activeUUID, true);\n\t\t\t\t\tthis.showModal = false;\n\t\t\t\t},\n\t\t\t\tcallInitiateAPI(uuid, forceNew) {\n\t\t\t\t\tlet url = `/p/${uuid}/initiate`;\n\t\t\t\t\tif (forceNew) {\n\t\t\t\t\t\turl += '?force_new=true';\n\t\t\t\t\t}\n\n\t\t\t\t\tfetch(url, { method: 'POST' })\n\t\t\t\t\t\t.then(response => response.json())\n\t\t\t\t\t\t.then(data => {\n\t\t\t\t\t\t\tthis.activeGateway = data.gateway;\n\t\t\t\t\t\t\tif (data.gateway === 'midtrans' && data.token) {\n\t\t\t\t\t\t\t\tsnap.pay(data.token, {\n\t\t\t\t\t\t\t\t\tonSuccess: function(result){ window.location.reload(); },\n\t\t\t\t\t\t\t\t\tonPending: function(result){ window.location.reload(); },\n\t\t\t\t\t\t\t\t\tonError: function(result){ alert('Payment failed!'); },\n\t\t\t\t\t\t\t\t\tonClose: function(){ console.log('customer closed the popup without finishing the payment'); }\n\t\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\t} else if (data.gateway === 'mayar' && data.redirect_url) {\n\t\t\t\t\t\t\t\tthis.paymentLink = data.redirect_url;\n\t\t\t\t\t\t\t\tthis.showIframe = true;\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\talert(data.message || 'Failed to initiate payment');\n\t\t\t\t\t\t\t\tif (data.message && data.message.includes('already made')) {\n\t\t\t\t\t\t\t\t\twindow.location.reload();\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t})\n\t\t\t\t\t\t.catch(error => {\n\t\t\t\t\t\t\tconsole.error('Error:', error);\n\t\t\t\t\t\t\talert('An error occurred');\n\t\t\t\t\t\t});\n\t\t\t\t},\n\t\t\t\tcheckIframeUrl() {\n\t\t\t\t\ttry {\n\t\t\t\t\t\tconst iframe = this.$refs.paymentIframe;\n\t\t\t\t\t\tif (iframe && iframe.contentWindow.location.href.includes('/p/' + this.activeUUID)) {\n\t\t\t\t\t\t\t// Reached callback URL (same origin)\n\t\t\t\t\t\t\twindow.location.reload();\n\t\t\t\t\t\t}\n\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\t// Expected CORS error while iframe is on different domain\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tcheckStatus(uuid) {\n\t\t\t\t\tfetch(`/p/${uuid}/status`)\n\t\t\t\t\t\t.then(response => response.json())\n\t\t\t\t\t\t.then(data => {\n\t\t\t\t\t\t\tif (data.status === 'paid') {\n\t\t\t\t\t\t\t\twindow.location.reload();\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\talert('Payment status: ' + data.status + '. If you have paid, please wait a moment and try again.');\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t})\n\t\t\t\t\t\t.catch(error => {\n\t\t\t\t\t\t\tconsole.error('Error checking status:', error);\n\t\t\t\t\t\t\talert('Failed to check payment status');\n\t\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t}\"><div class=\"bg-bg-card rounded-2xl border border-border overflow-hidden shadow-sm\"><!-- Header Section --><div class=\"bg-primary/5 border-b border-border p-6 text-center\"><h1 class=\"text-2xl font-bold text-text-primary mb-1\">Payment Request</h1><p class=\"text-text-secondary\">Please review the payment details below</p></div><!-- Amount Section --><div class=\"p-8 text-center border-b border-border\"><p class=\"text-sm font-medium text-text-secondary uppercase tracking-wider mb-2\">Total Amount</p><div class=\"text-4xl font-bold text-primary\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", props.Due.CalculatedPayAmount))
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(utils.FormatRupiah(props.Due.CalculatedPayAmount))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/public_payment_due.templ`, Line: 135, Col: 61}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/public_payment_due.templ`, Line: 136, Col: 57}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -82,7 +83,7 @@ func PublicPaymentDue(props PublicPaymentDueProps) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(props.Due.Plan.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/public_payment_due.templ`, Line: 146, Col: 71}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/public_payment_due.templ`, Line: 147, Col: 71}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -95,7 +96,7 @@ func PublicPaymentDue(props PublicPaymentDueProps) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(props.Due.User.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/public_payment_due.templ`, Line: 150, Col: 71}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/public_payment_due.templ`, Line: 151, Col: 71}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -108,7 +109,7 @@ func PublicPaymentDue(props PublicPaymentDueProps) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(props.Due.User.Email)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/public_payment_due.templ`, Line: 154, Col: 72}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/public_payment_due.templ`, Line: 155, Col: 72}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -121,7 +122,7 @@ func PublicPaymentDue(props PublicPaymentDueProps) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(props.Due.DueDate.Format("02 January 2006"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/public_payment_due.templ`, Line: 158, Col: 95}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/public_payment_due.templ`, Line: 159, Col: 95}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -139,7 +140,7 @@ func PublicPaymentDue(props PublicPaymentDueProps) templ.Component {
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", props.Due.Portion))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/public_payment_due.templ`, Line: 163, Col: 89}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/public_payment_due.templ`, Line: 164, Col: 89}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
@@ -162,7 +163,7 @@ func PublicPaymentDue(props PublicPaymentDueProps) templ.Component {
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("initiatePayment('%s')", props.Due.UUID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/public_payment_due.templ`, Line: 172, Col: 68}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/public_payment_due.templ`, Line: 173, Col: 68}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {
@@ -175,7 +176,7 @@ func PublicPaymentDue(props PublicPaymentDueProps) templ.Component {
 				var templ_7745c5c3_Var10 string
 				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("checkStatus('%s')", props.Due.UUID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/public_payment_due.templ`, Line: 178, Col: 64}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/public_payment_due.templ`, Line: 179, Col: 64}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {
@@ -203,7 +204,7 @@ func PublicPaymentDue(props PublicPaymentDueProps) templ.Component {
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(props.MidtransClientKey)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/public_payment_due.templ`, Line: 288, Col: 96}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/public_payment_due.templ`, Line: 289, Col: 96}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -221,7 +222,7 @@ func PublicPaymentDue(props PublicPaymentDueProps) templ.Component {
 				var templ_7745c5c3_Var12 string
 				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(props.MidtransClientKey)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/public_payment_due.templ`, Line: 290, Col: 104}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/public_payment_due.templ`, Line: 291, Col: 104}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 				if templ_7745c5c3_Err != nil {

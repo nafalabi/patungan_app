@@ -63,6 +63,7 @@ func main() {
 		err = db.AutoMigrate(
 			&models.User{},
 			&models.Plan{},
+			&models.PaymentBillingPeriod{},
 			&models.PaymentDue{},
 			&models.UserPayment{},
 			&models.Refund{},

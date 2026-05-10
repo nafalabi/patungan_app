@@ -4,13 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/google/uuid"
-	"gorm.io/gorm"
 	"log"
 	"os"
 	"patungan_app_echo/internal/models"
 	"patungan_app_echo/internal/modules/notification"
 	"time"
+
+	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 // ProcessPlanScheduleArgs defines the arguments for a plan schedule task
@@ -70,6 +71,19 @@ func (t *ProcessPlanScheduleTaskDef) HandleExecution(ctx context.Context, db *go
 	}
 
 	pricePerPortion := plan.TotalPrice / float64(totalPortions)
+	periodName := task.Due.Format("January 2006")
+
+	var period models.PaymentBillingPeriod
+	if err := db.Where(models.PaymentBillingPeriod{
+		PlanID:  plan.ID,
+		DueDate: task.Due,
+	}).FirstOrCreate(&period, models.PaymentBillingPeriod{
+		PlanID:  plan.ID,
+		DueDate: task.Due,
+		Name:    periodName,
+	}).Error; err != nil {
+		return nil, fmt.Errorf("failed to create/fetch billing period: %w", err)
+	}
 
 	var createdDues []uint
 	var notificationUsers []notification.NotificationUser
@@ -83,13 +97,14 @@ func (t *ProcessPlanScheduleTaskDef) HandleExecution(ctx context.Context, db *go
 		amount := pricePerPortion * float64(p.Portion)
 
 		due := models.PaymentDue{
-			PlanID:              plan.ID,
-			UserID:              p.UserID,
-			Portion:             p.Portion,
-			CalculatedPayAmount: amount,
-			PaymentStatus:       models.PaymentStatusPending,
-			DueDate:             task.Due,
-			UUID:                uuid.New().String(),
+			PlanID:                 plan.ID,
+			UserID:                 p.UserID,
+			Portion:                p.Portion,
+			CalculatedPayAmount:    amount,
+			PaymentStatus:          models.PaymentStatusPending,
+			DueDate:                task.Due,
+			UUID:                   uuid.New().String(),
+			PaymentBillingPeriodID: period.ID,
 		}
 		if err := db.Create(&due).Error; err != nil {
 			log.Printf("Failed to create models.PaymentDue for user %d: %v", p.UserID, err)
@@ -112,7 +127,7 @@ func (t *ProcessPlanScheduleTaskDef) HandleExecution(ctx context.Context, db *go
 		notifArgs := notification.SendNotificationArgs{
 			Users:         notificationUsers,
 			NotifTemplate: "Halo $name, tagihan untuk plan $plan_name sudah jatuh tempo. Yuk segera dibayar di $paymentlink",
-			Subject:       "Tagihan models.Plan " + plan.Name,
+			Subject:       "Tagihan Plan " + plan.Name,
 			PlanName:      plan.Name,
 			Amount:        pricePerPortion,
 			DueDate:       task.Due.Format("02 Jan 2006"),

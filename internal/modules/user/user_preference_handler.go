@@ -2,12 +2,13 @@ package user
 
 import (
 	"fmt"
-	"github.com/labstack/echo/v4"
-	"gorm.io/gorm"
 	"net/http"
 	"patungan_app_echo/internal/models"
 	user_pages "patungan_app_echo/internal/modules/user/pages"
 	"strconv"
+
+	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 type UserPreferenceHandler struct {
@@ -45,7 +46,7 @@ func (h *UserPreferenceHandler) GetUserPreference(c echo.Context) error {
 	// Retrieve user name for display purpose
 	var user models.User
 	if err := h.DB.First(&user, userID).Error; err != nil {
-		return c.String(http.StatusNotFound, "models.User not found")
+		return c.String(http.StatusNotFound, "User not found")
 	}
 
 	// Render the templ component

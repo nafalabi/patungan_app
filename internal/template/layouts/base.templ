@@ -39,6 +39,13 @@ templ Base(props BaseProps) {
 			</div>
 			<script>
 			lucide.createIcons();
+			
+			// Re-initialize Lucide icons after HTMX content swap
+			document.body.addEventListener('htmx:afterOnLoad', function(evt) {
+				if (window.lucide) {
+					lucide.createIcons();
+				}
+			});
 
 			// Global logout handler
 			document.addEventListener('click', async (e) => {

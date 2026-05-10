@@ -1,17 +1,18 @@
 package plan
 
 import (
-	"github.com/labstack/echo/v4"
-	"gorm.io/gorm"
 	"net/http"
+	"patungan_app_echo/internal/middleware"
 	"patungan_app_echo/internal/models"
 	plan_pages "patungan_app_echo/internal/modules/plan/pages"
 	"patungan_app_echo/internal/services/cache"
-	"patungan_app_echo/internal/middleware"
 	types "patungan_app_echo/internal/template/types"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 type PlanHandler struct {
@@ -115,7 +116,7 @@ func (h *PlanHandler) ListPlans(c echo.Context) error {
 	}
 
 	props := plan_pages.PlansListProps{
-		Title:       "models.Plan Management",
+		Title:       "Plan Management",
 		ActiveNav:   "plans",
 		Breadcrumbs: breadcrumbs,
 		UserEmail:   middleware.GetString(c, "userEmail"),
@@ -145,11 +146,11 @@ func (h *PlanHandler) CreatePlanPage(c echo.Context) error {
 	breadcrumbs := []types.Breadcrumb{
 		{Title: "Home", URL: "/"},
 		{Title: "Plans", URL: "/plans"},
-		{Title: "Create models.Plan", URL: ""},
+		{Title: "Create Plan", URL: ""},
 	}
 
 	props := plan_pages.PlanFormProps{
-		Title:              "Create New models.Plan",
+		Title:              "Create New Plan",
 		ActiveNav:          "plans",
 		Breadcrumbs:        breadcrumbs,
 		UserEmail:          middleware.GetString(c, "userEmail"),
@@ -173,7 +174,7 @@ func (h *PlanHandler) StorePlan(c echo.Context) error {
 		breadcrumbs := []types.Breadcrumb{
 			{Title: "Home", URL: "/"},
 			{Title: "Plans", URL: "/plans"},
-			{Title: "Create models.Plan", URL: ""},
+			{Title: "Create Plan", URL: ""},
 		}
 
 		priceStr := c.FormValue("total_price")
@@ -211,7 +212,7 @@ func (h *PlanHandler) StorePlan(c echo.Context) error {
 		}
 
 		props := plan_pages.PlanFormProps{
-			Title:               "Create New models.Plan",
+			Title:               "Create New Plan",
 			ActiveNav:           "plans",
 			Breadcrumbs:         breadcrumbs,
 			UserEmail:           middleware.GetString(c, "userEmail"),
@@ -229,7 +230,7 @@ func (h *PlanHandler) StorePlan(c echo.Context) error {
 
 	name := strings.TrimSpace(c.FormValue("name"))
 	if name == "" {
-		return renderError("models.Plan name is required")
+		return renderError("Plan name is required")
 	}
 
 	priceStr := c.FormValue("total_price")
@@ -330,11 +331,11 @@ func (h *PlanHandler) EditPlanPage(c echo.Context) error {
 	breadcrumbs := []types.Breadcrumb{
 		{Title: "Home", URL: "/"},
 		{Title: "Plans", URL: "/plans"},
-		{Title: "Edit models.Plan", URL: ""},
+		{Title: "Edit Plan", URL: ""},
 	}
 
 	props := plan_pages.PlanFormProps{
-		Title:              "Edit models.Plan",
+		Title:              "Edit Plan",
 		ActiveNav:          "plans",
 		Breadcrumbs:        breadcrumbs,
 		UserEmail:          middleware.GetString(c, "userEmail"),
@@ -360,7 +361,7 @@ func (h *PlanHandler) UpdatePlan(c echo.Context) error {
 	id := c.Param("id")
 	var plan models.Plan
 	if err := h.db.First(&plan, id).Error; err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, "models.Plan not found")
+		return echo.NewHTTPError(http.StatusNotFound, "Plan not found")
 	}
 
 	// Authorization Check & Data Integrity Logic
@@ -513,7 +514,7 @@ func (h *PlanHandler) GetSchedulePopup(c echo.Context) error {
 	id := c.Param("id")
 	var plan models.Plan
 	if err := h.db.Preload("ScheduledTask").First(&plan, id).Error; err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, "models.Plan not found")
+		return echo.NewHTTPError(http.StatusNotFound, "Plan not found")
 	}
 
 	return plan_pages.SchedulePopup(plan).Render(c.Request().Context(), c.Response())
@@ -524,7 +525,7 @@ func (h *PlanHandler) SchedulePlan(c echo.Context) error {
 	id := c.Param("id")
 	var plan models.Plan
 	if err := h.db.Preload("ScheduledTask").First(&plan, id).Error; err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, "models.Plan not found")
+		return echo.NewHTTPError(http.StatusNotFound, "Plan not found")
 	}
 
 	due := plan.PlanStartDate
@@ -579,7 +580,7 @@ func (h *PlanHandler) DisableSchedulePlan(c echo.Context) error {
 	id := c.Param("id")
 	var plan models.Plan
 	if err := h.db.Preload("ScheduledTask").First(&plan, id).Error; err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, "models.Plan not found")
+		return echo.NewHTTPError(http.StatusNotFound, "Plan not found")
 	}
 
 	if plan.ScheduledTaskID != nil && plan.ScheduledTask != nil {

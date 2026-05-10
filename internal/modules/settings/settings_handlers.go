@@ -1,14 +1,15 @@
 package settings
 
 import (
-	"github.com/labstack/echo/v4"
-	"gorm.io/gorm"
 	"net/http"
+	"patungan_app_echo/internal/middleware"
 	"patungan_app_echo/internal/models"
 	settings_pages "patungan_app_echo/internal/modules/settings/pages"
 	"patungan_app_echo/internal/services/payment_gateway"
-	"patungan_app_echo/internal/middleware"
 	types "patungan_app_echo/internal/template/types"
+
+	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 type SettingsHandler struct {
@@ -38,7 +39,7 @@ func (h *SettingsHandler) GetSettings(c echo.Context) error {
 	}
 
 	props := settings_pages.PaymentSettingsProps{
-		Title:       "Application models.Settings",
+		Title:       "Application Settings",
 		ActiveNav:   "settings",
 		Breadcrumbs: breadcrumbs,
 		UserEmail:   middleware.GetString(c, "userEmail"),
