@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 )
 
 type MayarGateway struct {
@@ -116,7 +117,7 @@ func (g *MayarGateway) CheckTransaction(paymentID string) (*TransactionStatusRes
 	json.Unmarshal(body, &mayarStatus)
 
 	status := StatusUnknown
-	switch mayarStatus.Data.Status {
+	switch strings.ToLower(mayarStatus.Data.Status) {
 	case "unpaid":
 		status = StatusPending
 	case "paid":
