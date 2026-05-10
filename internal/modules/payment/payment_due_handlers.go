@@ -120,7 +120,7 @@ func (h *PaymentDueHandler) renderByPlans(c echo.Context) error {
 	h.db.Table("plans").
 		Select("plans.*").
 		Joins("JOIN (SELECT plan_id, MAX(due_date) as latest FROM payment_dues GROUP BY plan_id) as ld ON ld.plan_id = plans.id").
-		Order("ld.latest DESC").
+		Order("ld.latest DESC, plans.id ASC").
 		Limit(limit).
 		Offset(offset).
 		Find(&plans)
@@ -194,7 +194,7 @@ func (h *PaymentDueHandler) renderByPeriods(c echo.Context) error {
 	}
 
 	var periods []models.PaymentBillingPeriod
-	h.db.Order("due_date DESC").Limit(limit).Offset(offset).Find(&periods)
+	h.db.Order("due_date DESC, id DESC").Limit(limit).Offset(offset).Find(&periods)
 
 	var periodWithPlans []payment_pages.PeriodWithPlans
 	for _, period := range periods {
@@ -205,6 +205,7 @@ func (h *PaymentDueHandler) renderByPeriods(c echo.Context) error {
 			Joins("JOIN payment_dues ON payment_dues.plan_id = plans.id").
 			Where("payment_dues.payment_billing_period_id = ?", period.ID).
 			Group("plans.id").
+			Order("plans.id ASC").
 			Limit(3).
 			Find(&plans)
 
@@ -255,7 +256,7 @@ func (h *PaymentDueHandler) renderByUsers(c echo.Context) error {
 	h.db.Table("users").
 		Select("users.*").
 		Joins("JOIN (SELECT user_id, MAX(due_date) as latest FROM payment_dues GROUP BY user_id) as ld ON ld.user_id = users.id").
-		Order("ld.latest DESC").
+		Order("ld.latest DESC, users.id ASC").
 		Limit(limit).
 		Offset(offset).
 		Find(&users)
