@@ -28,10 +28,12 @@ type PaymentDue struct {
 	UUID                string    `gorm:"uniqueIndex;type:uuid;default:gen_random_uuid()" json:"uuid"`
 	CalculatedPayAmount float64   `gorm:"type:decimal(15,2)" json:"calculated_pay_amount"`
 	PaymentStatus       string    `gorm:"type:varchar(50)" json:"payment_status"` // e.g., "pending", "paid", "overdue"
+	PaymentBillingPeriodID uint      `gorm:"index" json:"payment_billing_period_id"`
 
 	// Relationships
 	Plan        Plan         `gorm:"foreignKey:PlanID" json:"plan,omitempty"`
-	User        User         `gorm:"foreignKey:UserID" json:"user,omitempty"`
-	UserPayment *UserPayment `gorm:"foreignKey:PaymentDueID" json:"user_payment,omitempty"`
+	User        User                  `gorm:"foreignKey:UserID" json:"user,omitempty"`
+	BillingPeriod *PaymentBillingPeriod `gorm:"foreignKey:PaymentBillingPeriodID" json:"billing_period,omitempty"`
+	UserPayment *UserPayment          `gorm:"foreignKey:PaymentDueID" json:"user_payment,omitempty"`
 	Refund      *Refund      `gorm:"foreignKey:PaymentDueID" json:"refund,omitempty"`
 }

@@ -10,9 +10,24 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"gorm.io/gorm"
 
-	"patungan_app_echo/internal/handlers"
 	authMiddleware "patungan_app_echo/internal/middleware"
-	"patungan_app_echo/internal/services"
+
+	"patungan_app_echo/internal/services/payment_gateway"
+
+	auth_mod "patungan_app_echo/internal/modules/auth"
+	"patungan_app_echo/internal/modules/dashboard"
+	"patungan_app_echo/internal/modules/payment"
+	"patungan_app_echo/internal/modules/plan"
+	"patungan_app_echo/internal/modules/settings"
+	"patungan_app_echo/internal/modules/user"
+
+	"patungan_app_echo/internal/models"
+	"patungan_app_echo/internal/services/cache"
+	"patungan_app_echo/internal/services/database"
+	"patungan_app_echo/internal/services/email"
+	"patungan_app_echo/internal/services/firebase"
+	"patungan_app_echo/internal/services/payment_service"
+	"patungan_app_echo/internal/services/waha"
 )
 
 func main() {
@@ -27,7 +42,7 @@ func main() {
 		credPath = "./firebase-service-account.json"
 	}
 
-	authClient, err := services.InitFirebase(credPath)
+	authClient, err := firebase.InitFirebase(credPath)
 	if err != nil {
 		log.Printf("Warning: Firebase initialization failed: %v", err)
 		log.Println("Auth features will not work until valid credentials are provided")
@@ -38,25 +53,58 @@ func main() {
 	databaseURL := os.Getenv("DATABASE_URL")
 	if databaseURL != "" {
 		var err error
-		db, err = services.InitDB(databaseURL)
+		db, err = database.InitDB(databaseURL)
 		if err != nil {
 			log.Fatalf("Failed to connect to database: %v", err)
 		}
 
 		// Run auto-migration
-		if err := services.AutoMigrate(db); err != nil {
+		log.Println("Running database migrations...")
+		err = db.AutoMigrate(
+			&models.User{},
+			&models.Plan{},
+			&models.PaymentBillingPeriod{},
+			&models.PaymentDue{},
+			&models.UserPayment{},
+			&models.Refund{},
+			&models.PlanParticipant{},
+			&models.ScheduledTask{},
+			&models.ScheduledTaskHistory{},
+			&models.PaymentCallbackHistory{},
+			&models.PaymentSession{},
+			&models.UserNotifPreference{},
+			&models.Settings{},
+		)
+		if err != nil {
 			log.Fatalf("Failed to run database migrations: %v", err)
+		}
+		log.Println("Database migrations completed")
+
+		// Seed initial settings if none exist
+		var count int64
+		db.Model(&models.Settings{}).Count(&count)
+		if count == 0 {
+			db.Create(&models.Settings{
+				ActivePaymentGateway: models.PaymentGatewayMidtrans,
+				MidtransMerchantID:   os.Getenv("MIDTRANS_MERCHANT_ID"),
+				MidtransServerKey:    os.Getenv("MIDTRANS_SERVER_KEY"),
+				MidtransClientKey:    os.Getenv("MIDTRANS_CLIENT_KEY"),
+				MidtransIsProduction: os.Getenv("MIDTRANS_IS_PRODUCTION") == "true",
+				MayarAPIKey:          os.Getenv("MAYAR_API_KEY"),
+				MayarIsProduction:    os.Getenv("MAYAR_IS_PRODUCTION") == "true",
+			})
+			log.Println("Initialized default settings from environment variables")
 		}
 	} else {
 		log.Println("Warning: DATABASE_URL not set, database features disabled")
 	}
 
 	// Initialize Redis
-	var cache *services.RedisCache
+	var redisCache *cache.RedisCache
 	redisURL := os.Getenv("REDIS_URL")
 	if redisURL != "" {
 		var err error
-		cache, err = services.NewRedisCache(redisURL)
+		redisCache, err = cache.NewRedisCache(redisURL)
 		if err != nil {
 			log.Printf("Warning: Redis initialization failed: %v", err)
 			log.Println("Caching features will not work until Redis is available")
@@ -65,14 +113,13 @@ func main() {
 		log.Println("Warning: REDIS_URL not set, caching disabled")
 	}
 
-	// Initialize Midtrans
-	midtransService := services.NewMidtransService()
+	// Initialize Payment Gateways (now handled dynamically within PaymentService)
 
 	// Initialize Email
-	emailService := services.NewEmailService()
+	emailService := email.NewEmailService()
 
 	// Initialize WAHA
-	wahaService := services.NewWahaService()
+	wahaService := waha.NewWahaService()
 
 	// Create Echo instance
 	e := echo.New()
@@ -87,7 +134,7 @@ func main() {
 	// Inject services into context
 	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			c.Set("cache", cache)
+			c.Set("cache", redisCache)
 			c.Set("db", db)
 			c.Set("email", emailService)
 			c.Set("waha", wahaService)
@@ -99,22 +146,24 @@ func main() {
 	e.Static("/static", "web/static")
 
 	// Initialize PaymentService
-	paymentService := services.NewPaymentService(db, midtransService)
+	gatewayManager := payment_gateway.NewGatewayManager(db)
+	paymentService := payment_service.NewPaymentService(db, gatewayManager)
 
 	// Initialize handlers
-	authHandler := handlers.NewAuthHandler(authClient, db)
-	dashboardHandler := handlers.NewDashboardHandler(db)
-	planHandler := handlers.NewPlanHandler(db, cache)
-	userHandler := handlers.NewUserHandler(db, cache)
-	paymentDueHandler := handlers.NewPaymentDueHandler(db, cache, midtransService, paymentService)
-	userPrefHandler := handlers.NewUserPreferenceHandler(db)
+	authHandler := auth_mod.NewAuthHandler(authClient, db)
+	dashboardHandler := dashboard.NewDashboardHandler(db)
+	planHandler := plan.NewPlanHandler(db, redisCache)
+	userHandler := user.NewUserHandler(db, redisCache)
+	paymentDueHandler := payment.NewPaymentDueHandler(db, redisCache, paymentService)
+	userPrefHandler := user.NewUserPreferenceHandler(db)
+	settingsHandler := settings.NewSettingsHandler(db, gatewayManager)
 
 	// Public routes
 	e.GET("/login", authHandler.LoginPage)
 	e.POST("/auth/login", authHandler.HandleLogin)
 	e.POST("/auth/logout", authHandler.HandleLogout)
 
-	publicHandler := handlers.NewPublicHandler(db, cache, midtransService, paymentService)
+	publicHandler := payment.NewPublicHandler(db, redisCache, paymentService)
 	e.GET("/p/:uuid", publicHandler.ShowPaymentDue)
 	e.POST("/p/:uuid/initiate", publicHandler.InitiatePayment)
 	e.GET("/p/:uuid/active-session", publicHandler.CheckActiveSession)
@@ -122,10 +171,10 @@ func main() {
 
 	// Protected routes
 	protected := e.Group("")
-	protected.Use(authMiddleware.RequireAuth(authClient, db, cache))
+	protected.Use(authMiddleware.RequireAuth(authClient, db, redisCache))
 	protected.GET("/dashboard", dashboardHandler.Dashboard)
 
-	// Plan routes
+	// models.Plan routes
 	protected.GET("/plans", planHandler.ListPlans)
 	protected.GET("/plans/create", planHandler.CreatePlanPage)
 	protected.POST("/plans", planHandler.StorePlan)
@@ -136,7 +185,7 @@ func main() {
 	protected.POST("/plans/:id/schedule", planHandler.SchedulePlan)
 	protected.POST("/plans/:id/disable-schedule", planHandler.DisableSchedulePlan)
 
-	// User routes
+	// models.User routes
 	protected.GET("/users", userHandler.ListUsers)
 	protected.GET("/users/create", userHandler.CreateUserPage)
 	protected.POST("/users", userHandler.StoreUser)
@@ -144,20 +193,23 @@ func main() {
 	protected.POST("/users/:id/update", userHandler.UpdateUser)
 	protected.POST("/users/:id/delete", userHandler.DeleteUser)
 
-	// User Preference (HTMX)
+	// models.User Preference (HTMX)
 	protected.GET("/users/:id/preference", userPrefHandler.GetUserPreference)
 	protected.PUT("/users/:id/preference", userPrefHandler.UpdateUserPreference)
 
 	// Payment dues routes
 	protected.GET("/payment-dues", paymentDueHandler.ListPaymentDues)
-	protected.POST("/payments/initiate/:id", paymentDueHandler.InitiatePayment)
-	protected.GET("/api/payments/:id/active-session", paymentDueHandler.CheckActiveSession)
 	protected.GET("/payments/:id/status", paymentDueHandler.CheckPaymentStatus)
 	protected.POST("/payments/:id/mark-complete", paymentDueHandler.HandleMarkAsComplete)
+
+	// models.Settings routes (Admin only)
+	protected.GET("/admin/settings", settingsHandler.GetSettings)
+	protected.POST("/admin/settings", settingsHandler.UpdateSettings)
 
 	// Webhook does not need auth protection, so it should be outside 'protected' group or explicitly allowed
 	// However, we usually put it under public routes
 	e.POST("/payments/callback/midtrans", paymentDueHandler.MidtransCallback)
+	e.POST("/payments/callback/mayar", paymentDueHandler.MayarCallback)
 
 	// Redirect root to dashboard (or login if not authenticated)
 	e.GET("/", func(c echo.Context) error {
