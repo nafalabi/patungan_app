@@ -71,6 +71,16 @@ A robust web application designed to manage shared expenses, recurring plans, an
         -   Email: `admin@admin.com`
         -   Password: `admin`
 
+### 🌐 Exposing to Internet (Development)
+
+To expose your local development server to the internet (useful for testing payment webhooks or sharing progress), you can use the provided Cloudflare Tunnel script:
+
+```bash
+./scripts/tunnel.sh [PORT]
+```
+
+By default, it exposes port `8080`. This requires Docker to be installed.
+
 ## 💻 Development
 
 The project uses **Air** for live reloading during development.
