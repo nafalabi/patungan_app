@@ -72,7 +72,7 @@ func (h *PaymentDueHandler) ListPaymentDues(c echo.Context) error {
 	}
 
 	// Build base query with filters
-	query := h.db.Model(&models.PaymentDue{}).Preload("Plan").Preload("User")
+	query := h.db.Model(&models.PaymentDue{}).Preload("Plan").Preload("User").Preload("BillingPeriod")
 
 	if filterPlan > 0 {
 		query = query.Where("plan_id = ?", filterPlan)
@@ -136,25 +136,89 @@ func (h *PaymentDueHandler) ListPaymentDues(c echo.Context) error {
 	// Group data based on view mode
 	// Group data based on view mode
 	var planWithDues []payment_pages.PlanWithDues
+	var periodWithPlans []payment_pages.PeriodWithPlans
 	var userWithDues []payment_pages.UserWithDues
 	var flatDues []models.PaymentDue
 
 	if viewMode == "plans" {
-		// Group by plans
+		// Group by plans and then by billing periods
 		planMap := make(map[uint]*payment_pages.PlanWithDues)
+		// To maintain period grouping, we can use a nested map or sort by date later
+		// Let's use a nested map for now: planID -> billingPeriodID -> PeriodWithDues
+		periodGroupMap := make(map[uint]map[uint]*payment_pages.PeriodWithDues)
+
 		for _, due := range paymentDues {
 			if _, exists := planMap[due.PlanID]; !exists {
 				planMap[due.PlanID] = &payment_pages.PlanWithDues{
+					Plan:    due.Plan,
+					Periods: []payment_pages.PeriodWithDues{},
+				}
+				periodGroupMap[due.PlanID] = make(map[uint]*payment_pages.PeriodWithDues)
+			}
+
+			periodID := due.PaymentBillingPeriodID
+			if _, exists := periodGroupMap[due.PlanID][periodID]; !exists {
+				var period models.PaymentBillingPeriod
+				if due.BillingPeriod != nil {
+					period = *due.BillingPeriod
+				} else {
+					period = models.PaymentBillingPeriod{ID: 0}
+				}
+
+				periodGroupMap[due.PlanID][periodID] = &payment_pages.PeriodWithDues{
+					Period: period,
+					Dues:   []models.PaymentDue{},
+				}
+			}
+			periodGroupMap[due.PlanID][periodID].Dues = append(periodGroupMap[due.PlanID][periodID].Dues, due)
+		}
+
+		// Convert nested maps back to slices
+		for planID, pwd := range planMap {
+			for _, periodWithDues := range periodGroupMap[planID] {
+				pwd.Periods = append(pwd.Periods, *periodWithDues)
+			}
+			// Sort periods by date (optional but recommended)
+			planWithDues = append(planWithDues, *pwd)
+		}
+	} else if viewMode == "periods" {
+		// Group by billing periods and then by plans
+		periodMap := make(map[uint]*payment_pages.PeriodWithPlans)
+		// Nested map: periodID -> planID -> PlanWithDuesInPeriod
+		periodPlanGroupMap := make(map[uint]map[uint]*payment_pages.PlanWithDuesInPeriod)
+
+		for _, due := range paymentDues {
+			periodID := due.PaymentBillingPeriodID
+			if _, exists := periodMap[periodID]; !exists {
+				var period models.PaymentBillingPeriod
+				if due.BillingPeriod != nil {
+					period = *due.BillingPeriod
+				} else {
+					period = models.PaymentBillingPeriod{ID: 0}
+				}
+
+				periodMap[periodID] = &payment_pages.PeriodWithPlans{
+					Period: period,
+					Plans:  []payment_pages.PlanWithDuesInPeriod{},
+				}
+				periodPlanGroupMap[periodID] = make(map[uint]*payment_pages.PlanWithDuesInPeriod)
+			}
+
+			if _, exists := periodPlanGroupMap[periodID][due.PlanID]; !exists {
+				periodPlanGroupMap[periodID][due.PlanID] = &payment_pages.PlanWithDuesInPeriod{
 					Plan: due.Plan,
 					Dues: []models.PaymentDue{},
 				}
 			}
-			planMap[due.PlanID].Dues = append(planMap[due.PlanID].Dues, due)
+			periodPlanGroupMap[periodID][due.PlanID].Dues = append(periodPlanGroupMap[periodID][due.PlanID].Dues, due)
 		}
 
-		// Convert map to slice
-		for _, pwd := range planMap {
-			planWithDues = append(planWithDues, *pwd)
+		// Convert to slices
+		for periodID, pwp := range periodMap {
+			for _, planWithDuesInPeriod := range periodPlanGroupMap[periodID] {
+				pwp.Plans = append(pwp.Plans, *planWithDuesInPeriod)
+			}
+			periodWithPlans = append(periodWithPlans, *pwp)
 		}
 	} else if viewMode == "users" {
 		// Group by users
@@ -199,6 +263,7 @@ func (h *PaymentDueHandler) ListPaymentDues(c echo.Context) error {
 		UserEmail:     middleware.GetString(c, "userEmail"),
 		UserUIDString: middleware.GetString(c, "userUID"),
 		PlanWithDues:  planWithDues,
+		PeriodWithPlans: periodWithPlans,
 		UserWithDues:  userWithDues,
 		FlatDues:      flatDues,
 		ViewMode:      viewMode,

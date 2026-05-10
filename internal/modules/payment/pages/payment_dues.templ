@@ -8,10 +8,28 @@ import (
 	types "patungan_app_echo/internal/template/types"
 )
 
-// PlanWithDues groups a plan with its payment dues
+// PeriodWithDues groups a billing period with its payment dues
+type PeriodWithDues struct {
+	Period models.PaymentBillingPeriod
+	Dues   []models.PaymentDue
+}
+
+// PlanWithDues groups a plan with its billing periods
 type PlanWithDues struct {
+	Plan    models.Plan
+	Periods []PeriodWithDues
+}
+
+// PlanWithDuesInPeriod groups a plan and its dues within a specific period
+type PlanWithDuesInPeriod struct {
 	Plan models.Plan
 	Dues []models.PaymentDue
+}
+
+// PeriodWithPlans groups a billing period with its plans and their dues
+type PeriodWithPlans struct {
+	Period models.PaymentBillingPeriod
+	Plans  []PlanWithDuesInPeriod
 }
 
 // UserWithDues groups a user with their payment dues
@@ -33,6 +51,7 @@ type PaymentDuesProps struct {
 
 	// Data
 	PlanWithDues []PlanWithDues
+	PeriodWithPlans []PeriodWithPlans
 	UserWithDues []UserWithDues
 	FlatDues     []models.PaymentDue
 
@@ -88,6 +107,16 @@ templ PaymentDues(props PaymentDuesProps) {
 						}
 					>
 						View by Plans
+					</a>
+					<a
+						href={ templ.SafeURL(buildURL("/payment-dues", "periods", props.FilterPlan, props.FilterUser, props.SortBy, props.SortOrder)) }
+						class={
+							"sm:flex-none text-center px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap",
+							templ.KV("bg-primary text-white", props.ViewMode == "periods"),
+							templ.KV("bg-bg-card text-text-secondary border border-border hover:bg-bg-hover", props.ViewMode != "periods"),
+						}
+					>
+						View by Periods
 					</a>
 					<a
 						href={ templ.SafeURL(buildURL("/payment-dues", "users", props.FilterPlan, props.FilterUser, props.SortBy, props.SortOrder)) }
@@ -176,6 +205,8 @@ templ PaymentDues(props PaymentDuesProps) {
 		<!-- Content -->
 		if props.ViewMode == "plans" {
 			@ViewByPlans(props.PlanWithDues, props.CurrentUserID, props.CurrentUserType)
+		} else if props.ViewMode == "periods" {
+			@ViewByPeriods(props.PeriodWithPlans, props.CurrentUserID, props.CurrentUserType)
 		} else if props.ViewMode == "users" {
 			@ViewByUsers(props.UserWithDues, props.CurrentUserID, props.CurrentUserType)
 		} else {
@@ -243,23 +274,40 @@ templ ViewByPlans(planWithDues []PlanWithDues, currentUserID uint, currentUserTy
 			No payment dues found.
 		</div>
 	} else {
-		<div class="space-y-4">
+		<div class="space-y-6">
 			for _, pwd := range planWithDues {
 				<div class="bg-bg-card rounded-xl border border-border overflow-hidden">
 					<!-- Plan header -->
-					<div class="bg-bg-body border-b border-border p-4">
+					<div class="bg-primary/5 border-b border-border p-4">
 						<div class="flex justify-between items-center">
 							<div>
-								<h3 class="text-lg font-semibold text-text-primary">{ pwd.Plan.Name }</h3>
+								<h3 class="text-xl font-bold text-text-primary">{ pwd.Plan.Name }</h3>
 								<p class="text-sm text-text-secondary">Total Price: Rp { fmt.Sprintf("%.0f", pwd.Plan.TotalPrice) }</p>
 							</div>
-							<span class="text-sm text-text-secondary">{ fmt.Sprintf("%d dues", len(pwd.Dues)) }</span>
 						</div>
 					</div>
-					<!-- Dues list -->
-					<div class="divide-y divide-border">
-						for _, due := range pwd.Dues {
-							@PaymentDueItem(due, "user", currentUserID, currentUserType)
+					<!-- Periods list -->
+					<div class="p-4 space-y-4">
+						for _, pwd_period := range pwd.Periods {
+							<div class="border border-border rounded-lg overflow-hidden bg-bg-body">
+								<div class="bg-bg-hover/50 px-4 py-2 border-b border-border flex justify-between items-center">
+									<h4 class="font-semibold text-text-primary">
+										if pwd_period.Period.ID != 0 {
+											{ pwd_period.Period.Name }
+										} else {
+											{ pwd_period.Dues[0].DueDate.Format("January 2006") } (Uncategorized)
+										}
+									</h4>
+									<span class="text-xs bg-bg-card px-2 py-1 rounded-full border border-border text-text-secondary">
+										{ fmt.Sprintf("%d dues", len(pwd_period.Dues)) }
+									</span>
+								</div>
+								<div class="divide-y divide-border">
+									for _, due := range pwd_period.Dues {
+										@PaymentDueItem(due, "user", currentUserID, currentUserType)
+									}
+								</div>
+							</div>
 						}
 					</div>
 				</div>
@@ -434,6 +482,60 @@ func buildURLWithPage(base string, view string, filterPlan uint, filterUser uint
 		url += fmt.Sprintf("&page=%d", page)
 	}
 	return url
+}
+
+// ViewByPeriods renders payment dues grouped by billing periods first, then plans
+templ ViewByPeriods(periodWithPlans []PeriodWithPlans, currentUserID uint, currentUserType models.UserType) {
+	if len(periodWithPlans) == 0 {
+		<div class="bg-bg-card rounded-xl border border-border p-8 text-center text-text-secondary">
+			No payment dues found.
+		</div>
+	} else {
+		<div class="space-y-8">
+			for _, pwp := range periodWithPlans {
+				<div class="bg-bg-card rounded-xl border border-border overflow-hidden shadow-sm">
+					<!-- Period header -->
+					<div class="bg-primary/10 border-b border-border p-4">
+						<div class="flex justify-between items-center">
+							<div class="flex items-center gap-3">
+								<div class="p-2 bg-primary/10 rounded-lg text-primary">
+									<i data-lucide="calendar" class="w-5 h-5"></i>
+								</div>
+								<h3 class="text-xl font-bold text-text-primary">
+									if pwp.Period.ID != 0 {
+										{ pwp.Period.Name }
+									} else {
+										{ pwp.Plans[0].Dues[0].DueDate.Format("January 2006") } (Uncategorized)
+									}
+								</h3>
+							</div>
+						</div>
+					</div>
+					<!-- Plans list in this period -->
+					<div class="p-4 space-y-6">
+						for _, plan_dues := range pwp.Plans {
+							<div class="border border-border rounded-lg overflow-hidden bg-bg-body">
+								<div class="bg-bg-hover/30 px-4 py-2 border-b border-border flex justify-between items-center">
+									<h4 class="font-semibold text-text-primary flex items-center gap-2">
+										<i data-lucide="layout" class="w-4 h-4 text-text-secondary"></i>
+										{ plan_dues.Plan.Name }
+									</h4>
+									<span class="text-xs bg-bg-card px-2 py-1 rounded-full border border-border text-text-secondary">
+										{ fmt.Sprintf("%d dues", len(plan_dues.Dues)) }
+									</span>
+								</div>
+								<div class="divide-y divide-border">
+									for _, due := range plan_dues.Dues {
+										@PaymentDueItem(due, "user", currentUserID, currentUserType)
+									}
+								</div>
+							</div>
+						}
+					</div>
+				</div>
+			}
+		</div>
+	}
 }
 
 // min returns the minimum of two integers
