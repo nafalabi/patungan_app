@@ -7,10 +7,11 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm ci
 
-# Copy tailwind config and the raw CSS files
+# Copy tailwind config and the source files to scan for classes
 COPY tailwind.config.js ./
 COPY web/static/css/ ./web/static/css/
-COPY web/templates/ ./web/templates/
+# Templates and components are in internal/
+COPY internal/ ./internal/
 
 # Build minified CSS
 RUN npx tailwindcss -i ./web/static/css/input.css -o ./web/static/css/tailwind.css --minify
@@ -37,7 +38,7 @@ RUN CGO_ENABLED=0 go build -ldflags="-w -s" -o /app/server cmd/server/main.go
 RUN CGO_ENABLED=0 go build -ldflags="-w -s" -o /app/worker cmd/worker/main.go
 
 # --- Stage 3: Runtime ---
-FROM alpine:latest
+FROM alpine:3.19
 
 WORKDIR /app
 
