@@ -7,7 +7,7 @@ A robust web application designed to manage shared expenses, recurring plans, an
 -   **User Management**: Secure authentication via Firebase.
 -   **Plan Management**: Create, edit, and schedule recurring billing plans.
 -   **Payment Dues**: Automatically generate payment dues for plan participants.
--   **Payment Integration**: Seamless integration with Midtrans for payment processing.
+-   **Payment Integration**: Multiple gateway support including Midtrans and Mayar.id.
 -   **Notification System**: Multi-channel notifications via WhatsApp (Personal & Group) and Email.
 -   **Dashboard**: Overview of active plans, recent payments, and pending dues.
 -   **Responsive UI**: Modern, high-performance interface built with Templ and HTMX, styled with TailwindCSS.
@@ -21,7 +21,7 @@ A robust web application designed to manage shared expenses, recurring plans, an
 -   **Database**: PostgreSQL
 -   **ORM**: GORM
 -   **Caching**: Redis
--   **Payment Gateway**: Midtrans
+-   **Payment Gateway**: Midtrans, Mayar.id
 -   **Notification Engine**: custom built with SMTP (Email) and [WAHA](https://waha.dev/) (WhatsApp HTTP API)
 -   **Worker System**: Internal Semaphore-based Concurrent Worker
 
@@ -52,8 +52,8 @@ A robust web application designed to manage shared expenses, recurring plans, an
     ```
     You will need to provide:
     -   Firebase Service Account (`firebase-service-account.json`)
-    -   Midtrans Server/Client Keys
     -   Database & Redis credentials (defaults provided in `docker-compose.yml` work for local dev)
+    -   *Note: Payment gateway credentials (Midtrans/Mayar) are managed via the **Admin Settings** in the dashboard. Environment variables for these are only used for initial seeding.*
 
 3.  **Firebase Setup**
     -   Place your `firebase-service-account.json` in the root directory.
@@ -71,6 +71,9 @@ A robust web application designed to manage shared expenses, recurring plans, an
         -   Email: `admin@admin.com`
         -   Password: `admin`
 
+> [!TIP]
+> After your first login, navigate to **Admin Settings** to configure your Midtrans or Mayar.id API keys.
+
 ### 🌐 Exposing to Internet (Development)
 
 To expose your local development server to the internet (useful for testing payment webhooks or sharing progress), you can use the provided Cloudflare Tunnel script:
@@ -80,6 +83,15 @@ To expose your local development server to the internet (useful for testing paym
 ```
 
 By default, it exposes port `8080`. This requires Docker to be installed.
+
+### ⚓️ Webhooks Configuration
+
+To receive real-time payment updates, configure your payment gateway dashboards with the following callback URLs:
+
+-   **Midtrans**: `https://<your-domain>/payments/callback/midtrans`
+-   **Mayar.id**: `https://<your-domain>/payments/callback/mayar`
+
+For local development, use the tunnel URL provided by the script above.
 
 ## 💻 Development
 
