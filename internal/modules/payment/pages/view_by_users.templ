@@ -16,21 +16,7 @@ templ ViewByUsers(userWithDues []UserWithDues, currentUserID uint, currentUserTy
 			@UserListItems(userWithDues, currentUserID, currentUserType)
 		</div>
 		
-		if nextOffset > 0 {
-			<div class="mt-10 flex justify-center" id="load-more-users-container">
-				<button
-					hx-get={ fmt.Sprintf("/payment-dues?view=users&offset=%d", nextOffset) }
-					hx-target="#users-container"
-					hx-swap="beforeend"
-					hx-indicator="#load-more-users-spinner"
-					class="px-6 py-3 bg-white text-text-primary border-2 border-border rounded-2xl font-bold hover:border-primary hover:text-primary transition-all duration-300 shadow-sm flex items-center gap-2"
-				>
-					<i data-lucide="user-plus" class="w-5 h-5"></i>
-					<span>Load More Users</span>
-					<div id="load-more-users-spinner" class="htmx-indicator animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full"></div>
-				</button>
-			</div>
-		}
+		@LoadMoreUsersButton(nextOffset)
 	}
 }
 
@@ -70,7 +56,7 @@ templ UserListItems(userWithDues []UserWithDues, currentUserID uint, currentUser
 									</div>
 									<h4 class="font-bold text-text-primary truncate max-w-[150px]">{ due.Plan.Name }</h4>
 								</div>
-								@PaymentStatusBadge(due.PaymentStatus)
+								@PaymentStatusIcon(due.PaymentStatus)
 							</div>
 							
 							<div class="flex justify-between items-end mt-2">
@@ -93,9 +79,22 @@ templ UserListItems(userWithDues []UserWithDues, currentUserID uint, currentUser
 			</div>
 		</div>
 	}
-	<script>
-		if (window.lucide) {
-			lucide.createIcons();
+}
+
+templ LoadMoreUsersButton(nextOffset int) {
+	<div class="mt-10 flex justify-center" id="load-more-users-container" hx-swap-oob="true">
+		if nextOffset > 0 {
+			<button
+				hx-get={ fmt.Sprintf("/payment-dues?view=users&offset=%d", nextOffset) }
+				hx-target="#users-container"
+				hx-swap="beforeend"
+				hx-indicator="#load-more-users-spinner"
+				class="px-6 py-3 bg-white text-text-primary border-2 border-border rounded-2xl font-bold hover:border-primary hover:text-primary transition-all duration-300 shadow-sm flex items-center gap-2"
+			>
+				<i data-lucide="user-plus" class="w-5 h-5"></i>
+				<span>Load More Users</span>
+				<div id="load-more-users-spinner" class="htmx-indicator animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full"></div>
+			</button>
 		}
-	</script>
+	</div>
 }

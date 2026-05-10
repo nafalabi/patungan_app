@@ -16,20 +16,7 @@ templ ViewByPeriods(periodWithPlans []PeriodWithPlans, currentUserID uint, curre
 			@PeriodListItems(periodWithPlans, currentUserID, currentUserType)
 		</div>
 		
-		if nextOffset > 0 {
-			<div class="mt-12 flex justify-center" id="load-more-periods-container">
-				<button
-					hx-get={ fmt.Sprintf("/payment-dues?view=periods&offset=%d", nextOffset) }
-					hx-target="#periods-container"
-					hx-swap="beforeend"
-					hx-indicator="#load-more-periods-spinner"
-					class="px-8 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary-hover transition-all duration-300 shadow-lg shadow-primary/20 flex items-center gap-3"
-				>
-					<span>Load Previous Periods</span>
-					<div id="load-more-periods-spinner" class="htmx-indicator animate-spin h-5 w-5 border-3 border-white border-t-transparent rounded-full"></div>
-				</button>
-			</div>
-		}
+		@LoadMorePeriodsButton(nextOffset)
 	}
 }
 
@@ -63,17 +50,26 @@ templ PeriodListItems(periodWithPlans []PeriodWithPlans, currentUserID uint, cur
 				<div id={ fmt.Sprintf("period-%d-plans", pwp.Period.ID) } class="space-y-6">
 					@PeriodPlanItems(pwp.Period.ID, pwp.Plans, currentUserID, currentUserType)
 				</div>
-				
-				// Here we could add "Load More Plans for this period" if needed, 
-				// but for now let's stick to the 3 latest plans per the user request.
 			</div>
 		</div>
 	}
-	<script>
-		if (window.lucide) {
-			lucide.createIcons();
+}
+
+templ LoadMorePeriodsButton(nextOffset int) {
+	<div class="mt-12 flex justify-center" id="load-more-periods-container" hx-swap-oob="true">
+		if nextOffset > 0 {
+			<button
+				hx-get={ fmt.Sprintf("/payment-dues?view=periods&offset=%d", nextOffset) }
+				hx-target="#periods-container"
+				hx-swap="beforeend"
+				hx-indicator="#load-more-periods-spinner"
+				class="px-8 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary-hover transition-all duration-300 shadow-lg shadow-primary/20 flex items-center gap-3"
+			>
+				<span>Load Previous Periods</span>
+				<div id="load-more-periods-spinner" class="htmx-indicator animate-spin h-5 w-5 border-3 border-white border-t-transparent rounded-full"></div>
+			</button>
 		}
-	</script>
+	</div>
 }
 
 // PeriodPlanItems renders plans within a period

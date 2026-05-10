@@ -195,20 +195,7 @@ templ PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID ui
 		class="p-5 hover:bg-bg-hover/30 transition-colors flex flex-col sm:flex-row justify-between items-center gap-4"
 	>
 		<div class="flex items-center gap-4 w-full sm:w-auto">
-			<div class={
-				"w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm",
-				templ.KV("bg-green-50 border-green-100 text-green-600", due.PaymentStatus == "paid"),
-				templ.KV("bg-yellow-50 border-yellow-100 text-yellow-600", due.PaymentStatus == "pending"),
-				templ.KV("bg-red-50 border-red-100 text-red-600", due.PaymentStatus == "overdue"),
-			}>
-				if due.PaymentStatus == "paid" {
-					<i data-lucide="check-circle-2" class="w-6 h-6"></i>
-				} else if due.PaymentStatus == "overdue" {
-					<i data-lucide="alert-circle" class="w-6 h-6"></i>
-				} else {
-					<i data-lucide="clock" class="w-6 h-6"></i>
-				}
-			</div>
+			@PaymentStatusIcon(due.PaymentStatus)
 			<div class="flex-1">
 				if displayMode == "user" {
 					<p class="font-bold text-text-primary leading-tight">{ due.User.Name }</p>
@@ -265,6 +252,30 @@ templ PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID ui
 				}
 			</div>
 		</div>
+	</div>
+}
+
+// PaymentStatusIcon renders an icon with color and tooltip based on status
+templ PaymentStatusIcon(status string) {
+	<div 
+		class={
+			"w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm transition-all duration-300",
+			templ.KV("bg-green-50 border-green-100 text-green-600", status == "paid"),
+			templ.KV("bg-yellow-50 border-yellow-100 text-yellow-600", status == "pending"),
+			templ.KV("bg-red-50 border-red-100 text-red-600", status == "overdue"),
+			templ.KV("bg-gray-50 border-gray-100 text-gray-600", status == "canceled"),
+		}
+		title={ fmt.Sprintf("Status: %s", status) }
+	>
+		if status == "paid" {
+			<i data-lucide="check-circle-2" class="w-6 h-6"></i>
+		} else if status == "overdue" {
+			<i data-lucide="alert-circle" class="w-6 h-6"></i>
+		} else if status == "canceled" {
+			<i data-lucide="x-circle" class="w-6 h-6"></i>
+		} else {
+			<i data-lucide="clock" class="w-6 h-6"></i>
+		}
 	</div>
 }
 

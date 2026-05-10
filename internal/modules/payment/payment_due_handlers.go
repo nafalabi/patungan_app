@@ -169,9 +169,14 @@ func (h *PaymentDueHandler) renderByPlans(c echo.Context) error {
 		nextOffset = 0 // No more
 	}
 
-	// If HTMX partial, render just the list items
+	// If HTMX partial, render just the list items and the new OOB button
 	if c.Request().Header.Get("HX-Request") == "true" {
-		return payment_pages.PlanListItems(planWithDues, middleware.GetUint(c, "userID"), h.getUserType(c)).Render(c.Request().Context(), c.Response())
+		userID := middleware.GetUint(c, "userID")
+		userType := h.getUserType(c)
+		if err := payment_pages.PlanListItems(planWithDues, userID, userType).Render(c.Request().Context(), c.Response()); err != nil {
+			return err
+		}
+		return payment_pages.LoadMorePlansButton(nextOffset).Render(c.Request().Context(), c.Response())
 	}
 
 	return h.renderPage(c, "plans", payment_pages.PaymentDuesProps{
@@ -224,7 +229,12 @@ func (h *PaymentDueHandler) renderByPeriods(c echo.Context) error {
 	}
 
 	if c.Request().Header.Get("HX-Request") == "true" {
-		return payment_pages.PeriodListItems(periodWithPlans, middleware.GetUint(c, "userID"), h.getUserType(c)).Render(c.Request().Context(), c.Response())
+		userID := middleware.GetUint(c, "userID")
+		userType := h.getUserType(c)
+		if err := payment_pages.PeriodListItems(periodWithPlans, userID, userType).Render(c.Request().Context(), c.Response()); err != nil {
+			return err
+		}
+		return payment_pages.LoadMorePeriodsButton(nextOffset).Render(c.Request().Context(), c.Response())
 	}
 
 	return h.renderPage(c, "periods", payment_pages.PaymentDuesProps{
@@ -272,7 +282,12 @@ func (h *PaymentDueHandler) renderByUsers(c echo.Context) error {
 	}
 
 	if c.Request().Header.Get("HX-Request") == "true" {
-		return payment_pages.UserListItems(userWithDues, middleware.GetUint(c, "userID"), h.getUserType(c)).Render(c.Request().Context(), c.Response())
+		userID := middleware.GetUint(c, "userID")
+		userType := h.getUserType(c)
+		if err := payment_pages.UserListItems(userWithDues, userID, userType).Render(c.Request().Context(), c.Response()); err != nil {
+			return err
+		}
+		return payment_pages.LoadMoreUsersButton(nextOffset).Render(c.Request().Context(), c.Response())
 	}
 
 	return h.renderPage(c, "users", payment_pages.PaymentDuesProps{
