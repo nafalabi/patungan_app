@@ -5,6 +5,7 @@ import (
 	"patungan_app_echo/internal/models"
 	"patungan_app_echo/internal/template/layouts"
 	types "patungan_app_echo/internal/template/types"
+	"patungan_app_echo/internal/template/utils"
 )
 
 // PlansListProps contains props for the plans list page
@@ -221,7 +222,7 @@ templ PlanCard(plan models.Plan) {
 			<div class="grid grid-cols-2 gap-4">
 				<div>
 					<p class="text-xs text-text-secondary mb-1">Total Price</p>
-					<p class="text-lg font-bold text-primary">Rp { fmt.Sprintf("%.0f", plan.TotalPrice) }</p>
+					<p class="text-lg font-bold text-primary">{ utils.FormatRupiahSimple(plan.TotalPrice) }</p>
 				</div>
 				<div>
 					<p class="text-xs text-text-secondary mb-1">Next Due</p>
