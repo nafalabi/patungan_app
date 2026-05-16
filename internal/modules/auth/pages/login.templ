@@ -94,7 +94,7 @@ templ LoginScript() {
 
 			try {
 				const result = await signInWithPopup(auth, provider);
-				const idToken = await result.models.getIdToken();
+				const idToken = await result.user.getIdToken();
 
 				const response = await fetch('/auth/login', {
 					method: 'POST',
