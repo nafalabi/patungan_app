@@ -2,6 +2,8 @@
 
 A robust web application designed to manage shared expenses, recurring plans, and payment dues. Built with performance and scalability in mind using Go and modern web technologies.
 
+**[View the Visual Showcase & Screenshots](showcase.md)**
+
 ## 🚀 Features
 
 -   **User Management**: Secure authentication via Firebase.
@@ -110,3 +112,8 @@ docker-compose logs -f app
 -   `internal/`: Private application code (Handlers, Models, Services).
 -   `web/`: Web assets, templates (Templ), and static files.
 -   `tmp/`: Temporary build artifacts (ignored by git).
+
+---
+
+*This document was generated with the assistance of Gemini.*
+
