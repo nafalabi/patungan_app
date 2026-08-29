@@ -3,6 +3,8 @@ package utils
 import (
 	"strings"
 
+	"patungan_app_echo/internal/models"
+
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 )
@@ -62,4 +64,14 @@ func SafeInitials(name string) string {
 	}
 	return "—"
 }
+
+// GetTotalPortions calculates total portions from participants (matching billing logic)
+func GetTotalPortions(participants []models.PlanParticipant) int {
+	total := 0
+	for _, p := range participants {
+		total += p.Portion
+	}
+	return total
+}
+
 

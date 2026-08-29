@@ -604,7 +604,7 @@ func PlanCard(plan models.Plan) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			if len(plan.Participants) > 0 {
-				if totalPortions := getTotalPortions(plan.Participants); totalPortions > 0 {
+				if totalPortions := utils.GetTotalPortions(plan.Participants); totalPortions > 0 {
 					if totalPortions == len(plan.Participants) {
 						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "<span class=\"text-text-muted text-[11px]\">(")
 						if templ_7745c5c3_Err != nil {
@@ -669,46 +669,69 @@ func PlanCard(plan models.Plan) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "</div></div></div><!-- Card Actions --><div class=\"px-5 py-3 bg-bg-subtle/40 border-t border-border flex items-center gap-2\"><button hx-get=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "</div></div></div><!-- Card Actions --><div class=\"px-5 py-3.5 bg-bg-subtle/50 border-t border-border/80 flex justify-between items-center text-xs\"><span class=\"font-mono text-text-muted text-[11px]\">ID: #")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var25 string
-		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/admin/plans/%d/schedule-popup", plan.ID))
+		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", plan.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/admin/plan/pages/plans_list.templ`, Line: 294, Col: 67}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/admin/plan/pages/plans_list.templ`, Line: 293, Col: 88}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "\" hx-target=\"#global-modal\" class=\"flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg border border-border font-semibold transition-colors bg-bg-card text-text-primary hover:bg-bg-hover text-xs shadow-xs\"><i data-lucide=\"calendar\" class=\"w-3.5 h-3.5 text-text-secondary\"></i> Schedule</button> <a href=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "</span><div class=\"flex items-center gap-2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var26 templ.SafeURL
-		templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/plans/%d/edit", plan.ID)))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/admin/plan/pages/plans_list.templ`, Line: 302, Col: 70}
+		if plan.PaymentType == "recurring" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "<button hx-get=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var26 string
+			templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/admin/plans/%d/schedule", plan.ID))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/admin/plan/pages/plans_list.templ`, Line: 297, Col: 63}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "\" hx-target=\"body\" hx-swap=\"beforeend\" class=\"p-1.5 rounded-lg border border-border bg-bg-card hover:bg-bg-hover text-text-secondary hover:text-text-primary transition-colors cursor-pointer\" title=\"Configure Auto-bill Schedule\"><i data-lucide=\"calendar\" class=\"w-3.5 h-3.5\"></i></button> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "\" class=\"flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold no-underline transition-colors bg-primary text-white hover:bg-primary-hover text-xs shadow-xs\"><i data-lucide=\"edit-2\" class=\"w-3.5 h-3.5\"></i> Edit</a><form method=\"POST\" action=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "<a href=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var27 templ.SafeURL
-		templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/plans/%d/delete", plan.ID)))
+		templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/plans/%d/edit", plan.ID)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/admin/plan/pages/plans_list.templ`, Line: 308, Col: 93}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/admin/plan/pages/plans_list.templ`, Line: 307, Col: 71}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "\" onsubmit=\"return confirm('Are you sure you want to delete this plan?')\" class=\"inline-flex\"><button type=\"submit\" class=\"p-1.5 rounded-lg border border-border text-text-muted hover:text-rose-600 hover:bg-rose-50 transition-colors\" title=\"Delete plan\"><i data-lucide=\"trash-2\" class=\"w-3.5 h-3.5\"></i></button></form></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "\" class=\"p-1.5 rounded-lg border border-border bg-bg-card hover:bg-bg-hover text-text-secondary hover:text-text-primary transition-colors\" title=\"Edit Plan\"><i data-lucide=\"edit-2\" class=\"w-3.5 h-3.5\"></i></a><form method=\"POST\" action=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var28 templ.SafeURL
+		templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/plans/%d/delete", plan.ID)))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/admin/plan/pages/plans_list.templ`, Line: 313, Col: 94}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "\" onsubmit=\"return confirm('Are you sure you want to delete this plan?')\" class=\"inline-block\"><button type=\"submit\" class=\"p-1.5 rounded-lg border border-border bg-bg-card hover:bg-rose-50 text-text-muted hover:text-rose-600 transition-colors cursor-pointer\" title=\"Delete Plan\"><i data-lucide=\"trash-2\" class=\"w-3.5 h-3.5\"></i></button></form></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -716,7 +739,7 @@ func PlanCard(plan models.Plan) templ.Component {
 	})
 }
 
-// PaymentTypeBadge renders a badge for payment type
+// PaymentTypeBadge renders a styled badge for onetime vs recurring payment types
 func PaymentTypeBadge(paymentType string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -733,18 +756,18 @@ func PaymentTypeBadge(paymentType string) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var28 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var28 == nil {
-			templ_7745c5c3_Var28 = templ.NopComponent
+		templ_7745c5c3_Var29 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var29 == nil {
+			templ_7745c5c3_Var29 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		if paymentType == "recurring" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "<span class=\"px-2 py-0.5 rounded-md text-[11px] font-medium bg-bg-subtle text-text-secondary border border-border\">Recurring</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "<span class=\"inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-bg-subtle text-text-primary border border-border\"><span class=\"w-1.5 h-1.5 rounded-full bg-emerald-500\"></span> Recurring</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "<span class=\"px-2 py-0.5 rounded-md text-[11px] font-medium bg-emerald-50 text-emerald-800 border border-emerald-200\">One-time</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "<span class=\"inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-bg-subtle text-text-secondary border border-border\"><span class=\"w-1.5 h-1.5 rounded-full bg-zinc-400\"></span> One-time</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -773,18 +796,6 @@ func buildPlanURL(base string, filterOwner uint, filterType string, sortBy strin
 
 func getUserInitials(name string) string {
 	return utils.SafeInitials(name)
-}
-
-func getTotalPortions(participants []models.PlanParticipant) int {
-	total := 0
-	for _, p := range participants {
-		if p.Portion > 0 {
-			total += p.Portion
-		} else {
-			total += 1
-		}
-	}
-	return total
 }
 
 var _ = templruntime.GeneratedTemplate

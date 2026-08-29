@@ -170,7 +170,7 @@ templ PublicPaymentDue(props PublicPaymentDueProps) {
 				</div>
 
 				<!-- Action Section -->
-				if props.Due.PaymentStatus != "paid" && props.Due.PaymentStatus != "canceled" {
+				if props.Due.PaymentStatus != models.PaymentStatusPaid && props.Due.PaymentStatus != models.PaymentStatusCanceled {
 					<div class="p-6 bg-bg-subtle/40 border-t border-border space-y-2.5">
 						<button
 							@click={ fmt.Sprintf("initiatePayment('%s')", props.Due.UUID) }
@@ -187,7 +187,7 @@ templ PublicPaymentDue(props PublicPaymentDueProps) {
 							Check Status
 						</button>
 					</div>
-				} else if props.Due.PaymentStatus == "paid" {
+				} else if props.Due.PaymentStatus == models.PaymentStatusPaid {
 					<div class="p-6 bg-emerald-50/60 border-t border-emerald-100 text-center">
 						<div class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 mb-2">
 							<i data-lucide="check" class="w-5 h-5"></i>
@@ -298,17 +298,22 @@ templ PublicPaymentDue(props PublicPaymentDueProps) {
 
 templ PaymentStatusBadge(status string) {
 	switch status {
-		case "paid":
+		case models.PaymentStatusPaid:
 			<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
 				<i data-lucide="check-circle" class="w-3 h-3 text-emerald-600"></i>
 				Paid
 			</span>
-		case "pending":
+		case models.PaymentStatusOverdue:
+			<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-200">
+				<i data-lucide="alert-circle" class="w-3 h-3 text-rose-600"></i>
+				Overdue
+			</span>
+		case models.PaymentStatusPending:
 			<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
 				<i data-lucide="clock" class="w-3 h-3 text-amber-600"></i>
 				Pending
 			</span>
-		case "canceled":
+		case models.PaymentStatusCanceled:
 			<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-bg-subtle text-text-muted border border-border">
 				Canceled
 			</span>

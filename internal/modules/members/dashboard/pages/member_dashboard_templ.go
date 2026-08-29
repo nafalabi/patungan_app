@@ -166,7 +166,7 @@ func MemberDashboard(props MemberDashboardProps) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"overflow-x-auto\"><table class=\"w-full border-collapse\"><thead><tr class=\"border-b border-border bg-bg-subtle/50 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider\"><th class=\"py-3 px-5\">Plan</th><th class=\"py-3 px-5\">Due Date</th><th class=\"py-3 px-5 text-right\">Amount</th><th class=\"py-3 px-5 text-center\">Status</th><th class=\"py-3 px-5 text-right\">Action</th></tr></thead> <tbody class=\"divide-y divide-border\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"overflow-x-auto\"><table class=\"w-full border-collapse min-w-[600px]\"><thead><tr class=\"border-b border-border bg-bg-subtle/50 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider\"><th class=\"py-3 px-5\">Plan</th><th class=\"py-3 px-5\">Due Date</th><th class=\"py-3 px-5 text-right\">Amount</th><th class=\"py-3 px-5 text-center\">Status</th><th class=\"py-3 px-5 text-right\">Action</th></tr></thead> <tbody class=\"divide-y divide-border\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

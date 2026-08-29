@@ -155,7 +155,7 @@ func PublicPaymentDue(props PublicPaymentDueProps) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if props.Due.PaymentStatus != "paid" && props.Due.PaymentStatus != "canceled" {
+			if props.Due.PaymentStatus != models.PaymentStatusPaid && props.Due.PaymentStatus != models.PaymentStatusCanceled {
 				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div class=\"p-6 bg-bg-subtle/40 border-t border-border space-y-2.5\"><button @click=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -186,7 +186,7 @@ func PublicPaymentDue(props PublicPaymentDueProps) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-			} else if props.Due.PaymentStatus == "paid" {
+			} else if props.Due.PaymentStatus == models.PaymentStatusPaid {
 				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"p-6 bg-emerald-50/60 border-t border-emerald-100 text-center\"><div class=\"inline-flex items-center justify-center w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 mb-2\"><i data-lucide=\"check\" class=\"w-5 h-5\"></i></div><h3 class=\"text-sm font-bold text-emerald-900\">Payment Completed</h3><p class=\"text-emerald-700 text-xs mt-0.5\">Thank you for your payment!</p></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -267,36 +267,41 @@ func PaymentStatusBadge(status string) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		switch status {
-		case "paid":
+		case models.PaymentStatusPaid:
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span class=\"inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200\"><i data-lucide=\"check-circle\" class=\"w-3 h-3 text-emerald-600\"></i> Paid</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-		case "pending":
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<span class=\"inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200\"><i data-lucide=\"clock\" class=\"w-3 h-3 text-amber-600\"></i> Pending</span>")
+		case models.PaymentStatusOverdue:
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<span class=\"inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-200\"><i data-lucide=\"alert-circle\" class=\"w-3 h-3 text-rose-600\"></i> Overdue</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-		case "canceled":
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<span class=\"inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-bg-subtle text-text-muted border border-border\">Canceled</span>")
+		case models.PaymentStatusPending:
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<span class=\"inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200\"><i data-lucide=\"clock\" class=\"w-3 h-3 text-amber-600\"></i> Pending</span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		case models.PaymentStatusCanceled:
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<span class=\"inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-bg-subtle text-text-muted border border-border\">Canceled</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		default:
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<span class=\"inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-bg-subtle text-text-secondary border border-border\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<span class=\"inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-bg-subtle text-text-secondary border border-border\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var14 string
 			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(status)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/public_payment_due.templ`, Line: 317, Col: 12}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/public_payment_due.templ`, Line: 322, Col: 12}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

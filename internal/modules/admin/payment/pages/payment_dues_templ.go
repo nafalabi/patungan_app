@@ -742,10 +742,10 @@ func PaymentStatusIcon(status string) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		var templ_7745c5c3_Var32 = []any{"w-8 h-8 rounded-lg flex items-center justify-center border shadow-xs flex-shrink-0",
-			templ.KV("bg-emerald-50 border-emerald-200 text-emerald-700", status == "paid"),
-			templ.KV("bg-amber-50 border-amber-200 text-amber-800", status == "pending"),
-			templ.KV("bg-rose-50 border-rose-200 text-rose-700", status == "overdue"),
-			templ.KV("bg-zinc-100 border-zinc-200 text-zinc-600", status == "canceled"),
+			templ.KV("bg-emerald-50 border-emerald-200 text-emerald-700", status == models.PaymentStatusPaid),
+			templ.KV("bg-amber-50 border-amber-200 text-amber-800", status == models.PaymentStatusPending),
+			templ.KV("bg-rose-50 border-rose-200 text-rose-700", status == models.PaymentStatusOverdue),
+			templ.KV("bg-zinc-100 border-zinc-200 text-zinc-600", status == models.PaymentStatusCanceled),
 		}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var32...)
 		if templ_7745c5c3_Err != nil {
@@ -781,17 +781,17 @@ func PaymentStatusIcon(status string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if status == "paid" {
+		if status == models.PaymentStatusPaid {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "<i data-lucide=\"check-circle-2\" class=\"w-4 h-4\"></i>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-		} else if status == "overdue" {
+		} else if status == models.PaymentStatusOverdue {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "<i data-lucide=\"alert-circle\" class=\"w-4 h-4\"></i>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-		} else if status == "canceled" {
+		} else if status == models.PaymentStatusCanceled {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "<i data-lucide=\"x-circle\" class=\"w-4 h-4\"></i>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -832,17 +832,17 @@ func PaymentStatusBadge(status string) templ.Component {
 			templ_7745c5c3_Var35 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		if status == "paid" {
+		if status == models.PaymentStatusPaid {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "<span class=\"px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-800 border border-emerald-200\">Paid</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-		} else if status == "overdue" {
+		} else if status == models.PaymentStatusOverdue {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "<span class=\"px-2 py-0.5 rounded-full text-[11px] font-medium bg-rose-50 text-rose-800 border border-rose-200\">Overdue</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-		} else if status == "canceled" {
+		} else if status == models.PaymentStatusCanceled {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "<span class=\"px-2 py-0.5 rounded-full text-[11px] font-medium bg-bg-subtle text-text-muted border border-border\">Canceled</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
