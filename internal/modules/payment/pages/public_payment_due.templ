@@ -295,3 +295,26 @@ templ PublicPaymentDue(props PublicPaymentDueProps) {
 		}
 	}
 }
+
+templ PaymentStatusBadge(status string) {
+	switch status {
+		case "paid":
+			<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+				<i data-lucide="check-circle" class="w-3 h-3 text-emerald-600"></i>
+				Paid
+			</span>
+		case "pending":
+			<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+				<i data-lucide="clock" class="w-3 h-3 text-amber-600"></i>
+				Pending
+			</span>
+		case "canceled":
+			<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-bg-subtle text-text-muted border border-border">
+				Canceled
+			</span>
+		default:
+			<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-bg-subtle text-text-secondary border border-border">
+				{ status }
+			</span>
+	}
+}

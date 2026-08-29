@@ -15,8 +15,8 @@ import (
 	"patungan_app_echo/internal/tasks"
 
 	"patungan_app_echo/internal/models"
+	"patungan_app_echo/internal/modules/admin/plan"
 	"patungan_app_echo/internal/modules/notification"
-	"patungan_app_echo/internal/modules/plan"
 	"patungan_app_echo/internal/modules/scheduler"
 	"patungan_app_echo/internal/services/database"
 )

@@ -1,0 +1,115 @@
+package user_pages
+
+import (
+	"fmt"
+	"patungan_app_echo/internal/models"
+	"patungan_app_echo/internal/template/layouts"
+	types "patungan_app_echo/internal/template/types"
+)
+
+// UserFormProps contains props for the user form page
+type UserFormProps struct {
+	Title       string
+	ActiveNav   string
+	Breadcrumbs []types.Breadcrumb
+	UserEmail   string
+	UserUID     string
+	IsEdit      bool
+	User        models.User
+}
+
+// UserForm renders the user create/edit form
+templ UserForm(props UserFormProps) {
+	@layouts.Base(layouts.BaseProps{
+		Title:       props.Title,
+		ActiveNav:   props.ActiveNav,
+		Breadcrumbs: props.Breadcrumbs,
+		UserEmail:   props.UserEmail,
+		UserUID:     props.UserUID,
+	}) {
+		<!-- Header -->
+		<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+			<div>
+				<h1 class="text-xl md:text-2xl font-bold text-text-primary tracking-tight">
+					if props.IsEdit {
+						Edit User
+					} else {
+						Create New User
+					}
+				</h1>
+				<p class="text-xs md:text-sm text-text-secondary mt-0.5">
+					Manage member account details and permissions
+				</p>
+			</div>
+			<a href="/admin/users" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-xs font-semibold text-text-secondary hover:text-text-primary hover:bg-bg-hover transition-colors">
+				<i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+				Back to Users
+			</a>
+		</div>
+
+		<!-- Form Card -->
+		<div class="w-full bg-bg-card rounded-xl border border-border shadow-card p-6 sm:p-8">
+			<form method="POST" action={ userFormAction(props.IsEdit, props.User.ID) } class="space-y-5">
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<div>
+						<label class="block mb-1.5 text-xs font-semibold text-text-secondary uppercase tracking-wider">Full Name</label>
+						<input
+							type="text"
+							name="name"
+							placeholder="e.g. John Doe"
+							class="w-full px-3.5 py-2 rounded-lg border border-border bg-input-bg text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-text-muted"
+							value={ props.User.Name }
+							required
+						/>
+					</div>
+					<div>
+						<label class="block mb-1.5 text-xs font-semibold text-text-secondary uppercase tracking-wider">Email Address</label>
+						<input
+							type="email"
+							name="email"
+							placeholder="john@example.com"
+							class="w-full px-3.5 py-2 rounded-lg border border-border bg-input-bg text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-primary font-mono placeholder:text-text-muted"
+							value={ props.User.Email }
+							required
+						/>
+					</div>
+					<div>
+						<label class="block mb-1.5 text-xs font-semibold text-text-secondary uppercase tracking-wider">Phone Number (Optional)</label>
+						<input
+							type="tel"
+							name="phone"
+							placeholder="628123456789"
+							class="w-full px-3.5 py-2 rounded-lg border border-border bg-input-bg text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-primary font-mono placeholder:text-text-muted"
+							value={ props.User.Phone }
+						/>
+					</div>
+					<div>
+						<label class="block mb-1.5 text-xs font-semibold text-text-secondary uppercase tracking-wider">User Role</label>
+						<select name="user_type" class="w-full px-3.5 py-2 rounded-lg border border-border bg-bg-card text-text-primary text-xs focus:outline-none focus:ring-1 focus:ring-primary">
+							<option value="Member" selected?={ props.User.UserType == "" || props.User.UserType == models.UserTypeMember }>Member</option>
+							<option value="Admin" selected?={ props.User.UserType == models.UserTypeAdmin }>Admin</option>
+						</select>
+					</div>
+				</div>
+				<div class="pt-4 flex flex-col sm:flex-row gap-2.5 border-t border-border/60">
+					<button type="submit" class="inline-flex justify-center items-center gap-2 px-5 py-2 rounded-lg font-semibold transition-colors bg-primary text-white hover:bg-primary-hover text-xs shadow-xs cursor-pointer">
+						<i data-lucide="check" class="w-4 h-4"></i>
+						Save User
+					</button>
+					<a href="/admin/users" class="inline-flex justify-center items-center gap-2 px-4 py-2 rounded-lg border border-border font-semibold no-underline transition-colors bg-bg-card text-text-secondary hover:text-text-primary hover:bg-bg-hover text-xs">
+						Cancel
+					</a>
+				</div>
+			</form>
+		</div>
+	}
+}
+
+// Helper function to generate user form action URL
+func userFormAction(isEdit bool, userID uint) templ.SafeURL {
+	if isEdit {
+		return templ.SafeURL(fmt.Sprintf("/admin/users/%d/update", userID))
+	}
+	return templ.SafeURL("/admin/users")
+}
+

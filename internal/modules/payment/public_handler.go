@@ -139,3 +139,10 @@ func (h *PublicHandler) CheckStatus(c echo.Context) error {
 		"payment_status": due.PaymentStatus, // redundancy for frontend convenience
 	})
 }
+
+func getEnv(key, defaultValue string) string {
+	if val := os.Getenv(key); val != "" {
+		return val
+	}
+	return defaultValue
+}
