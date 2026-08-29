@@ -87,3 +87,30 @@ func RequireAuth(authClient *auth.Client, db *gorm.DB, redisCache *cache.RedisCa
 		}
 	}
 }
+
+// RequireAdmin ensures the authenticated user has Admin privileges
+func RequireAdmin() echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			userType, ok := c.Get("userType").(models.UserType)
+			if !ok || userType != models.UserTypeAdmin {
+				return echo.NewHTTPError(http.StatusForbidden, "Access restricted to administrators")
+			}
+			return next(c)
+		}
+	}
+}
+
+// RequireRole ensures the authenticated user matches the required role
+func RequireRole(role models.UserType) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			userType, ok := c.Get("userType").(models.UserType)
+			if !ok || userType != role {
+				return echo.NewHTTPError(http.StatusForbidden, fmt.Sprintf("Access restricted to %s users", role))
+			}
+			return next(c)
+		}
+	}
+}
+
