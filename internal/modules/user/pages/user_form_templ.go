@@ -60,7 +60,7 @@ func UserForm(props UserFormProps) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"max-w-2xl mx-auto p-6 sm:p-8 bg-bg-card rounded-2xl border border-border shadow-card\"><div class=\"mb-6\"><h1 class=\"text-xl md:text-2xl font-bold text-text-primary tracking-tight\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!-- Header --> <div class=\"flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6\"><div><h1 class=\"text-xl md:text-2xl font-bold text-text-primary tracking-tight\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -75,27 +75,27 @@ func UserForm(props UserFormProps) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</h1><p class=\"text-xs text-text-secondary mt-0.5\">Manage user credentials and roles</p></div><form method=\"POST\" action=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</h1><p class=\"text-xs md:text-sm text-text-secondary mt-0.5\">Manage member account details and permissions</p></div><a href=\"/users\" class=\"inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-xs font-semibold text-text-secondary hover:text-text-primary hover:bg-bg-hover transition-colors\"><i data-lucide=\"arrow-left\" class=\"w-3.5 h-3.5\"></i> Back to Users</a></div><!-- Form Card --> <div class=\"w-full bg-bg-card rounded-xl border border-border shadow-card p-6 sm:p-8\"><form method=\"POST\" action=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 templ.SafeURL
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinURLErrs(userFormAction(props.IsEdit, props.User.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/user/pages/user_form.templ`, Line: 42, Col: 75}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/user/pages/user_form.templ`, Line: 52, Col: 75}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" class=\"space-y-4\"><div><label class=\"block mb-1.5 text-xs font-semibold text-text-secondary uppercase tracking-wider\">Full Name</label> <input type=\"text\" name=\"name\" placeholder=\"e.g. John Doe\" class=\"w-full px-3.5 py-2 rounded-lg border border-border bg-input-bg text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-text-muted\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" class=\"space-y-5\"><div class=\"grid grid-cols-1 md:grid-cols-2 gap-4\"><div><label class=\"block mb-1.5 text-xs font-semibold text-text-secondary uppercase tracking-wider\">Full Name</label> <input type=\"text\" name=\"name\" placeholder=\"e.g. John Doe\" class=\"w-full px-3.5 py-2 rounded-lg border border-border bg-input-bg text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-text-muted\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(props.User.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/user/pages/user_form.templ`, Line: 50, Col: 29}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/user/pages/user_form.templ`, Line: 61, Col: 30}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -108,7 +108,7 @@ func UserForm(props UserFormProps) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(props.User.Email)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/user/pages/user_form.templ`, Line: 61, Col: 30}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/user/pages/user_form.templ`, Line: 72, Col: 31}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -121,13 +121,13 @@ func UserForm(props UserFormProps) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(props.User.Phone)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/user/pages/user_form.templ`, Line: 72, Col: 30}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/user/pages/user_form.templ`, Line: 83, Col: 31}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\"></div><div><label class=\"block mb-1.5 text-xs font-semibold text-text-secondary uppercase tracking-wider\">User Role</label> <select name=\"user_type\" class=\"w-full px-3 py-2 rounded-lg border border-border bg-bg-card text-text-primary text-xs focus:outline-none focus:ring-1 focus:ring-primary\"><option value=\"Member\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\"></div><div><label class=\"block mb-1.5 text-xs font-semibold text-text-secondary uppercase tracking-wider\">User Role</label> <select name=\"user_type\" class=\"w-full px-3.5 py-2 rounded-lg border border-border bg-bg-card text-text-primary text-xs focus:outline-none focus:ring-1 focus:ring-primary\"><option value=\"Member\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -147,7 +147,7 @@ func UserForm(props UserFormProps) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, ">Admin</option></select></div><div class=\"pt-4 flex flex-col sm:flex-row gap-2.5\"><button type=\"submit\" class=\"flex-1 inline-flex justify-center items-center gap-2 px-4 py-2.5 rounded-lg font-semibold transition-colors bg-primary text-white hover:bg-primary-hover text-xs shadow-xs cursor-pointer\"><i data-lucide=\"check\" class=\"w-4 h-4\"></i> Save User</button> <a href=\"/users\" class=\"inline-flex justify-center items-center gap-2 px-4 py-2.5 rounded-lg border border-border font-semibold no-underline transition-colors bg-bg-card text-text-secondary hover:text-text-primary hover:bg-bg-hover text-xs\">Cancel</a></div></form></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, ">Admin</option></select></div></div><div class=\"pt-4 flex flex-col sm:flex-row gap-2.5 border-t border-border/60\"><button type=\"submit\" class=\"inline-flex justify-center items-center gap-2 px-5 py-2 rounded-lg font-semibold transition-colors bg-primary text-white hover:bg-primary-hover text-xs shadow-xs cursor-pointer\"><i data-lucide=\"check\" class=\"w-4 h-4\"></i> Save User</button> <a href=\"/users\" class=\"inline-flex justify-center items-center gap-2 px-4 py-2 rounded-lg border border-border font-semibold no-underline transition-colors bg-bg-card text-text-secondary hover:text-text-primary hover:bg-bg-hover text-xs\">Cancel</a></div></form></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

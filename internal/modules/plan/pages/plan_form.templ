@@ -32,8 +32,9 @@ templ PlanForm(props PlanFormProps) {
 		UserEmail:   props.UserEmail,
 		UserUID:     props.UserUID,
 	}) {
-		<div class="max-w-2xl mx-auto p-6 sm:p-8 bg-bg-card rounded-2xl border border-border shadow-card">
-			<div class="mb-6">
+		<!-- Header -->
+		<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+			<div>
 				<h1 class="text-xl md:text-2xl font-bold text-text-primary tracking-tight">
 					if props.IsEdit {
 						Edit Plan
@@ -41,9 +42,18 @@ templ PlanForm(props PlanFormProps) {
 						Create New Plan
 					}
 				</h1>
-				<p class="text-xs text-text-secondary mt-0.5">Configure subscription details, billing frequency, and member splits.</p>
+				<p class="text-xs md:text-sm text-text-secondary mt-0.5">
+					Configure subscription details, billing frequency, and member splits
+				</p>
 			</div>
-			
+			<a href="/plans" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-xs font-semibold text-text-secondary hover:text-text-primary hover:bg-bg-hover transition-colors">
+				<i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+				Back to Plans
+			</a>
+		</div>
+
+		<!-- Form Card -->
+		<div class="w-full bg-bg-card rounded-xl border border-border shadow-card p-6 sm:p-8">
 			if props.ErrorMessage != "" {
 				<div class="mb-5 rounded-xl bg-rose-50 p-4 border border-rose-200 flex items-start gap-3">
 					<i data-lucide="alert-circle" class="w-5 h-5 text-rose-600 flex-shrink-0 mt-0.5"></i>
@@ -53,29 +63,32 @@ templ PlanForm(props PlanFormProps) {
 					</div>
 				</div>
 			}
-			<form method="POST" action={ formAction(props.IsEdit, props.Plan.ID) } class="space-y-4">
-				<div>
-					<label class="block mb-1.5 text-xs font-semibold text-text-secondary uppercase tracking-wider">Plan Name</label>
-					<input
-						type="text"
-						name="name"
-						placeholder="e.g. Netflix 4K UHD, Spotify Family"
-						class="w-full px-3.5 py-2 rounded-lg border border-border bg-input-bg text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-text-muted"
-						value={ props.Plan.Name }
-						required
-					/>
+			<form method="POST" action={ formAction(props.IsEdit, props.Plan.ID) } class="space-y-5">
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<div>
+						<label class="block mb-1.5 text-xs font-semibold text-text-secondary uppercase tracking-wider">Plan Name</label>
+						<input
+							type="text"
+							name="name"
+							placeholder="e.g. Netflix 4K UHD, Spotify Family"
+							class="w-full px-3.5 py-2 rounded-lg border border-border bg-input-bg text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-text-muted"
+							value={ props.Plan.Name }
+							required
+						/>
+					</div>
+					<div>
+						<label class="block mb-1.5 text-xs font-semibold text-text-secondary uppercase tracking-wider">Total Price (IDR)</label>
+						<input
+							type="number"
+							name="total_price"
+							placeholder="186000"
+							class="w-full px-3.5 py-2 rounded-lg border border-border bg-input-bg text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-primary font-mono placeholder:text-text-muted"
+							value={ fmt.Sprintf("%.0f", props.Plan.TotalPrice) }
+							required
+						/>
+					</div>
 				</div>
-				<div>
-					<label class="block mb-1.5 text-xs font-semibold text-text-secondary uppercase tracking-wider">Total Price (IDR)</label>
-					<input
-						type="number"
-						name="total_price"
-						placeholder="186000"
-						class="w-full px-3.5 py-2 rounded-lg border border-border bg-input-bg text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-primary font-mono placeholder:text-text-muted"
-						value={ fmt.Sprintf("%.0f", props.Plan.TotalPrice) }
-						required
-					/>
-				</div>
+
 				<!-- Payment Type & Recurring Options (Alpine.js) -->
 				<div
 					class="space-y-4"
@@ -83,7 +96,7 @@ templ PlanForm(props PlanFormProps) {
 				>
 					<div>
 						<label class="block mb-1.5 text-xs font-semibold text-text-secondary uppercase tracking-wider">Payment Type</label>
-						<div class="grid grid-cols-2 gap-3">
+						<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
 							<label class="flex items-center gap-2.5 p-3 rounded-lg border border-border bg-bg-card hover:bg-bg-hover cursor-pointer transition-colors" :class="paymentType === 'onetime' ? 'border-primary ring-1 ring-primary bg-bg-subtle/50' : ''">
 								<input
 									type="radio"
@@ -116,31 +129,33 @@ templ PlanForm(props PlanFormProps) {
 					</div>
 					<!-- Recurring Options -->
 					<div x-show="paymentType === 'recurring'" class="p-4 border border-border rounded-xl bg-bg-subtle/70 space-y-3" x-transition>
-						<div>
-							<label class="block mb-1.5 text-xs font-semibold text-text-secondary uppercase tracking-wider">Billing Frequency</label>
-							<select
-								x-model="frequency"
-								@change="updateRRule"
-								class="w-full px-3 py-2 rounded-lg border border-border bg-bg-card text-text-primary text-xs focus:outline-none focus:ring-1 focus:ring-primary"
-							>
-								<option value="DAILY">Daily</option>
-								<option value="WEEKLY">Weekly</option>
-								<option value="MONTHLY">Monthly</option>
-								<option value="YEARLY">Yearly</option>
-							</select>
-						</div>
-						<div>
-							<label class="block mb-1.5 text-xs font-semibold text-text-secondary uppercase tracking-wider">Interval</label>
-							<div class="flex items-center gap-2 text-xs">
-								<span class="text-text-secondary font-medium">Every</span>
-								<input
-									type="number"
-									min="1"
-									x-model="interval"
-									@input="updateRRule"
-									class="w-16 px-2.5 py-1.5 rounded-lg border border-border bg-bg-card text-text-primary text-xs focus:outline-none focus:ring-1 focus:ring-primary font-mono"
-								/>
-								<span class="text-text-primary font-medium" x-text="frequency.toLowerCase().replace('ly', '(s)')"></span>
+						<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+							<div>
+								<label class="block mb-1.5 text-xs font-semibold text-text-secondary uppercase tracking-wider">Billing Frequency</label>
+								<select
+									x-model="frequency"
+									@change="updateRRule"
+									class="w-full px-3 py-2 rounded-lg border border-border bg-bg-card text-text-primary text-xs focus:outline-none focus:ring-1 focus:ring-primary"
+								>
+									<option value="DAILY">Daily</option>
+									<option value="WEEKLY">Weekly</option>
+									<option value="MONTHLY">Monthly</option>
+									<option value="YEARLY">Yearly</option>
+								</select>
+							</div>
+							<div>
+								<label class="block mb-1.5 text-xs font-semibold text-text-secondary uppercase tracking-wider">Interval</label>
+								<div class="flex items-center gap-2 text-xs pt-1">
+									<span class="text-text-secondary font-medium">Every</span>
+									<input
+										type="number"
+										min="1"
+										x-model="interval"
+										@input="updateRRule"
+										class="w-16 px-2.5 py-1.5 rounded-lg border border-border bg-bg-card text-text-primary text-xs focus:outline-none focus:ring-1 focus:ring-primary font-mono"
+									/>
+									<span class="text-text-primary font-medium" x-text="frequency.toLowerCase().replace('ly', '(s)')"></span>
+								</div>
 							</div>
 						</div>
 						<!-- Hidden Input for RRULE -->
@@ -157,6 +172,7 @@ templ PlanForm(props PlanFormProps) {
 						/>
 					</div>
 				</div>
+
 				<!-- Participants & Portions -->
 				<div>
 					<div class="flex items-center justify-between mb-1.5">
@@ -203,7 +219,7 @@ templ PlanForm(props PlanFormProps) {
 						}
 					</div>
 				</div>
-				<div class="flex items-center gap-2.5 pt-2">
+				<div class="flex items-center gap-2.5 pt-1">
 					<input
 						type="checkbox"
 						name="allow_invitation"
@@ -213,12 +229,12 @@ templ PlanForm(props PlanFormProps) {
 					/>
 					<label for="allow_invitation" class="text-xs font-medium text-text-primary cursor-pointer select-none">Allow members to invite friends after paying</label>
 				</div>
-				<div class="pt-4 flex flex-col sm:flex-row gap-2.5">
-					<button type="submit" class="flex-1 inline-flex justify-center items-center gap-2 px-4 py-2.5 rounded-lg font-semibold transition-colors bg-primary text-white hover:bg-primary-hover text-xs shadow-sm cursor-pointer">
+				<div class="pt-4 flex flex-col sm:flex-row gap-2.5 border-t border-border/60">
+					<button type="submit" class="inline-flex justify-center items-center gap-2 px-5 py-2 rounded-lg font-semibold transition-colors bg-primary text-white hover:bg-primary-hover text-xs shadow-xs cursor-pointer">
 						<i data-lucide="check" class="w-4 h-4"></i>
 						Save Plan
 					</button>
-					<a href="/plans" class="inline-flex justify-center items-center gap-2 px-4 py-2.5 rounded-lg border border-border font-semibold no-underline transition-colors bg-bg-card text-text-secondary hover:text-text-primary hover:bg-bg-hover text-xs">
+					<a href="/plans" class="inline-flex justify-center items-center gap-2 px-4 py-2 rounded-lg border border-border font-semibold no-underline transition-colors bg-bg-card text-text-secondary hover:text-text-primary hover:bg-bg-hover text-xs">
 						Cancel
 					</a>
 				</div>
