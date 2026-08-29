@@ -57,7 +57,7 @@ func (h *PlanHandler) ListPlans(c echo.Context) error {
 	}
 
 	// Build base query
-	query := h.db.Model(&models.Plan{}).Preload("Owner").Preload("ScheduledTask").Preload("Participants")
+	query := h.db.Model(&models.Plan{}).Preload("Owner").Preload("ScheduledTask").Preload("Participants.User")
 
 	// Apply filters
 	if filterOwner > 0 {
@@ -378,7 +378,11 @@ func (h *PlanHandler) UpdatePlan(c echo.Context) error {
 		}
 	}
 
-	plan.Name = c.FormValue("name")
+	name := strings.TrimSpace(c.FormValue("name"))
+	if name == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "Plan name is required")
+	}
+	plan.Name = name
 	priceStr := c.FormValue("total_price")
 	plan.TotalPrice, _ = strconv.ParseFloat(priceStr, 64)
 	plan.PaymentType = c.FormValue("payment_type")

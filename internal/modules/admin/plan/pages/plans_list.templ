@@ -2,7 +2,6 @@ package plan_pages
 
 import (	
 	"fmt"
-	"strings"
 	"patungan_app_echo/internal/models"
 	"patungan_app_echo/internal/template/layouts"
 	types "patungan_app_echo/internal/template/types"
@@ -214,7 +213,7 @@ templ PlanCard(plan models.Plan) {
 			<div class="flex justify-between items-start gap-3">
 				<div class="flex items-center gap-3">
 					<div class="w-9 h-9 rounded-lg bg-bg-subtle border border-border flex items-center justify-center font-bold text-sm text-text-primary flex-shrink-0">
-						{ string([]rune(plan.Name)[0:1]) }
+						{ utils.SafeInitial(plan.Name, "P") }
 					</div>
 					<div>
 						<h3 class="text-base font-bold text-text-primary tracking-tight leading-snug">{ plan.Name }</h3>
@@ -250,7 +249,7 @@ templ PlanCard(plan models.Plan) {
 							for i, participant := range plan.Participants {
 								if i < 3 {
 									<div class="w-6 h-6 rounded-full bg-zinc-800 text-white flex items-center justify-center text-[9px] font-bold border-2 border-white" title={ participant.User.Name }>
-										{ getUserInitials(participant.User.Name) }
+										{ utils.SafeInitials(participant.User.Name) }
 									</div>
 								}
 							}
@@ -341,20 +340,6 @@ func buildPlanURL(base string, filterOwner uint, filterType string, sortBy strin
 }
 
 func getUserInitials(name string) string {
-	name = strings.TrimSpace(name)
-	if len(name) == 0 {
-		return "?"
-	}
-	parts := strings.Split(name, " ")
-	if len(parts) == 1 {
-		runes := []rune(parts[0])
-		if len(runes) >= 2 {
-			return strings.ToUpper(string(runes[:2]))
-		}
-		return strings.ToUpper(string(runes[:1]))
-	}
-	r1 := []rune(parts[0])
-	r2 := []rune(parts[1])
-	return strings.ToUpper(fmt.Sprintf("%s%s", string(r1[:1]), string(r2[:1])))
+	return utils.SafeInitials(name)
 }
 

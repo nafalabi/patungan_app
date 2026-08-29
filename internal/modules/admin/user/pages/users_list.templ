@@ -2,10 +2,10 @@ package user_pages
 
 import (
 	"fmt"
-	"strings"
 	"patungan_app_echo/internal/models"
 	"patungan_app_echo/internal/template/layouts"
 	types "patungan_app_echo/internal/template/types"
+	"patungan_app_echo/internal/template/utils"
 )
 
 // UsersListProps contains props for the users list page
@@ -80,7 +80,7 @@ templ UserRow(user models.User) {
 		<td class="py-3.5 px-4">
 			<div class="flex items-center gap-3">
 				<div class="w-8 h-8 rounded-full bg-zinc-900 text-white flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-xs">
-					{ getUserInitial(user.Name) }
+					{ utils.SafeInitial(user.Name, "U") }
 				</div>
 				<div>
 					<p class="text-xs font-bold text-text-primary leading-tight">{ user.Name }</p>
@@ -136,10 +136,6 @@ templ UserRow(user models.User) {
 }
 
 func getUserInitial(name string) string {
-	name = strings.TrimSpace(name)
-	if len(name) == 0 {
-		return "U"
-	}
-	return strings.ToUpper(string([]rune(name)[0:1]))
+	return utils.SafeInitial(name, "U")
 }
 

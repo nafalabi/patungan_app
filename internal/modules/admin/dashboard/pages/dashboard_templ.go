@@ -176,9 +176,9 @@ func Dashboard(props DashboardProps) templ.Component {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var8 string
-					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(string([]rune(due.Plan.Name)[0:1]))
+					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(utils.SafeInitial(due.Plan.Name, "P"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/admin/dashboard/pages/dashboard.templ`, Line: 155, Col: 49}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/admin/dashboard/pages/dashboard.templ`, Line: 155, Col: 52}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {

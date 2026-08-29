@@ -176,9 +176,9 @@ func MemberDashboard(props MemberDashboardProps) templ.Component {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var10 string
-					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(string([]rune(due.Plan.Name)[0:1]))
+					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(utils.SafeInitial(due.Plan.Name, "P"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/members/dashboard/pages/member_dashboard.templ`, Line: 128, Col: 49}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/members/dashboard/pages/member_dashboard.templ`, Line: 128, Col: 52}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 					if templ_7745c5c3_Err != nil {
@@ -223,120 +223,135 @@ func MemberDashboard(props MemberDashboardProps) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</td><td class=\"py-3.5 px-5 text-center\"><span class=\"inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200\"><i data-lucide=\"clock\" class=\"w-3 h-3 text-amber-600\"></i> Pending</span></td><td class=\"py-3.5 px-5 text-right\"><a href=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</td><td class=\"py-3.5 px-5 text-center\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					if due.PaymentStatus == "overdue" {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span class=\"inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-800 border border-rose-200\"><i data-lucide=\"alert-circle\" class=\"w-3 h-3 text-rose-600\"></i> Overdue</span>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					} else {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span class=\"inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200\"><i data-lucide=\"clock\" class=\"w-3 h-3 text-amber-600\"></i> Pending</span>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</td><td class=\"py-3.5 px-5 text-right\"><a href=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var14 templ.SafeURL
 					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/p/%s", due.UUID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/members/dashboard/pages/member_dashboard.templ`, Line: 143, Col: 64}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/members/dashboard/pages/member_dashboard.templ`, Line: 150, Col: 64}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" class=\"inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold text-xs bg-primary text-white hover:bg-primary-hover transition-colors shadow-xs\"><i data-lucide=\"credit-card\" class=\"w-3.5 h-3.5\"></i> Pay Now</a></td></tr>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" class=\"inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold text-xs bg-primary text-white hover:bg-primary-hover transition-colors shadow-xs\"><i data-lucide=\"credit-card\" class=\"w-3.5 h-3.5\"></i> Pay Now</a></td></tr>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</tbody></table></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</tbody></table></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div><!-- Enrolled Plans Grid --><div class=\"bg-bg-card rounded-xl border border-border shadow-card overflow-hidden\"><div class=\"px-5 py-4 border-b border-border flex items-center justify-between\"><div class=\"flex items-center gap-2\"><i data-lucide=\"layers\" class=\"w-4 h-4 text-text-secondary\"></i><h2 class=\"text-sm font-bold text-text-primary tracking-tight\">Your Enrolled Plans</h2></div><a href=\"/member/plans\" class=\"text-xs font-semibold text-primary hover:underline flex items-center gap-1\">View all <i data-lucide=\"chevron-right\" class=\"w-3.5 h-3.5\"></i></a></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</div><!-- Enrolled Plans Grid --><div class=\"bg-bg-card rounded-xl border border-border shadow-card overflow-hidden\"><div class=\"px-5 py-4 border-b border-border flex items-center justify-between\"><div class=\"flex items-center gap-2\"><i data-lucide=\"layers\" class=\"w-4 h-4 text-text-secondary\"></i><h2 class=\"text-sm font-bold text-text-primary tracking-tight\">Your Enrolled Plans</h2></div><a href=\"/member/plans\" class=\"text-xs font-semibold text-primary hover:underline flex items-center gap-1\">View all <i data-lucide=\"chevron-right\" class=\"w-3.5 h-3.5\"></i></a></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(props.EnrolledPlans) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<div class=\"py-12 px-4 text-center\"><div class=\"w-10 h-10 rounded-full bg-bg-subtle border border-border flex items-center justify-center text-text-secondary mx-auto mb-2\"><i data-lucide=\"layers\" class=\"w-5 h-5\"></i></div><h3 class=\"text-sm font-semibold text-text-primary\">No enrolled plans</h3><p class=\"text-xs text-text-secondary mt-0.5\">You have not been added to any subscription plans yet.</p></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<div class=\"py-12 px-4 text-center\"><div class=\"w-10 h-10 rounded-full bg-bg-subtle border border-border flex items-center justify-center text-text-secondary mx-auto mb-2\"><i data-lucide=\"layers\" class=\"w-5 h-5\"></i></div><h3 class=\"text-sm font-semibold text-text-primary\">No enrolled plans</h3><p class=\"text-xs text-text-secondary mt-0.5\">You have not been added to any subscription plans yet.</p></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<div class=\"grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-5\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div class=\"grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-5\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, plan := range props.EnrolledPlans {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<div class=\"p-4 bg-bg-body border border-border rounded-xl flex flex-col justify-between hover:border-zinc-400 transition-colors\"><div><div class=\"flex justify-between items-start mb-2\"><h3 class=\"text-sm font-bold text-text-primary leading-tight\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<div class=\"p-4 bg-bg-body border border-border rounded-xl flex flex-col justify-between hover:border-zinc-400 transition-colors\"><div><div class=\"flex justify-between items-start mb-2\"><h3 class=\"text-sm font-bold text-text-primary leading-tight\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var15 string
 					templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(plan.Name)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/members/dashboard/pages/member_dashboard.templ`, Line: 184, Col: 83}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/members/dashboard/pages/member_dashboard.templ`, Line: 191, Col: 83}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</h3><span class=\"px-2 py-0.5 rounded-full text-[10px] font-medium bg-bg-subtle text-text-secondary border border-border capitalize\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</h3><span class=\"px-2 py-0.5 rounded-full text-[10px] font-medium bg-bg-subtle text-text-secondary border border-border capitalize\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var16 string
 					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(string(plan.PaymentType))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/members/dashboard/pages/member_dashboard.templ`, Line: 186, Col: 37}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/members/dashboard/pages/member_dashboard.templ`, Line: 193, Col: 37}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</span></div><div class=\"mt-2 text-xs font-mono font-bold text-text-primary\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</span></div><div class=\"mt-2 text-xs font-mono font-bold text-text-primary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var17 string
 					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(utils.FormatRupiah(plan.TotalPrice))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/members/dashboard/pages/member_dashboard.templ`, Line: 190, Col: 47}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/members/dashboard/pages/member_dashboard.templ`, Line: 197, Col: 47}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, " <span class=\"text-[10px] font-normal text-text-secondary\">/ total</span></div></div><div class=\"mt-4 pt-3 border-t border-border flex items-center justify-between\"><span class=\"text-xs text-text-muted flex items-center gap-1\"><i data-lucide=\"users\" class=\"w-3.5 h-3.5\"></i> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, " <span class=\"text-[10px] font-normal text-text-secondary\">/ total</span></div></div><div class=\"mt-4 pt-3 border-t border-border flex items-center justify-between\"><span class=\"text-xs text-text-muted flex items-center gap-1\"><i data-lucide=\"users\" class=\"w-3.5 h-3.5\"></i> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var18 string
 					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d members", len(plan.Participants)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/members/dashboard/pages/member_dashboard.templ`, Line: 197, Col: 61}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/members/dashboard/pages/member_dashboard.templ`, Line: 204, Col: 61}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</span> <a href=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</span> <a href=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var19 templ.SafeURL
 					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/member/plans/%d", plan.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/members/dashboard/pages/member_dashboard.templ`, Line: 200, Col: 72}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/members/dashboard/pages/member_dashboard.templ`, Line: 207, Col: 72}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "\" class=\"inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline\">Details <i data-lucide=\"arrow-right\" class=\"w-3.5 h-3.5\"></i></a></div></div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\" class=\"inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline\">Details <i data-lucide=\"arrow-right\" class=\"w-3.5 h-3.5\"></i></a></div></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

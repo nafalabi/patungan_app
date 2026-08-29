@@ -51,7 +51,7 @@ templ MemberPlansList(props MemberPlansListProps) {
 								<div class="flex items-start justify-between gap-2 mb-3">
 									<div class="flex items-center gap-2.5">
 										<div class="w-8 h-8 rounded-lg bg-zinc-900 text-white flex items-center justify-center text-xs font-bold shadow-xs">
-											{ string([]rune(plan.Name)[0:1]) }
+											{ utils.SafeInitial(plan.Name, "P") }
 										</div>
 										<div>
 											<h3 class="text-sm font-bold text-text-primary leading-tight group-hover:text-primary transition-colors">

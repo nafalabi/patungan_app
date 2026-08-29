@@ -59,6 +59,9 @@ func (h *PublicHandler) InitiatePayment(c echo.Context) error {
 	if due.PaymentStatus == models.PaymentStatusPaid {
 		return echo.NewHTTPError(http.StatusBadRequest, "Payment due is already paid")
 	}
+	if due.PaymentStatus == models.PaymentStatusCanceled {
+		return echo.NewHTTPError(http.StatusBadRequest, "Payment due has been canceled")
+	}
 
 	// Initiate Payment using PaymentService
 	forceNew := c.QueryParam("force_new") == "true"

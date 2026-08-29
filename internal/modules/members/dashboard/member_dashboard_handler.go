@@ -1,6 +1,7 @@
 package dashboard
 
 import (
+	"net/http"
 	"patungan_app_echo/internal/middleware"
 	"patungan_app_echo/internal/models"
 	dashboard_pages "patungan_app_echo/internal/modules/members/dashboard/pages"
@@ -26,19 +27,23 @@ func (h *MemberDashboardHandler) Dashboard(c echo.Context) error {
 	userUID := middleware.GetString(c, "userUID")
 	userName := middleware.GetString(c, "userName")
 
-	// Get enrolled plans
+	// Get enrolled plans (excluding soft-deleted participant associations)
 	var enrolledPlans []models.Plan
-	h.db.Joins("JOIN plan_participants ON plan_participants.plan_id = plans.id").
+	if err := h.db.Joins("JOIN plan_participants ON plan_participants.plan_id = plans.id AND plan_participants.deleted_at IS NULL").
 		Where("plan_participants.user_id = ?", userID).
-		Preload("Participants").
-		Find(&enrolledPlans)
+		Preload("Participants.User").
+		Find(&enrolledPlans).Error; err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to load enrolled plans")
+	}
 
-	// Get pending payment dues for this user
+	// Get outstanding payment dues for this user (both pending and overdue)
 	var pendingDues []models.PaymentDue
-	h.db.Where("user_id = ? AND payment_status = ?", userID, models.PaymentStatusPending).
+	if err := h.db.Where("user_id = ? AND payment_status IN ?", userID, []string{models.PaymentStatusPending, models.PaymentStatusOverdue}).
 		Preload("Plan").
 		Order("due_date ASC").
-		Find(&pendingDues)
+		Find(&pendingDues).Error; err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to load payment dues")
+	}
 
 	var pendingAmount float64
 	for _, due := range pendingDues {
@@ -50,8 +55,10 @@ func (h *MemberDashboardHandler) Dashboard(c echo.Context) error {
 	startOfMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
 
 	var paidDuesThisMonth []models.PaymentDue
-	h.db.Where("user_id = ? AND payment_status = ? AND updated_at >= ?", userID, models.PaymentStatusPaid, startOfMonth).
-		Find(&paidDuesThisMonth)
+	if err := h.db.Where("user_id = ? AND payment_status = ? AND updated_at >= ?", userID, models.PaymentStatusPaid, startOfMonth).
+		Find(&paidDuesThisMonth).Error; err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to load payment history")
+	}
 
 	var paidThisMonth float64
 	for _, due := range paidDuesThisMonth {

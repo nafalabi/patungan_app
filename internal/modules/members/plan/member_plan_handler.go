@@ -27,7 +27,7 @@ func (h *MemberPlanHandler) ListPlans(c echo.Context) error {
 	userUID := middleware.GetString(c, "userUID")
 
 	var enrolledPlans []models.Plan
-	err := h.db.Joins("JOIN plan_participants ON plan_participants.plan_id = plans.id").
+	err := h.db.Joins("JOIN plan_participants ON plan_participants.plan_id = plans.id AND plan_participants.deleted_at IS NULL").
 		Where("plan_participants.user_id = ?", userID).
 		Preload("Owner").
 		Preload("Participants.User").

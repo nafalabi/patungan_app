@@ -3,6 +3,7 @@ package payment_pages
 import (
 	"fmt"
 	"patungan_app_echo/internal/models"
+	"patungan_app_echo/internal/template/utils"
 )
 
 // ViewByUsers renders payment dues grouped by users
@@ -29,11 +30,7 @@ templ UserListItems(userWithDues []UserWithDues, currentUserID uint, currentUser
 				<div class="flex justify-between items-center">
 					<div class="flex items-center gap-3">
 						<div class="w-9 h-9 bg-zinc-900 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-xs">
-							if len(uwd.User.Name) > 0 {
-								{ string([]rune(uwd.User.Name)[0:1]) }
-							} else {
-								U
-							}
+							{ utils.SafeInitial(uwd.User.Name, "U") }
 						</div>
 						<div>
 							<h3 class="text-sm font-bold text-text-primary leading-tight">{ uwd.User.Name }</h3>

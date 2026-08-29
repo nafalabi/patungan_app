@@ -30,7 +30,7 @@ func (h *MemberPaymentHandler) ListPayments(c echo.Context) error {
 
 	query := h.db.Where("user_id = ?", userID).Preload("Plan")
 	if statusFilter == "pending" {
-		query = query.Where("payment_status = ?", models.PaymentStatusPending)
+		query = query.Where("payment_status IN ?", []string{models.PaymentStatusPending, models.PaymentStatusOverdue})
 	} else if statusFilter == "paid" {
 		query = query.Where("payment_status = ?", models.PaymentStatusPaid)
 	}
@@ -45,9 +45,11 @@ func (h *MemberPaymentHandler) ListPayments(c echo.Context) error {
 	var totalPaid float64
 
 	var allUserDues []models.PaymentDue
-	h.db.Where("user_id = ?", userID).Find(&allUserDues)
+	if err := h.db.Where("user_id = ?", userID).Find(&allUserDues).Error; err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to calculate payment totals")
+	}
 	for _, d := range allUserDues {
-		if d.PaymentStatus == models.PaymentStatusPending {
+		if d.PaymentStatus == models.PaymentStatusPending || d.PaymentStatus == models.PaymentStatusOverdue {
 			totalPending += d.CalculatedPayAmount
 		} else if d.PaymentStatus == models.PaymentStatusPaid {
 			totalPaid += d.CalculatedPayAmount

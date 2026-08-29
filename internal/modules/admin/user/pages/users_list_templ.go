@@ -13,7 +13,7 @@ import (
 	"patungan_app_echo/internal/models"
 	"patungan_app_echo/internal/template/layouts"
 	types "patungan_app_echo/internal/template/types"
-	"strings"
+	"patungan_app_echo/internal/template/utils"
 )
 
 // UsersListProps contains props for the users list page
@@ -124,9 +124,9 @@ func UserRow(user models.User) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var4 string
-		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(getUserInitial(user.Name))
+		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(utils.SafeInitial(user.Name, "U"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/admin/user/pages/users_list.templ`, Line: 83, Col: 32}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/admin/user/pages/users_list.templ`, Line: 83, Col: 40}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -262,11 +262,7 @@ func UserRow(user models.User) templ.Component {
 }
 
 func getUserInitial(name string) string {
-	name = strings.TrimSpace(name)
-	if len(name) == 0 {
-		return "U"
-	}
-	return strings.ToUpper(string([]rune(name)[0:1]))
+	return utils.SafeInitial(name, "U")
 }
 
 var _ = templruntime.GeneratedTemplate
