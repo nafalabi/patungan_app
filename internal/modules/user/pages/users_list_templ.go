@@ -13,6 +13,7 @@ import (
 	"patungan_app_echo/internal/models"
 	"patungan_app_echo/internal/template/layouts"
 	types "patungan_app_echo/internal/template/types"
+	"strings"
 )
 
 // UsersListProps contains props for the users list page
@@ -59,12 +60,12 @@ func UsersList(props UsersListProps) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6\"><h1 class=\"text-2xl font-bold text-text-primary\">Users</h1><a href=\"/users/create\" class=\"w-full sm:w-auto inline-flex justify-center items-center gap-2 px-5 py-2.5 rounded-lg border-none cursor-pointer font-medium no-underline transition-all duration-200 bg-primary text-white hover:bg-primary-hover hover:-translate-y-px\">+ Add New User</a></div><div class=\"w-full bg-bg-card rounded-xl border border-border overflow-hidden overflow-x-auto\"><table class=\"w-full border-collapse min-w-[600px]\"><thead><tr class=\"bg-bg-body border-b border-border text-left\"><th class=\"p-4 font-semibold text-text-secondary text-sm uppercase tracking-wider\">Name</th><th class=\"p-4 font-semibold text-text-secondary text-sm uppercase tracking-wider\">Email</th><th class=\"p-4 font-semibold text-text-secondary text-sm uppercase tracking-wider\">Phone</th><th class=\"p-4 font-semibold text-text-secondary text-sm uppercase tracking-wider\">Type</th><th class=\"p-4 font-semibold text-text-secondary text-sm uppercase tracking-wider\">Actions</th></tr></thead> <tbody class=\"divide-y divide-border\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!-- Header --> <div class=\"flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6\"><div><h1 class=\"text-xl md:text-2xl font-bold text-text-primary tracking-tight\">Users</h1><p class=\"text-xs md:text-sm text-text-secondary mt-0.5\">Manage members, permissions, and notification channels</p></div><a href=\"/users/create\" class=\"w-full sm:w-auto inline-flex justify-center items-center gap-2 px-4 py-2 rounded-lg font-semibold text-xs no-underline transition-colors bg-primary text-white hover:bg-primary-hover shadow-xs\"><i data-lucide=\"user-plus\" class=\"w-4 h-4\"></i> Add New User</a></div><!-- Table Container --> <div class=\"w-full bg-bg-card rounded-xl border border-border overflow-hidden shadow-card overflow-x-auto\"><table class=\"w-full border-collapse min-w-[600px]\"><thead><tr class=\"bg-bg-subtle/50 border-b border-border text-left\"><th class=\"py-3 px-4 font-semibold text-text-secondary text-[11px] uppercase tracking-wider\">User</th><th class=\"py-3 px-4 font-semibold text-text-secondary text-[11px] uppercase tracking-wider\">Email</th><th class=\"py-3 px-4 font-semibold text-text-secondary text-[11px] uppercase tracking-wider\">Phone</th><th class=\"py-3 px-4 font-semibold text-text-secondary text-[11px] uppercase tracking-wider\">Role</th><th class=\"py-3 px-4 font-semibold text-text-secondary text-[11px] uppercase tracking-wider text-right\">Actions</th></tr></thead> <tbody class=\"divide-y divide-border\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(props.Users) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<tr><td colspan=\"5\" class=\"p-8 text-center text-text-secondary\">No users found.</td></tr>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<tr><td colspan=\"5\" class=\"py-12 text-center text-text-secondary text-xs\"><div class=\"w-10 h-10 rounded-full bg-bg-subtle border border-border flex items-center justify-center text-text-secondary mx-auto mb-2\"><i data-lucide=\"users\" class=\"w-5 h-5\"></i></div>No users registered yet.</td></tr>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -118,105 +119,154 @@ func UserRow(user models.User) templ.Component {
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<tr class=\"hover:bg-bg-hover transition-colors\"><td class=\"p-4 text-text-primary\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<tr class=\"hover:bg-bg-hover/50 transition-colors\"><td class=\"py-3.5 px-4\"><div class=\"flex items-center gap-3\"><div class=\"w-8 h-8 rounded-full bg-zinc-900 text-white flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-xs\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var4 string
-		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(user.Name)
+		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(getUserInitial(user.Name))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/user/pages/users_list.templ`, Line: 64, Col: 47}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/user/pages/users_list.templ`, Line: 83, Col: 32}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</td><td class=\"p-4 text-text-secondary\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div><div><p class=\"text-xs font-bold text-text-primary leading-tight\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var5 string
-		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(user.Email)
+		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(user.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/user/pages/users_list.templ`, Line: 65, Col: 50}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/user/pages/users_list.templ`, Line: 86, Col: 77}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</td><td class=\"p-4 text-text-secondary\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</p><p class=\"text-[10px] text-text-muted font-mono mt-0.5\">ID #")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var6 string
-		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(user.Phone)
+		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", user.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/user/pages/users_list.templ`, Line: 66, Col: 50}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/user/pages/users_list.templ`, Line: 87, Col: 93}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</td><td class=\"p-4\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</p></div></div></td><td class=\"py-3.5 px-4 text-xs text-text-secondary font-mono\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if user.UserType == models.UserTypeAdmin {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span class=\"px-2 py-1 rounded text-xs font-medium bg-primary/20 text-primary\">Admin</span>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<span class=\"px-2 py-1 rounded text-xs font-medium bg-text-secondary/20 text-text-secondary\">Member</span>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</td><td class=\"p-4 flex items-center gap-2\"><a href=\"")
+		var templ_7745c5c3_Var7 string
+		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(user.Email)
 		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var7 templ.SafeURL
-		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/users/%d/edit", user.ID)))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/user/pages/users_list.templ`, Line: 75, Col: 66}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/user/pages/users_list.templ`, Line: 91, Col: 76}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" class=\"inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg bg-primary text-white hover:bg-primary-hover transition-all duration-200 text-sm font-medium whitespace-nowrap min-w-[100px]\"><i data-lucide=\"edit-2\" style=\"width: 16px; height: 16px;\"></i> Edit</a><form method=\"POST\" action=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</td><td class=\"py-3.5 px-4 text-xs text-text-secondary font-mono\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var8 templ.SafeURL
-		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/users/%d/delete", user.ID)))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/user/pages/users_list.templ`, Line: 80, Col: 87}
+		if user.Phone != "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var8 string
+			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(user.Phone)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/user/pages/users_list.templ`, Line: 94, Col: 22}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span class=\"text-text-muted italic\">—</span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</td><td class=\"py-3.5 px-4\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" onsubmit=\"return confirm('Are you sure?')\" class=\"inline-block\"><button type=\"submit\" class=\"inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg bg-danger text-white hover:bg-red-600 transition-all duration-200 text-sm font-medium whitespace-nowrap min-w-[100px]\"><i data-lucide=\"trash-2\" style=\"width: 16px; height: 16px;\"></i> Delete</button></form><button hx-get=\"")
+		if user.UserType == models.UserTypeAdmin {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span class=\"px-2 py-0.5 rounded-full text-[11px] font-medium bg-zinc-900 text-white\">Admin</span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<span class=\"px-2 py-0.5 rounded-full text-[11px] font-medium bg-bg-subtle text-text-secondary border border-border\">Member</span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</td><td class=\"py-3.5 px-4 text-right\"><div class=\"inline-flex items-center gap-1.5 justify-end\"><a href=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var9 string
-		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/users/%d/preference", user.ID))
+		var templ_7745c5c3_Var9 templ.SafeURL
+		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/users/%d/edit", user.ID)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/user/pages/users_list.templ`, Line: 87, Col: 64}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/user/pages/users_list.templ`, Line: 109, Col: 65}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\" hx-target=\"body\" hx-swap=\"beforeend\" class=\"inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg bg-gray-500 text-white hover:bg-gray-600 transition-all duration-200 text-sm font-medium whitespace-nowrap min-w-[140px]\"><i data-lucide=\"bell\" style=\"width: 16px; height: 16px;\"></i> Settings</button></td></tr>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" class=\"p-1.5 rounded-lg border border-border text-text-secondary hover:text-text-primary hover:bg-bg-hover transition-colors\" title=\"Edit User\"><i data-lucide=\"edit-2\" class=\"w-3.5 h-3.5\"></i></a> <button hx-get=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var10 string
+		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/users/%d/preference", user.ID))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/user/pages/users_list.templ`, Line: 116, Col: 58}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\" hx-target=\"body\" hx-swap=\"beforeend\" class=\"p-1.5 rounded-lg border border-border text-text-secondary hover:text-text-primary hover:bg-bg-hover transition-colors\" title=\"Notification Preferences\"><i data-lucide=\"bell\" class=\"w-3.5 h-3.5\"></i></button><form method=\"POST\" action=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var11 templ.SafeURL
+		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/users/%d/delete", user.ID)))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/user/pages/users_list.templ`, Line: 124, Col: 88}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\" onsubmit=\"return confirm('Are you sure you want to delete this user?')\" class=\"inline-block\"><button type=\"submit\" class=\"p-1.5 rounded-lg border border-border text-text-muted hover:text-rose-600 hover:bg-rose-50 transition-colors\" title=\"Delete User\"><i data-lucide=\"trash-2\" class=\"w-3.5 h-3.5\"></i></button></form></div></td></tr>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		return nil
 	})
+}
+
+func getUserInitial(name string) string {
+	name = strings.TrimSpace(name)
+	if len(name) == 0 {
+		return "U"
+	}
+	return strings.ToUpper(string([]rune(name)[0:1]))
 }
 
 var _ = templruntime.GeneratedTemplate
