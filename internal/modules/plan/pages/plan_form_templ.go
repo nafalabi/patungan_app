@@ -65,7 +65,7 @@ func PlanForm(props PlanFormProps) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"max-w-[620px] mx-auto p-6 sm:p-8 bg-bg-card rounded-2xl border border-border shadow-card\"><div class=\"mb-6\"><h1 class=\"text-xl md:text-2xl font-bold text-text-primary tracking-tight\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"max-w-2xl mx-auto p-6 sm:p-8 bg-bg-card rounded-2xl border border-border shadow-card\"><div class=\"mb-6\"><h1 class=\"text-xl md:text-2xl font-bold text-text-primary tracking-tight\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

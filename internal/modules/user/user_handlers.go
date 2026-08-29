@@ -55,7 +55,7 @@ func (h *UserHandler) CreateUserPage(c echo.Context) error {
 	}
 
 	props := user_pages.UserFormProps{
-		Title:       "Create New ser",
+		Title:       "Create New User",
 		ActiveNav:   "users",
 		Breadcrumbs: breadcrumbs,
 		UserEmail:   middleware.GetString(c, "userEmail"),

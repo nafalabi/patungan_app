@@ -35,7 +35,7 @@ func (h *SettingsHandler) GetSettings(c echo.Context) error {
 
 	breadcrumbs := []types.Breadcrumb{
 		{Title: "Home", URL: "/"},
-		{Title: "models.Settings", URL: ""},
+		{Title: "Settings", URL: ""},
 	}
 
 	props := settings_pages.PaymentSettingsProps{
@@ -76,7 +76,7 @@ func (h *SettingsHandler) UpdateSettings(c echo.Context) error {
 
 	// For HTMX, we could return a success message or redirect
 	if c.Request().Header.Get("HX-Request") != "" {
-		return c.String(http.StatusOK, "models.Settings updated successfully")
+		return c.String(http.StatusOK, "Settings updated successfully")
 	}
 
 	return c.Redirect(http.StatusSeeOther, "/admin/settings")
