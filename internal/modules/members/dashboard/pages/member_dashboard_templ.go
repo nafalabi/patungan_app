@@ -13,7 +13,7 @@ import (
 	"patungan_app_echo/internal/models"
 	"patungan_app_echo/internal/template/layouts"
 	types "patungan_app_echo/internal/template/types"
-	"patungan_app_echo/internal/utils"
+	"patungan_app_echo/internal/template/utils"
 	"time"
 )
 
@@ -25,9 +25,9 @@ type MemberDashboardProps struct {
 	UserUID          string
 	UserName         string
 	ActivePlansCount int
-	PendingAmount    int64
+	PendingAmount    float64
 	PendingCount     int
-	PaidThisMonth    int64
+	PaidThisMonth    float64
 	PendingDues      []models.PaymentDue
 	EnrolledPlans    []models.Plan
 }
@@ -292,9 +292,9 @@ func MemberDashboard(props MemberDashboardProps) templ.Component {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var17 string
-					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(utils.FormatRupiah(plan.Price))
+					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(utils.FormatRupiah(plan.TotalPrice))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/members/dashboard/pages/member_dashboard.templ`, Line: 190, Col: 42}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/members/dashboard/pages/member_dashboard.templ`, Line: 190, Col: 47}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 					if templ_7745c5c3_Err != nil {

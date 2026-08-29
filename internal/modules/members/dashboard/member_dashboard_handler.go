@@ -40,7 +40,7 @@ func (h *MemberDashboardHandler) Dashboard(c echo.Context) error {
 		Order("due_date ASC").
 		Find(&pendingDues)
 
-	var pendingAmount int64
+	var pendingAmount float64
 	for _, due := range pendingDues {
 		pendingAmount += due.CalculatedPayAmount
 	}
@@ -53,7 +53,7 @@ func (h *MemberDashboardHandler) Dashboard(c echo.Context) error {
 	h.db.Where("user_id = ? AND payment_status = ? AND updated_at >= ?", userID, models.PaymentStatusPaid, startOfMonth).
 		Find(&paidDuesThisMonth)
 
-	var paidThisMonth int64
+	var paidThisMonth float64
 	for _, due := range paidDuesThisMonth {
 		paidThisMonth += due.CalculatedPayAmount
 	}

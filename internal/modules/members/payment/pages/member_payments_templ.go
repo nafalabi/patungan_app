@@ -13,7 +13,7 @@ import (
 	"patungan_app_echo/internal/models"
 	"patungan_app_echo/internal/template/layouts"
 	types "patungan_app_echo/internal/template/types"
-	"patungan_app_echo/internal/utils"
+	"patungan_app_echo/internal/template/utils"
 )
 
 type MemberPaymentsProps struct {
@@ -24,8 +24,8 @@ type MemberPaymentsProps struct {
 	UserUID      string
 	StatusFilter string
 	PaymentDues  []models.PaymentDue
-	TotalPending int64
-	TotalPaid    int64
+	TotalPending float64
+	TotalPaid    float64
 }
 
 func MemberPayments(props MemberPaymentsProps) templ.Component {

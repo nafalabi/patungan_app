@@ -5,7 +5,7 @@ import (
 	"patungan_app_echo/internal/models"
 	"patungan_app_echo/internal/template/layouts"
 	types "patungan_app_echo/internal/template/types"
-	"patungan_app_echo/internal/utils"
+	"patungan_app_echo/internal/template/utils"
 )
 
 type MemberPlansListProps struct {
@@ -58,7 +58,7 @@ templ MemberPlansList(props MemberPlansListProps) {
 												{ plan.Name }
 											</h3>
 											<p class="text-[11px] text-text-muted mt-0.5">
-												Owner: <span class="font-medium text-text-secondary">{ plan.User.Name }</span>
+												Owner: <span class="font-medium text-text-secondary">{ plan.Owner.Name }</span>
 											</p>
 										</div>
 									</div>
@@ -70,7 +70,7 @@ templ MemberPlansList(props MemberPlansListProps) {
 								<div class="bg-bg-body rounded-lg p-3 border border-border/60 my-3">
 									<p class="text-[10px] font-semibold text-text-secondary uppercase tracking-wider">Plan Total</p>
 									<p class="text-base font-extrabold text-text-primary font-mono mt-0.5">
-										{ utils.FormatRupiah(plan.Price) }
+										{ utils.FormatRupiah(plan.TotalPrice) }
 									</p>
 								</div>
 							</div>

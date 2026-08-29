@@ -29,7 +29,7 @@ func (h *MemberPlanHandler) ListPlans(c echo.Context) error {
 	var enrolledPlans []models.Plan
 	err := h.db.Joins("JOIN plan_participants ON plan_participants.plan_id = plans.id").
 		Where("plan_participants.user_id = ?", userID).
-		Preload("User").
+		Preload("Owner").
 		Preload("Participants.User").
 		Order("plans.created_at DESC").
 		Find(&enrolledPlans).Error
@@ -77,17 +77,19 @@ func (h *MemberPlanHandler) ShowPlan(c echo.Context) error {
 	}
 
 	var plan models.Plan
-	err = h.db.Preload("User").
+	err = h.db.Preload("Owner").
 		Preload("Participants.User").
-		Preload("PaymentBillingPeriods", func(db *gorm.DB) *gorm.DB {
-			return db.Order("billing_period_number DESC")
-		}).
-		Preload("PaymentBillingPeriods.PaymentDues.User").
 		First(&plan, planID).Error
 
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, "Plan not found")
 	}
+
+	var billingPeriods []models.PaymentBillingPeriod
+	h.db.Where("plan_id = ?", planID).
+		Preload("Dues.User").
+		Order("due_date DESC").
+		Find(&billingPeriods)
 
 	breadcrumbs := []types.Breadcrumb{
 		{Title: "Home", URL: "/member/dashboard"},
@@ -96,13 +98,14 @@ func (h *MemberPlanHandler) ShowPlan(c echo.Context) error {
 	}
 
 	props := plan_pages.MemberPlanDetailProps{
-		Title:         plan.Name + " - Plan Details",
-		ActiveNav:     "plans",
-		Breadcrumbs:   breadcrumbs,
-		UserEmail:     userEmail,
-		UserUID:       userUID,
-		CurrentUserID: userID,
-		Plan:          plan,
+		Title:          plan.Name + " - Plan Details",
+		ActiveNav:      "plans",
+		Breadcrumbs:    breadcrumbs,
+		UserEmail:      userEmail,
+		UserUID:        userUID,
+		CurrentUserID:  userID,
+		Plan:           plan,
+		BillingPeriods: billingPeriods,
 	}
 
 	return plan_pages.MemberPlanDetail(props).Render(c.Request().Context(), c.Response())

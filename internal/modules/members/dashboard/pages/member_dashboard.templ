@@ -5,7 +5,7 @@ import (
 	"patungan_app_echo/internal/models"
 	"patungan_app_echo/internal/template/layouts"
 	types "patungan_app_echo/internal/template/types"
-	"patungan_app_echo/internal/utils"
+	"patungan_app_echo/internal/template/utils"
 	"time"
 )
 
@@ -17,9 +17,9 @@ type MemberDashboardProps struct {
 	UserUID          string
 	UserName         string
 	ActivePlansCount int
-	PendingAmount    int64
+	PendingAmount    float64
 	PendingCount     int
-	PaidThisMonth    int64
+	PaidThisMonth    float64
 	PendingDues      []models.PaymentDue
 	EnrolledPlans    []models.Plan
 }
@@ -187,7 +187,7 @@ templ MemberDashboard(props MemberDashboardProps) {
 										</span>
 									</div>
 									<div class="mt-2 text-xs font-mono font-bold text-text-primary">
-										{ utils.FormatRupiah(plan.Price) }
+										{ utils.FormatRupiah(plan.TotalPrice) }
 										<span class="text-[10px] font-normal text-text-secondary">/ total</span>
 									</div>
 								</div>

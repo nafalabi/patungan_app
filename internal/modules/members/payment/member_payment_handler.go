@@ -41,8 +41,8 @@ func (h *MemberPaymentHandler) ListPayments(c echo.Context) error {
 	}
 
 	// Calculate totals for summary cards
-	var totalPending int64
-	var totalPaid int64
+	var totalPending float64
+	var totalPaid float64
 
 	var allUserDues []models.PaymentDue
 	h.db.Where("user_id = ?", userID).Find(&allUserDues)

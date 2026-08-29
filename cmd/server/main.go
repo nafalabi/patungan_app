@@ -20,6 +20,9 @@ import (
 	admin_plan "patungan_app_echo/internal/modules/admin/plan"
 	admin_settings "patungan_app_echo/internal/modules/admin/settings"
 	admin_user "patungan_app_echo/internal/modules/admin/user"
+	member_dashboard "patungan_app_echo/internal/modules/members/dashboard"
+	member_payment "patungan_app_echo/internal/modules/members/payment"
+	member_plan "patungan_app_echo/internal/modules/members/plan"
 	public_payment "patungan_app_echo/internal/modules/payment"
 
 	"patungan_app_echo/internal/models"
@@ -157,6 +160,10 @@ func main() {
 	adminUserPrefHandler := admin_user.NewUserPreferenceHandler(db)
 	adminSettingsHandler := admin_settings.NewSettingsHandler(db, gatewayManager)
 
+	memberDashboardHandler := member_dashboard.NewMemberDashboardHandler(db)
+	memberPlanHandler := member_plan.NewMemberPlanHandler(db)
+	memberPaymentHandler := member_payment.NewMemberPaymentHandler(db, paymentService)
+
 	// Public routes
 	e.GET("/login", authHandler.LoginPage)
 	e.POST("/auth/login", authHandler.HandleLogin)
@@ -206,6 +213,15 @@ func main() {
 	// Admin Settings routes
 	adminGroup.GET("/settings", adminSettingsHandler.GetSettings)
 	adminGroup.POST("/settings", adminSettingsHandler.UpdateSettings)
+
+	// Member routes
+	memberGroup := e.Group("/member")
+	memberGroup.Use(authMiddleware.RequireAuth(authClient, db, redisCache))
+
+	memberGroup.GET("/dashboard", memberDashboardHandler.Dashboard)
+	memberGroup.GET("/plans", memberPlanHandler.ListPlans)
+	memberGroup.GET("/plans/:id", memberPlanHandler.ShowPlan)
+	memberGroup.GET("/payments", memberPaymentHandler.ListPayments)
 
 	// Webhooks
 	e.POST("/payments/callback/midtrans", adminPaymentDueHandler.MidtransCallback)

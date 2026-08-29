@@ -5,19 +5,19 @@ import (
 	"patungan_app_echo/internal/models"
 	"patungan_app_echo/internal/template/layouts"
 	types "patungan_app_echo/internal/template/types"
-	"patungan_app_echo/internal/utils"
+	"patungan_app_echo/internal/template/utils"
 )
 
 type MemberPaymentsProps struct {
-	Title         string
-	ActiveNav     string
-	Breadcrumbs   []types.Breadcrumb
-	UserEmail     string
-	UserUID       string
-	StatusFilter  string
-	PaymentDues   []models.PaymentDue
-	TotalPending  int64
-	TotalPaid     int64
+	Title        string
+	ActiveNav    string
+	Breadcrumbs  []types.Breadcrumb
+	UserEmail    string
+	UserUID      string
+	StatusFilter string
+	PaymentDues  []models.PaymentDue
+	TotalPending float64
+	TotalPaid    float64
 }
 
 templ MemberPayments(props MemberPaymentsProps) {
