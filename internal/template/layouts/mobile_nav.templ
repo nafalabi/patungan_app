@@ -1,10 +1,10 @@
 package layouts
 
 // MobileNav renders the mobile navigation bar with popup menu
-templ MobileNav(activeNav string) {
+templ MobileNav(activeNav string, role string) {
 	<div x-data="{ open: false }" class="bg-bg-card border-b border-border sticky top-0 z-50 md:hidden">
 		<div class="flex items-center justify-between px-4 h-14">
-			<a href="/dashboard">
+			<a href={ templ.SafeURL(getHomeURL(role)) }>
 				<div class="flex items-center gap-2.5">
 					<div class="w-7 h-7 rounded-lg bg-primary text-white flex items-center justify-center font-black text-sm">
 						P
@@ -31,41 +31,65 @@ templ MobileNav(activeNav string) {
 			style="display: none;"
 		>
 			<nav class="flex flex-col gap-1 text-sm font-medium">
-				<a
-					href="/dashboard"
-					class={ "flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-colors", templ.KV("bg-primary text-white", activeNav == "dashboard"), templ.KV("text-text-secondary hover:bg-bg-hover hover:text-text-primary", activeNav != "dashboard") }
-				>
-					<i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-					<span>Dashboard</span>
-				</a>
-				<a
-					href="/plans"
-					class={ "flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-colors", templ.KV("bg-primary text-white", activeNav == "plans"), templ.KV("text-text-secondary hover:bg-bg-hover hover:text-text-primary", activeNav != "plans") }
-				>
-					<i data-lucide="list-todo" class="w-4 h-4"></i>
-					<span>Plans</span>
-				</a>
-				<a
-					href="/payment-dues"
-					class={ "flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-colors", templ.KV("bg-primary text-white", activeNav == "payment-dues"), templ.KV("text-text-secondary hover:bg-bg-hover hover:text-text-primary", activeNav != "payment-dues") }
-				>
-					<i data-lucide="dollar-sign" class="w-4 h-4"></i>
-					<span>Payment Dues</span>
-				</a>
-				<a
-					href="/users"
-					class={ "flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-colors", templ.KV("bg-primary text-white", activeNav == "users"), templ.KV("text-text-secondary hover:bg-bg-hover hover:text-text-primary", activeNav != "users") }
-				>
-					<i data-lucide="users" class="w-4 h-4"></i>
-					<span>Users</span>
-				</a>
-				<a
-					href="/admin/settings"
-					class={ "flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-colors", templ.KV("bg-primary text-white", activeNav == "settings"), templ.KV("text-text-secondary hover:bg-bg-hover hover:text-text-primary", activeNav != "settings") }
-				>
-					<i data-lucide="settings" class="w-4 h-4"></i>
-					<span>Settings</span>
-				</a>
+				if role == "member" {
+					<a
+						href="/member/dashboard"
+						class={ "flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-colors", templ.KV("bg-primary text-white", activeNav == "dashboard"), templ.KV("text-text-secondary hover:bg-bg-hover hover:text-text-primary", activeNav != "dashboard") }
+					>
+						<i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+						<span>Dashboard</span>
+					</a>
+					<a
+						href="/member/plans"
+						class={ "flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-colors", templ.KV("bg-primary text-white", activeNav == "plans"), templ.KV("text-text-secondary hover:bg-bg-hover hover:text-text-primary", activeNav != "plans") }
+					>
+						<i data-lucide="layers" class="w-4 h-4"></i>
+						<span>My Plans</span>
+					</a>
+					<a
+						href="/member/payments"
+						class={ "flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-colors", templ.KV("bg-primary text-white", activeNav == "payments"), templ.KV("text-text-secondary hover:bg-bg-hover hover:text-text-primary", activeNav != "payments") }
+					>
+						<i data-lucide="receipt" class="w-4 h-4"></i>
+						<span>My Payments</span>
+					</a>
+				} else {
+					<a
+						href="/admin/dashboard"
+						class={ "flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-colors", templ.KV("bg-primary text-white", activeNav == "dashboard"), templ.KV("text-text-secondary hover:bg-bg-hover hover:text-text-primary", activeNav != "dashboard") }
+					>
+						<i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+						<span>Dashboard</span>
+					</a>
+					<a
+						href="/admin/plans"
+						class={ "flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-colors", templ.KV("bg-primary text-white", activeNav == "plans"), templ.KV("text-text-secondary hover:bg-bg-hover hover:text-text-primary", activeNav != "plans") }
+					>
+						<i data-lucide="list-todo" class="w-4 h-4"></i>
+						<span>Plans</span>
+					</a>
+					<a
+						href="/admin/payment-dues"
+						class={ "flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-colors", templ.KV("bg-primary text-white", activeNav == "payment-dues"), templ.KV("text-text-secondary hover:bg-bg-hover hover:text-text-primary", activeNav != "payment-dues") }
+					>
+						<i data-lucide="dollar-sign" class="w-4 h-4"></i>
+						<span>Payment Dues</span>
+					</a>
+					<a
+						href="/admin/users"
+						class={ "flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-colors", templ.KV("bg-primary text-white", activeNav == "users"), templ.KV("text-text-secondary hover:bg-bg-hover hover:text-text-primary", activeNav != "users") }
+					>
+						<i data-lucide="users" class="w-4 h-4"></i>
+						<span>Users</span>
+					</a>
+					<a
+						href="/admin/settings"
+						class={ "flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-colors", templ.KV("bg-primary text-white", activeNav == "settings"), templ.KV("text-text-secondary hover:bg-bg-hover hover:text-text-primary", activeNav != "settings") }
+					>
+						<i data-lucide="settings" class="w-4 h-4"></i>
+						<span>Settings</span>
+					</a>
+				}
 				<div class="h-px bg-border my-1"></div>
 				<button
 					class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-colors text-rose-600 hover:bg-rose-50 w-full text-left logout-btn"
