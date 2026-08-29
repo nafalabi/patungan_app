@@ -36,12 +36,12 @@ func ViewByPlans(planWithDues []PlanWithDues, currentUserID uint, currentUserTyp
 		}
 		ctx = templ.ClearChildren(ctx)
 		if len(planWithDues) == 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"bg-bg-card rounded-xl border border-border p-8 text-center text-text-secondary\">No plans with payment dues found.</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"bg-bg-card rounded-xl border border-border p-8 text-center text-text-secondary shadow-card\">No plans with payment dues found.</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div id=\"plans-container\" class=\"space-y-6\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div id=\"plans-container\" class=\"space-y-5\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -85,39 +85,39 @@ func PlanListItems(planWithDues []PlanWithDues, currentUserID uint, currentUserT
 		}
 		ctx = templ.ClearChildren(ctx)
 		for _, pwd := range planWithDues {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"bg-bg-card rounded-2xl border border-border overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300\"><!-- Plan header --><div class=\"bg-primary/[0.03] border-b border-border p-5\"><div class=\"flex justify-between items-center\"><div class=\"flex items-center gap-3\"><div class=\"p-2.5 bg-primary/10 rounded-xl text-primary\"><i data-lucide=\"layers\" class=\"w-6 h-6\"></i></div><div><h3 class=\"text-xl font-bold text-text-primary leading-tight\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"bg-bg-card rounded-xl border border-border overflow-hidden shadow-card hover:shadow-card-hover transition-all\"><!-- Plan header --><div class=\"bg-bg-subtle/50 border-b border-border p-4\"><div class=\"flex justify-between items-center\"><div class=\"flex items-center gap-3\"><div class=\"w-8 h-8 rounded-lg bg-bg-card border border-border flex items-center justify-center text-text-primary\"><i data-lucide=\"layers\" class=\"w-4 h-4\"></i></div><div><h3 class=\"text-base font-bold text-text-primary leading-tight tracking-tight\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(pwd.Plan.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/view_by_plans.templ`, Line: 35, Col: 84}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/view_by_plans.templ`, Line: 35, Col: 101}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</h3><p class=\"text-sm text-text-secondary mt-0.5\">Total Price: <span class=\"font-medium text-text-primary\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</h3><p class=\"text-xs text-text-secondary mt-0.5\">Total: <span class=\"font-semibold text-text-primary font-mono\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(formatRupiah(pwd.Plan.TotalPrice))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/view_by_plans.templ`, Line: 37, Col: 100}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/view_by_plans.templ`, Line: 37, Col: 106}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</span></p></div></div></div></div><!-- Latest Period --><div class=\"p-5 bg-white\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</span></p></div></div></div></div><!-- Latest Period --><div class=\"p-4 bg-bg-card\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(pwd.Periods) > 0 {
 				for _, pwd_period := range pwd.Periods {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"border border-border/60 rounded-xl overflow-hidden bg-bg-body/30\"><div class=\"bg-bg-hover/40 px-4 py-2.5 border-b border-border/60 flex justify-between items-center\"><h4 class=\"font-bold text-text-primary text-sm flex items-center gap-2\"><i data-lucide=\"calendar\" class=\"w-4 h-4 text-primary\"></i> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"border border-border/80 rounded-lg overflow-hidden bg-bg-card\"><div class=\"bg-bg-subtle/60 px-4 py-2 border-b border-border/80 flex justify-between items-center\"><h4 class=\"font-bold text-text-primary text-xs flex items-center gap-2\"><i data-lucide=\"calendar\" class=\"w-3.5 h-3.5 text-text-secondary\"></i> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -150,7 +150,7 @@ func PlanListItems(planWithDues []PlanWithDues, currentUserID uint, currentUserT
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span class=\"ml-2 px-2 py-0.5 bg-primary/10 text-primary text-[10px] uppercase tracking-wider rounded-md\">Latest Period</span></h4></div><div class=\"divide-y divide-border/50\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span class=\"ml-2 px-2 py-0.5 bg-bg-card text-text-secondary border border-border text-[10px] font-semibold uppercase tracking-wider rounded-md\">Latest Period</span></h4></div><div class=\"divide-y divide-border/60\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -166,7 +166,7 @@ func PlanListItems(planWithDues []PlanWithDues, currentUserID uint, currentUserT
 					}
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"text-center py-4 text-text-secondary text-sm italic\">No active periods found for this plan.</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"text-center py-4 text-text-secondary text-xs italic\">No active periods found for this plan.</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -201,7 +201,7 @@ func LoadMorePlansButton(nextOffset int) templ.Component {
 			templ_7745c5c3_Var7 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"mt-8 flex justify-center\" id=\"load-more-plans-container\" hx-swap-oob=\"true\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"mt-6 flex justify-center\" id=\"load-more-plans-container\" hx-swap-oob=\"true\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -219,7 +219,7 @@ func LoadMorePlansButton(nextOffset int) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" hx-target=\"#plans-container\" hx-swap=\"beforeend\" hx-indicator=\"#load-more-spinner\" class=\"px-6 py-2.5 bg-bg-card text-primary border border-primary/20 rounded-xl font-semibold hover:bg-primary hover:text-white transition-all duration-300 shadow-sm flex items-center gap-2\"><span>Load More Plans</span><div id=\"load-more-spinner\" class=\"htmx-indicator animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full\"></div></button>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" hx-target=\"#plans-container\" hx-swap=\"beforeend\" hx-indicator=\"#load-more-spinner\" class=\"px-4 py-2 bg-bg-card text-text-primary border border-border rounded-lg text-xs font-semibold hover:bg-bg-hover transition-colors shadow-xs flex items-center gap-2 cursor-pointer\"><span>Load More Plans</span><div id=\"load-more-spinner\" class=\"htmx-indicator animate-spin h-3.5 w-3.5 border-2 border-current border-t-transparent rounded-full\"></div></button>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

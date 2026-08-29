@@ -36,12 +36,12 @@ func ViewByPeriods(periodWithPlans []PeriodWithPlans, currentUserID uint, curren
 		}
 		ctx = templ.ClearChildren(ctx)
 		if len(periodWithPlans) == 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"bg-bg-card rounded-xl border border-border p-8 text-center text-text-secondary\">No billing periods found.</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"bg-bg-card rounded-xl border border-border p-8 text-center text-text-secondary shadow-card\">No billing periods found.</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div id=\"periods-container\" class=\"space-y-10\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div id=\"periods-container\" class=\"space-y-6\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -85,7 +85,7 @@ func PeriodListItems(periodWithPlans []PeriodWithPlans, currentUserID uint, curr
 		}
 		ctx = templ.ClearChildren(ctx)
 		for _, pwp := range periodWithPlans {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"bg-bg-card rounded-3xl border border-border overflow-hidden shadow-sm\"><!-- Period header --><div class=\"bg-primary/10 border-b border-border p-6\"><div class=\"flex justify-between items-center\"><div class=\"flex items-center gap-4\"><div class=\"p-3 bg-white rounded-2xl text-primary shadow-sm\"><i data-lucide=\"calendar-range\" class=\"w-7 h-7\"></i></div><div><h3 class=\"text-2xl font-black text-text-primary\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"bg-bg-card rounded-xl border border-border overflow-hidden shadow-card\"><!-- Period header --><div class=\"bg-bg-subtle/50 border-b border-border p-4\"><div class=\"flex justify-between items-center\"><div class=\"flex items-center gap-3\"><div class=\"w-8 h-8 rounded-lg bg-bg-card border border-border flex items-center justify-center text-text-primary\"><i data-lucide=\"calendar-range\" class=\"w-4 h-4\"></i></div><div><h3 class=\"text-base font-bold text-text-primary tracking-tight\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -114,7 +114,7 @@ func PeriodListItems(periodWithPlans []PeriodWithPlans, currentUserID uint, curr
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</h3><p class=\"text-sm text-text-secondary\">Billing cycle starting ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</h3><p class=\"text-xs text-text-secondary\">Billing cycle starting ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -127,7 +127,7 @@ func PeriodListItems(periodWithPlans []PeriodWithPlans, currentUserID uint, curr
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</p></div></div></div></div><!-- Plans in this period --><div class=\"p-6 space-y-6\"><div id=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</p></div></div></div></div><!-- Plans in this period --><div class=\"p-4 space-y-4\"><div id=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -140,7 +140,7 @@ func PeriodListItems(periodWithPlans []PeriodWithPlans, currentUserID uint, curr
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" class=\"space-y-6\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" class=\"space-y-4\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -178,7 +178,7 @@ func LoadMorePeriodsButton(nextOffset int) templ.Component {
 			templ_7745c5c3_Var7 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"mt-12 flex justify-center\" id=\"load-more-periods-container\" hx-swap-oob=\"true\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"mt-6 flex justify-center\" id=\"load-more-periods-container\" hx-swap-oob=\"true\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -196,7 +196,7 @@ func LoadMorePeriodsButton(nextOffset int) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" hx-target=\"#periods-container\" hx-swap=\"beforeend\" hx-indicator=\"#load-more-periods-spinner\" class=\"px-8 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary-hover transition-all duration-300 shadow-lg shadow-primary/20 flex items-center gap-3\"><span>Load Previous Periods</span><div id=\"load-more-periods-spinner\" class=\"htmx-indicator animate-spin h-5 w-5 border-3 border-white border-t-transparent rounded-full\"></div></button>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" hx-target=\"#periods-container\" hx-swap=\"beforeend\" hx-indicator=\"#load-more-periods-spinner\" class=\"px-4 py-2 bg-primary text-white rounded-lg text-xs font-semibold hover:bg-primary-hover transition-colors shadow-xs flex items-center gap-2 cursor-pointer\"><span>Load Previous Periods</span><div id=\"load-more-periods-spinner\" class=\"htmx-indicator animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full\"></div></button>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -232,7 +232,7 @@ func PeriodPlanItems(periodID uint, plans []PlanWithDuesInPeriod, currentUserID 
 		}
 		ctx = templ.ClearChildren(ctx)
 		for _, plan_dues := range plans {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"border border-border/80 rounded-2xl overflow-hidden bg-bg-body/50\"><div class=\"bg-white/80 px-5 py-3 border-b border-border/80 flex justify-between items-center\"><h4 class=\"font-bold text-text-primary flex items-center gap-2\"><i data-lucide=\"package\" class=\"w-4 h-4 text-primary\"></i> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"border border-border/80 rounded-lg overflow-hidden bg-bg-card\"><div class=\"bg-bg-subtle/60 px-4 py-2 border-b border-border/80 flex justify-between items-center\"><h4 class=\"font-bold text-text-primary text-xs flex items-center gap-2\"><i data-lucide=\"package\" class=\"w-3.5 h-3.5 text-text-secondary\"></i> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -245,7 +245,7 @@ func PeriodPlanItems(periodID uint, plans []PlanWithDuesInPeriod, currentUserID 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</h4><span class=\"text-[11px] font-bold bg-bg-card px-2.5 py-1 rounded-full border border-border text-text-secondary uppercase tracking-tight\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</h4><span class=\"text-[10px] font-semibold bg-bg-card px-2 py-0.5 rounded-md border border-border text-text-secondary uppercase tracking-tight\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
