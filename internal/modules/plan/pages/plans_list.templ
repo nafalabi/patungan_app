@@ -1,7 +1,8 @@
 package plan_pages
-import (	
 
+import (	
 	"fmt"
+	"strings"
 	"patungan_app_echo/internal/models"
 	"patungan_app_echo/internal/template/layouts"
 	types "patungan_app_echo/internal/template/types"
@@ -47,26 +48,27 @@ templ PlansList(props PlansListProps) {
 		<!-- Header -->
 		<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
 			<div>
-				<h1 class="text-2xl font-bold text-text-primary">Plans</h1>
-				<p class="text-sm text-text-secondary mt-1">
-					Showing { fmt.Sprintf("%d", props.TotalCount) } total plans
+				<h1 class="text-xl md:text-2xl font-bold text-text-primary tracking-tight">Plans</h1>
+				<p class="text-xs md:text-sm text-text-secondary mt-0.5">
+					Showing { fmt.Sprintf("%d", props.TotalCount) } active subscription plans
 				</p>
 			</div>
-			<a href="/plans/create" class="w-full sm:w-auto inline-flex justify-center items-center gap-2 px-5 py-2.5 rounded-lg border-none cursor-pointer font-medium no-underline transition-all duration-200 bg-primary text-white hover:bg-primary-hover hover:-translate-y-px">
-				<i data-lucide="plus" style="width: 18px; height: 18px;"></i>
+			<a href="/plans/create" class="w-full sm:w-auto inline-flex justify-center items-center gap-2 px-4 py-2 rounded-lg font-semibold text-xs no-underline transition-all duration-150 bg-primary text-white hover:bg-primary-hover shadow-sm">
+				<i data-lucide="plus" class="w-4 h-4"></i>
 				Create New Plan
 			</a>
 		</div>
+
 		<!-- Filters and Sorting -->
-		<div class="bg-bg-card rounded-xl border border-border p-4 mb-6">
+		<div class="bg-bg-card rounded-xl border border-border p-4 mb-6 shadow-card">
 			<form id="filter-form" method="get" action="/plans">
-				<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+				<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
 					<!-- Filter by Owner -->
 					<div>
-						<label class="block text-sm font-medium text-text-secondary mb-2">Owner</label>
+						<label class="block text-xs font-semibold text-text-secondary uppercase tracking-wider mb-1.5">Owner</label>
 						<select 
 							name="filter_owner"
-							class="w-full px-3 py-2 bg-bg-body border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
+							class="w-full px-3 py-1.5 bg-bg-body border border-border rounded-lg text-text-primary text-xs focus:outline-none focus:ring-1 focus:ring-primary"
 							onchange="this.form.submit()"
 						>
 							<option value="">All Owners</option>
@@ -79,10 +81,10 @@ templ PlansList(props PlansListProps) {
 					</div>
 					<!-- Filter by Type -->
 					<div>
-						<label class="block text-sm font-medium text-text-secondary mb-2">Payment Type</label>
+						<label class="block text-xs font-semibold text-text-secondary uppercase tracking-wider mb-1.5">Payment Type</label>
 						<select 
 							name="filter_type"
-							class="w-full px-3 py-2 bg-bg-body border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
+							class="w-full px-3 py-1.5 bg-bg-body border border-border rounded-lg text-text-primary text-xs focus:outline-none focus:ring-1 focus:ring-primary"
 							onchange="this.form.submit()"
 						>
 							<option value="">All Types</option>
@@ -92,10 +94,10 @@ templ PlansList(props PlansListProps) {
 					</div>
 					<!-- Sort By -->
 					<div>
-						<label class="block text-sm font-medium text-text-secondary mb-2">Sort By</label>
+						<label class="block text-xs font-semibold text-text-secondary uppercase tracking-wider mb-1.5">Sort By</label>
 						<select 
 							name="sort_by"
-							class="w-full px-3 py-2 bg-bg-body border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
+							class="w-full px-3 py-1.5 bg-bg-body border border-border rounded-lg text-text-primary text-xs focus:outline-none focus:ring-1 focus:ring-primary"
 							onchange="this.form.submit()"
 						>
 							<option value="created" selected?={ props.SortBy == "created" }>Created Date</option>
@@ -106,10 +108,10 @@ templ PlansList(props PlansListProps) {
 					</div>
 					<!-- Sort Order -->
 					<div>
-						<label class="block text-sm font-medium text-text-secondary mb-2">Order</label>
+						<label class="block text-xs font-semibold text-text-secondary uppercase tracking-wider mb-1.5">Order</label>
 						<select 
 							name="sort_order"
-							class="w-full px-3 py-2 bg-bg-body border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
+							class="w-full px-3 py-1.5 bg-bg-body border border-border rounded-lg text-text-primary text-xs focus:outline-none focus:ring-1 focus:ring-primary"
 							onchange="this.form.submit()"
 						>
 							<option value="asc" selected?={ props.SortOrder == "asc" }>Ascending</option>
@@ -121,44 +123,51 @@ templ PlansList(props PlansListProps) {
 				<input type="hidden" name="page" value="1"/>
 			</form>
 			if props.FilterOwner > 0 || props.FilterType != "" {
-				<div class="mt-4">
+				<div class="mt-3 pt-3 border-t border-border/60 flex items-center justify-between">
+					<span class="text-xs text-text-secondary">Active filters applied</span>
 					<a 
 						href="/plans"
-						class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border text-text-secondary hover:bg-bg-hover transition-all duration-200 text-sm"
+						class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-border text-text-secondary hover:text-text-primary hover:bg-bg-hover transition-colors text-xs font-medium"
 					>
-						<i data-lucide="x" style="width: 14px; height: 14px;"></i>
+						<i data-lucide="x" class="w-3 h-3"></i>
 						Clear Filters
 					</a>
 				</div>
 			}
 		</div>
+
 		<!-- Plans Grid -->
 		if len(props.Plans) == 0 {
-			<div class="bg-bg-card rounded-xl border border-border p-12 text-center">
-				<i data-lucide="inbox" class="mx-auto mb-4" style="width: 48px; height: 48px; color: var(--text-secondary);"></i>
-				<p class="text-text-secondary text-lg">No plans found.</p>
-				<a href="/plans/create" class="inline-flex items-center gap-2 px-4 py-2 mt-4 rounded-lg bg-primary text-white hover:bg-primary-hover transition-all duration-200">
+			<div class="bg-bg-card rounded-xl border border-border p-12 text-center shadow-card">
+				<div class="w-12 h-12 rounded-full bg-bg-subtle border border-border flex items-center justify-center text-text-secondary mx-auto mb-3">
+					<i data-lucide="inbox" class="w-6 h-6"></i>
+				</div>
+				<h3 class="text-sm font-semibold text-text-primary">No plans found</h3>
+				<p class="text-xs text-text-secondary mt-1">Get started by creating your first shared subscription plan.</p>
+				<a href="/plans/create" class="inline-flex items-center gap-1.5 px-4 py-2 mt-4 rounded-lg bg-primary text-white text-xs font-semibold hover:bg-primary-hover transition-colors shadow-sm">
+					<i data-lucide="plus" class="w-4 h-4"></i>
 					Create your first plan
 				</a>
 			</div>
 		} else {
-			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
 				for _, plan := range props.Plans {
 					@PlanCard(plan)
 				}
 			</div>
 		}
+
 		<!-- Pagination -->
 		if props.TotalPages > 1 {
-			<div class="mt-6 flex justify-between items-center">
-				<div class="text-sm text-text-secondary">
+			<div class="mt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
+				<div class="text-xs text-text-secondary">
 					Page { fmt.Sprintf("%d", props.CurrentPage) } of { fmt.Sprintf("%d", props.TotalPages) }
 				</div>
-				<div class="flex gap-2">
+				<div class="flex items-center gap-1.5">
 					if props.CurrentPage > 1 {
 						<a 
 							href={ templ.SafeURL(buildPlanURL("/plans", props.FilterOwner, props.FilterType, props.SortBy, props.SortOrder, props.CurrentPage-1)) }
-							class="px-3 py-2 bg-bg-card text-text-primary border border-border rounded-lg font-medium hover:bg-bg-hover transition-all duration-200"
+							class="px-3 py-1.5 bg-bg-card text-text-secondary hover:text-text-primary border border-border rounded-lg text-xs font-medium hover:bg-bg-hover transition-colors"
 						>
 							Previous
 						</a>
@@ -166,25 +175,25 @@ templ PlansList(props PlansListProps) {
 					<div class="flex gap-1">
 						for i := 1; i <= props.TotalPages; i++ {
 							if i == props.CurrentPage {
-								<span class="px-3 py-2 bg-primary text-white rounded-lg font-medium">
+								<span class="px-3 py-1.5 bg-primary text-white rounded-lg text-xs font-semibold shadow-xs">
 									{ fmt.Sprintf("%d", i) }
 								</span>
 							} else if i == 1 || i == props.TotalPages || (i >= props.CurrentPage-2 && i <= props.CurrentPage+2) {
 								<a 
 									href={ templ.SafeURL(buildPlanURL("/plans", props.FilterOwner, props.FilterType, props.SortBy, props.SortOrder, i)) }
-									class="px-3 py-2 bg-bg-card text-text-primary border border-border rounded-lg font-medium hover:bg-bg-hover transition-all duration-200"
+									class="px-3 py-1.5 bg-bg-card text-text-secondary hover:text-text-primary border border-border rounded-lg text-xs font-medium hover:bg-bg-hover transition-colors"
 								>
 									{ fmt.Sprintf("%d", i) }
 								</a>
 							} else if i == props.CurrentPage-3 || i == props.CurrentPage+3 {
-								<span class="px-3 py-2 text-text-secondary">...</span>
+								<span class="px-2 py-1.5 text-xs text-text-muted">...</span>
 							}
 						}
 					</div>
 					if props.CurrentPage < props.TotalPages {
 						<a 
 							href={ templ.SafeURL(buildPlanURL("/plans", props.FilterOwner, props.FilterType, props.SortBy, props.SortOrder, props.CurrentPage+1)) }
-							class="px-3 py-2 bg-bg-card text-text-primary border border-border rounded-lg font-medium hover:bg-bg-hover transition-all duration-200"
+							class="px-3 py-1.5 bg-bg-card text-text-secondary hover:text-text-primary border border-border rounded-lg text-xs font-medium hover:bg-bg-hover transition-colors"
 						>
 							Next
 						</a>
@@ -198,76 +207,106 @@ templ PlansList(props PlansListProps) {
 
 // PlanCard renders a single plan as a card
 templ PlanCard(plan models.Plan) {
-	<div class="bg-bg-card rounded-xl border border-border overflow-hidden hover:shadow-lg transition-all duration-200">
-		<!-- Card Header -->
-		<div class="p-5 border-b border-border">
-			<div class="flex justify-between items-start mb-3">
-				<div class="flex-1">
-					<h3 class="text-lg font-semibold text-text-primary mb-1">{ plan.Name }</h3>
-					<div class="flex items-center gap-1 text-xs text-text-secondary">
-						<i data-lucide="user" style="width: 12px; height: 12px;"></i>
-						if plan.Owner.Name != "" {
-							<span class="font-medium">{ plan.Owner.Name }</span>
-						} else {
-							<span class="italic">No owner assigned</span>
-						}
+	<div class="bg-bg-card rounded-xl border border-border overflow-hidden shadow-card hover:shadow-card-hover transition-all flex flex-col justify-between">
+		<!-- Card Header & Content -->
+		<div class="p-5 space-y-4">
+			<!-- Header Row -->
+			<div class="flex justify-between items-start gap-3">
+				<div class="flex items-center gap-3">
+					<div class="w-9 h-9 rounded-lg bg-bg-subtle border border-border flex items-center justify-center font-bold text-sm text-text-primary flex-shrink-0">
+						{ string([]rune(plan.Name)[0:1]) }
+					</div>
+					<div>
+						<h3 class="text-base font-bold text-text-primary tracking-tight leading-snug">{ plan.Name }</h3>
+						<p class="text-xs text-text-secondary mt-0.5">
+							if plan.Owner.Name != "" {
+								<span>{ plan.Owner.Name }</span>
+							} else {
+								<span class="italic text-text-muted">No owner assigned</span>
+							}
+						</p>
 					</div>
 				</div>
 				@PaymentTypeBadge(plan.PaymentType)
 			</div>
-		</div>
-		<!-- Card Body -->
-		<div class="p-5 space-y-3">
-			<!-- Price & Date -->
-			<div class="grid grid-cols-2 gap-4">
+
+			<!-- Price & Next Due Box -->
+			<div class="bg-bg-subtle/70 rounded-lg p-3 border border-border/60 flex justify-between items-center">
 				<div>
-					<p class="text-xs text-text-secondary mb-1">Total Price</p>
-					<p class="text-lg font-bold text-primary">{ utils.FormatRupiahSimple(plan.TotalPrice) }</p>
+					<span class="text-[10px] font-semibold uppercase tracking-wider text-text-secondary block">Total Price</span>
+					<span class="text-base font-bold text-text-primary tracking-tight">{ utils.FormatRupiahSimple(plan.TotalPrice) }</span>
 				</div>
-				<div>
-					<p class="text-xs text-text-secondary mb-1">Next Due</p>
-					<p class="text-sm font-medium text-text-primary">{ plan.NextDue().Format("02 Jan 2006") }</p>
+				<div class="text-right">
+					<span class="text-[10px] font-semibold uppercase tracking-wider text-text-secondary block">Next Due</span>
+					<span class="text-xs font-semibold text-text-primary font-mono">{ plan.NextDue().Format("02 Jan 2006") }</span>
 				</div>
 			</div>
-			<!-- Participants Count -->
-			<div class="flex items-center gap-2 text-sm text-text-secondary">
-				<i data-lucide="users" style="width: 16px; height: 16px;"></i>
-				<span>{ fmt.Sprintf("%d", len(plan.Participants)) } participant(s)</span>
-			</div>
-			<!-- Schedule Status -->
-			<div>
-				if plan.ScheduledTask == nil {
-					<span class="inline-flex px-2 py-1 rounded text-xs font-medium bg-gray-500/20 text-gray-500">
-						Not Scheduled
-					</span>
-				} else {
-					@StatusBadge(string(plan.ScheduledTask.Status), string(plan.PaymentType))
-				}
+
+			<!-- Participants Avatar Stack & Split Info -->
+			<div class="flex items-center justify-between pt-1">
+				<div class="flex items-center">
+					if len(plan.Participants) > 0 {
+						<div class="flex items-center -space-x-1.5 mr-2.5">
+							for i, participant := range plan.Participants {
+								if i < 3 {
+									<div class="w-6 h-6 rounded-full bg-zinc-800 text-white flex items-center justify-center text-[9px] font-bold border-2 border-white" title={ participant.User.Name }>
+										{ getUserInitials(participant.User.Name) }
+									</div>
+								}
+							}
+							if len(plan.Participants) > 3 {
+								<div class="w-6 h-6 rounded-full bg-zinc-400 text-white flex items-center justify-center text-[9px] font-bold border-2 border-white">
+									{ fmt.Sprintf("+%d", len(plan.Participants)-3) }
+								</div>
+							}
+						</div>
+						<div class="text-xs text-text-secondary">
+							<span class="font-medium text-text-primary">{ fmt.Sprintf("%d", len(plan.Participants)) }</span> members
+							if len(plan.Participants) > 0 {
+								<span class="text-text-muted text-[11px]">({ utils.FormatRupiahSimple(plan.TotalPrice/float64(len(plan.Participants))) }/ea)</span>
+							}
+						</div>
+					} else {
+						<span class="text-xs text-text-muted italic">No participants</span>
+					}
+				</div>
+				<!-- Schedule Status -->
+				<div>
+					if plan.ScheduledTask == nil {
+						<span class="text-[11px] font-medium text-text-muted bg-bg-subtle border border-border px-2 py-0.5 rounded-full">
+							Manual
+						</span>
+					} else {
+						@StatusBadge(string(plan.ScheduledTask.Status), string(plan.PaymentType))
+					}
+				</div>
 			</div>
 		</div>
+
 		<!-- Card Actions -->
-		<div class="p-4 bg-bg-body border-t border-border flex gap-2">
+		<div class="px-5 py-3 bg-bg-subtle/40 border-t border-border flex items-center gap-2">
 			<button 
 				hx-get={ fmt.Sprintf("/plans/%d/schedule-popup", plan.ID) }
 				hx-target="#global-modal"
-				class="flex-1 inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg border border-border cursor-pointer font-medium transition-all duration-200 bg-bg-card text-text-primary hover:bg-bg-hover text-sm"
+				class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg border border-border font-semibold transition-colors bg-bg-card text-text-primary hover:bg-bg-hover text-xs shadow-xs"
 			>
-				<i data-lucide="calendar" style="width: 14px; height: 14px;"></i>
+				<i data-lucide="calendar" class="w-3.5 h-3.5 text-text-secondary"></i>
 				Schedule
 			</button>
 			<a 
 				href={ templ.SafeURL(fmt.Sprintf("/plans/%d/edit", plan.ID)) }
-				class="flex-1 inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg border-none cursor-pointer font-medium no-underline transition-all duration-200 bg-primary text-white hover:bg-primary-hover text-sm"
+				class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold no-underline transition-colors bg-primary text-white hover:bg-primary-hover text-xs shadow-xs"
 			>
-				<i data-lucide="edit-2" style="width: 14px; height: 14px;"></i>
+				<i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
 				Edit
 			</a>
-			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/plans/%d/delete", plan.ID)) } onsubmit="return confirm('Are you sure?')" class="flex-1">
+			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/plans/%d/delete", plan.ID)) } onsubmit="return confirm('Are you sure you want to delete this plan?')" class="inline-flex">
 				<button 
 					type="submit"
-					class="w-full h-full inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg border-none cursor-pointer font-medium transition-all duration-200 bg-danger text-white hover:bg-red-600 text-sm"
+					class="p-1.5 rounded-lg border border-border text-text-muted hover:text-rose-600 hover:bg-rose-50 transition-colors"
+					title="Delete plan"
 				>
-					<i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>
+					<i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
 				</button>
 			</form>
 		</div>
@@ -277,9 +316,9 @@ templ PlanCard(plan models.Plan) {
 // PaymentTypeBadge renders a badge for payment type
 templ PaymentTypeBadge(paymentType string) {
 	if paymentType == "recurring" {
-		<span class="px-2 py-1 rounded text-xs font-medium bg-blue-500/20 text-blue-500">Recurring</span>
+		<span class="px-2 py-0.5 rounded-md text-[11px] font-medium bg-bg-subtle text-text-secondary border border-border">Recurring</span>
 	} else {
-		<span class="px-2 py-1 rounded text-xs font-medium bg-green-500/20 text-green-500">One-time</span>
+		<span class="px-2 py-0.5 rounded-md text-[11px] font-medium bg-emerald-50 text-emerald-800 border border-emerald-200">One-time</span>
 	}
 }
 
@@ -300,3 +339,22 @@ func buildPlanURL(base string, filterOwner uint, filterType string, sortBy strin
 	}
 	return url
 }
+
+func getUserInitials(name string) string {
+	name = strings.TrimSpace(name)
+	if len(name) == 0 {
+		return "?"
+	}
+	parts := strings.Split(name, " ")
+	if len(parts) == 1 {
+		runes := []rune(parts[0])
+		if len(runes) >= 2 {
+			return strings.ToUpper(string(runes[:2]))
+		}
+		return strings.ToUpper(string(runes[:1]))
+	}
+	r1 := []rune(parts[0])
+	r2 := []rune(parts[1])
+	return strings.ToUpper(fmt.Sprintf("%s%s", string(r1[:1]), string(r2[:1])))
+}
+

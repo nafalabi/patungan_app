@@ -35,25 +35,25 @@ func SchedulePopup(plan models.Plan) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm\" id=\"schedule-popup\"><div class=\"bg-bg-card rounded-xl border border-border shadow-2xl p-6 w-full max-w-md relative animate-in fade-in zoom-in-95 duration-200\"><button class=\"absolute top-4 right-4 text-text-secondary hover:text-text-primary transition-colors\" onclick=\"document.getElementById('schedule-popup').remove()\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><line x1=\"18\" y1=\"6\" x2=\"6\" y2=\"18\"></line><line x1=\"6\" y1=\"6\" x2=\"18\" y2=\"18\"></line></svg></button><h2 class=\"text-xl font-bold text-text-primary mb-4\">Manage Schedule</h2><p class=\"text-text-secondary mb-6\">Plan: <span class=\"font-medium text-text-primary\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4\" id=\"schedule-popup\"><div class=\"bg-bg-card rounded-2xl border border-border shadow-popover p-6 w-full max-w-md relative animate-in fade-in zoom-in-95 duration-150\"><button class=\"absolute top-4 right-4 text-text-muted hover:text-text-primary transition-colors p-1 rounded-lg hover:bg-bg-hover\" onclick=\"document.getElementById('schedule-popup').remove()\"><i data-lucide=\"x\" class=\"w-4 h-4\"></i></button><div class=\"mb-5\"><h2 class=\"text-lg font-bold text-text-primary tracking-tight\">Manage Schedule</h2><p class=\"text-xs text-text-secondary mt-0.5\">Plan: <span class=\"font-semibold text-text-primary\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(plan.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/plan/pages/schedule_popup.templ`, Line: 17, Col: 100}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/plan/pages/schedule_popup.templ`, Line: 18, Col: 113}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</span></p><div class=\"space-y-4\"><div class=\"bg-bg-body rounded-lg p-4 border border-border\"><div class=\"flex justify-between items-center mb-2\"><span class=\"text-sm text-text-secondary\">Current Status</span> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</span></p></div><div class=\"space-y-4\"><div class=\"bg-bg-subtle/70 rounded-xl p-4 border border-border/70 space-y-2.5\"><div class=\"flex justify-between items-center\"><span class=\"text-xs font-semibold text-text-secondary uppercase tracking-wider\">Current Status</span> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if plan.ScheduledTask == nil {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span class=\"px-2 py-1 rounded-full text-xs font-medium bg-gray-500/10 text-gray-500\">Not Scheduled</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span class=\"px-2 py-0.5 rounded-md text-[11px] font-medium bg-bg-card text-text-muted border border-border\">Not Scheduled</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -68,14 +68,14 @@ func SchedulePopup(plan models.Plan) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if plan.ScheduledTask != nil {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"flex justify-between items-center\"><span class=\"text-sm text-text-secondary\">Current Due</span> <span class=\"text-text-primary font-medium\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"flex justify-between items-center text-xs\"><span class=\"text-text-secondary\">Current Due</span> <span class=\"text-text-primary font-semibold font-mono\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(plan.ScheduledTask.Due.Format("02 Jan 2006, 15:04"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/plan/pages/schedule_popup.templ`, Line: 32, Col: 125}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/plan/pages/schedule_popup.templ`, Line: 34, Col: 116}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -87,14 +87,14 @@ func SchedulePopup(plan models.Plan) templ.Component {
 			}
 		}
 		if plan.ScheduledTask != nil && (plan.ScheduledTask.Status == models.ScheduledTaskStatusFailure || plan.ScheduledTask.Status == models.ScheduledTaskStatusDisabled) {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"flex justify-between items-center\"><span class=\"text-sm text-text-secondary\">New Due</span> <span class=\"text-text-primary font-medium\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"flex justify-between items-center text-xs\"><span class=\"text-text-secondary\">New Due</span> <span class=\"text-text-primary font-semibold font-mono\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(plan.NextDue().Format("02 Jan 2006, 15:04"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/plan/pages/schedule_popup.templ`, Line: 38, Col: 117}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/plan/pages/schedule_popup.templ`, Line: 40, Col: 108}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -105,66 +105,66 @@ func SchedulePopup(plan models.Plan) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><div class=\"flex flex-col gap-3 pt-2\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><div class=\"flex flex-col gap-2 pt-2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if plan.ScheduledTask == nil {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, " <form method=\"POST\" action=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<!-- Not Scheduled -> Schedule Plan --> <form method=\"POST\" action=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var5 templ.SafeURL
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/plans/%d/schedule", plan.ID)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/plan/pages/schedule_popup.templ`, Line: 46, Col: 110}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/plan/pages/schedule_popup.templ`, Line: 48, Col: 92}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\"><button type=\"submit\" class=\"w-full inline-flex justify-center items-center gap-2 px-4 py-2.5 rounded-lg font-medium bg-primary text-white hover:bg-primary-hover transition-colors\">Schedule Plan</button></form>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\"><button type=\"submit\" class=\"w-full inline-flex justify-center items-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-xs bg-primary text-white hover:bg-primary-hover transition-colors shadow-sm\"><i data-lucide=\"calendar-plus\" class=\"w-4 h-4\"></i> Schedule Automatic Reminders</button></form>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else if plan.ScheduledTask.Status == models.ScheduledTaskStatusActive {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, " <form method=\"POST\" action=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<!-- Active -> Disable --> <form method=\"POST\" action=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var6 templ.SafeURL
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/plans/%d/disable-schedule", plan.ID)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/plan/pages/schedule_popup.templ`, Line: 53, Col: 118}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/plan/pages/schedule_popup.templ`, Line: 56, Col: 100}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\"><button type=\"submit\" class=\"w-full inline-flex justify-center items-center gap-2 px-4 py-2.5 rounded-lg font-medium bg-danger text-white hover:bg-red-700 transition-colors\">Disable Schedule</button></form>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\"><button type=\"submit\" class=\"w-full inline-flex justify-center items-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-xs border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 transition-colors\"><i data-lucide=\"calendar-off\" class=\"w-4 h-4\"></i> Disable Schedule</button></form>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else if plan.ScheduledTask.Status == models.ScheduledTaskStatusFailure || plan.ScheduledTask.Status == models.ScheduledTaskStatusDisabled {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, " <form method=\"POST\" action=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<!-- Failure/Disabled -> Reschedule --> <form method=\"POST\" action=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var7 templ.SafeURL
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/plans/%d/schedule", plan.ID)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/plan/pages/schedule_popup.templ`, Line: 60, Col: 110}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/plan/pages/schedule_popup.templ`, Line: 64, Col: 92}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\"><button type=\"submit\" class=\"w-full inline-flex justify-center items-center gap-2 px-4 py-2.5 rounded-lg font-medium bg-primary text-white hover:bg-primary-hover transition-colors\">Reschedule Plan</button></form>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\"><button type=\"submit\" class=\"w-full inline-flex justify-center items-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-xs bg-primary text-white hover:bg-primary-hover transition-colors shadow-sm\"><i data-lucide=\"refresh-cw\" class=\"w-4 h-4\"></i> Reschedule Plan</button></form>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else if plan.ScheduledTask.Status == models.ScheduledTaskStatusDone {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<p class=\"text-center text-sm text-text-secondary italic\">This plan is completed.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<p class=\"text-center text-xs text-text-secondary italic\">This plan is completed.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -202,40 +202,40 @@ func StatusBadge(status string, paymentType string) templ.Component {
 		switch status {
 		case "active":
 			if paymentType == "onetime" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<span class=\"px-2 py-1 rounded text-xs font-medium bg-yellow-600/20 text-yellow-600\">Scheduled</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<span class=\"px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-800 border border-amber-200\">Scheduled</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span class=\"px-2 py-1 rounded text-xs font-medium bg-success/20 text-success\">Active</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span class=\"px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-800 border border-emerald-200\">Active</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
 		case "done":
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span class=\"px-2 py-1 rounded text-xs font-medium bg-blue-500/20 text-blue-500\">Dispatched</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span class=\"px-2 py-0.5 rounded-full text-[11px] font-medium bg-zinc-100 text-zinc-700 border border-zinc-200\">Dispatched</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		case "failure":
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<span class=\"px-2 py-1 rounded text-xs font-medium bg-danger/20 text-danger\">Failure</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<span class=\"px-2 py-0.5 rounded-full text-[11px] font-medium bg-rose-50 text-rose-800 border border-rose-200\">Failed</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		case "disabled":
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<span class=\"px-2 py-1 rounded text-xs font-medium bg-gray-500/20 text-gray-500\">Disabled</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<span class=\"px-2 py-0.5 rounded-full text-[11px] font-medium bg-bg-subtle text-text-muted border border-border\">Disabled</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		default:
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<span class=\"px-2 py-1 rounded text-xs font-medium bg-gray-500/20 text-gray-500\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<span class=\"px-2 py-0.5 rounded-full text-[11px] font-medium bg-bg-subtle text-text-secondary border border-border\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(status)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/plan/pages/schedule_popup.templ`, Line: 90, Col: 97}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/plan/pages/schedule_popup.templ`, Line: 95, Col: 127}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
