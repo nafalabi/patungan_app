@@ -30,11 +30,11 @@ func Sidebar(activeNav string) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<aside class=\"w-16 bg-bg-card border-r border-border h-screen fixed left-0 top-0 hidden md:flex flex-col items-center py-6 z-50\"><div class=\"mb-10\"><span class=\"text-2xl\"><i data-lucide=\"wallet\"></i></span></div><nav class=\"flex flex-col items-center\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<aside class=\"w-16 bg-bg-card border-r border-border h-screen fixed left-0 top-0 hidden md:flex flex-col items-center py-5 z-50 justify-between\"><div class=\"flex flex-col items-center w-full\"><a href=\"/dashboard\" class=\"mb-8 group\"><div class=\"w-9 h-9 rounded-xl bg-primary text-white flex items-center justify-center font-black text-base shadow-sm transition-transform duration-150 group-hover:scale-105\">P</div></a><nav class=\"flex flex-col items-center gap-2 w-full px-2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var2 = []any{"flex items-center justify-center w-10 h-10 rounded-lg mb-4 transition-all duration-200 hover:bg-bg-hover hover:text-primary", templ.KV("bg-primary/10 text-primary", activeNav == "dashboard"), templ.KV("text-text-secondary", activeNav != "dashboard")}
+		var templ_7745c5c3_Var2 = []any{"flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-150 relative group", templ.KV("bg-primary text-white shadow-sm", activeNav == "dashboard"), templ.KV("text-text-secondary hover:text-text-primary hover:bg-bg-hover", activeNav != "dashboard")}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var2...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -52,11 +52,11 @@ func Sidebar(activeNav string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" title=\"Dashboard\"><span class=\"text-xl\"><i data-lucide=\"layout-dashboard\"></i></span></a> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" title=\"Dashboard\"><i data-lucide=\"layout-dashboard\" class=\"w-5 h-5\"></i></a> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var4 = []any{"flex items-center justify-center w-10 h-10 rounded-lg mb-4 transition-all duration-200 hover:bg-bg-hover hover:text-primary", templ.KV("bg-primary/10 text-primary", activeNav == "plans"), templ.KV("text-text-secondary", activeNav != "plans")}
+		var templ_7745c5c3_Var4 = []any{"flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-150 relative group", templ.KV("bg-primary text-white shadow-sm", activeNav == "plans"), templ.KV("text-text-secondary hover:text-text-primary hover:bg-bg-hover", activeNav != "plans")}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var4...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -74,11 +74,11 @@ func Sidebar(activeNav string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" title=\"Plans\"><span class=\"text-xl\"><i data-lucide=\"list-todo\"></i></span></a> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" title=\"Plans\"><i data-lucide=\"list-todo\" class=\"w-5 h-5\"></i></a> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var6 = []any{"flex items-center justify-center w-10 h-10 rounded-lg mb-4 transition-all duration-200 hover:bg-bg-hover hover:text-primary", templ.KV("bg-primary/10 text-primary", activeNav == "payment-dues"), templ.KV("text-text-secondary", activeNav != "payment-dues")}
+		var templ_7745c5c3_Var6 = []any{"flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-150 relative group", templ.KV("bg-primary text-white shadow-sm", activeNav == "payment-dues"), templ.KV("text-text-secondary hover:text-text-primary hover:bg-bg-hover", activeNav != "payment-dues")}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var6...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -96,11 +96,11 @@ func Sidebar(activeNav string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\" title=\"Payment Dues\"><span class=\"text-xl\"><i data-lucide=\"dollar-sign\"></i></span></a> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\" title=\"Payment Dues\"><i data-lucide=\"dollar-sign\" class=\"w-5 h-5\"></i></a> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var8 = []any{"flex items-center justify-center w-10 h-10 rounded-lg mb-4 transition-all duration-200 hover:bg-bg-hover hover:text-primary", templ.KV("bg-primary/10 text-primary", activeNav == "users"), templ.KV("text-text-secondary", activeNav != "users")}
+		var templ_7745c5c3_Var8 = []any{"flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-150 relative group", templ.KV("bg-primary text-white shadow-sm", activeNav == "users"), templ.KV("text-text-secondary hover:text-text-primary hover:bg-bg-hover", activeNav != "users")}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var8...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -118,11 +118,11 @@ func Sidebar(activeNav string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\" title=\"Users\"><span class=\"text-xl\"><i data-lucide=\"users\"></i></span></a> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\" title=\"Users\"><i data-lucide=\"users\" class=\"w-5 h-5\"></i></a> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var10 = []any{"flex items-center justify-center w-10 h-10 rounded-lg mb-4 transition-all duration-200 hover:bg-bg-hover hover:text-primary", templ.KV("bg-primary/10 text-primary", activeNav == "settings"), templ.KV("text-text-secondary", activeNav != "settings")}
+		var templ_7745c5c3_Var10 = []any{"flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-150 relative group", templ.KV("bg-primary text-white shadow-sm", activeNav == "settings"), templ.KV("text-text-secondary hover:text-text-primary hover:bg-bg-hover", activeNav != "settings")}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var10...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -140,7 +140,7 @@ func Sidebar(activeNav string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" title=\"Settings\"><span class=\"text-xl\"><i data-lucide=\"settings\"></i></span></a></nav></aside>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" title=\"Settings\"><i data-lucide=\"settings\" class=\"w-5 h-5\"></i></a></nav></div></aside>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

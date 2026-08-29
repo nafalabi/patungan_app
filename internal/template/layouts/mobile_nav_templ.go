@@ -30,11 +30,11 @@ func MobileNav(activeNav string) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div x-data=\"{ open: false }\" class=\"bg-bg-card border-b border-border sticky top-0 z-50 md:hidden\"><div class=\"flex items-center justify-between px-4 h-16\"><a href=\"/\"><div class=\"flex items-center gap-2\"><span class=\"text-xl text-primary\"><i data-lucide=\"wallet\"></i></span> <span class=\"font-bold text-lg\">Patungan</span></div></a> <button @click=\"open = !open\" class=\"text-text-secondary hover:text-primary p-2\"><i x-show=\"!open\" data-lucide=\"menu\"></i> <i x-show=\"open\" data-lucide=\"x\" style=\"display: none;\"></i></button></div><!-- Popup Menu --><div x-show=\"open\" @click.away=\"open = false\" x-transition:enter=\"transition ease-out duration-200\" x-transition:enter-start=\"opacity-0 -translate-y-2\" x-transition:enter-end=\"opacity-100 translate-y-0\" x-transition:leave=\"transition ease-in duration-150\" x-transition:leave-start=\"opacity-100 translate-y-0\" x-transition:leave-end=\"opacity-0 -translate-y-2\" class=\"absolute top-16 left-0 right-0 bg-bg-card border-b border-border shadow-lg p-4\" style=\"display: none;\"><nav class=\"flex flex-col gap-2\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div x-data=\"{ open: false }\" class=\"bg-bg-card border-b border-border sticky top-0 z-50 md:hidden\"><div class=\"flex items-center justify-between px-4 h-14\"><a href=\"/dashboard\"><div class=\"flex items-center gap-2.5\"><div class=\"w-7 h-7 rounded-lg bg-primary text-white flex items-center justify-center font-black text-sm\">P</div><span class=\"font-bold text-base text-text-primary tracking-tight\">Patungan</span></div></a> <button @click=\"open = !open\" class=\"text-text-secondary hover:text-text-primary p-2 rounded-lg hover:bg-bg-hover\"><i x-show=\"!open\" data-lucide=\"menu\" class=\"w-5 h-5\"></i> <i x-show=\"open\" data-lucide=\"x\" class=\"w-5 h-5\" style=\"display: none;\"></i></button></div><!-- Popup Menu --><div x-show=\"open\" @click.away=\"open = false\" x-transition:enter=\"transition ease-out duration-200\" x-transition:enter-start=\"opacity-0 -translate-y-2\" x-transition:enter-end=\"opacity-100 translate-y-0\" x-transition:leave=\"transition ease-in duration-150\" x-transition:leave-start=\"opacity-100 translate-y-0\" x-transition:leave-end=\"opacity-0 -translate-y-2\" class=\"absolute top-14 left-0 right-0 bg-bg-card border-b border-border shadow-lg p-3\" style=\"display: none;\"><nav class=\"flex flex-col gap-1 text-sm font-medium\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var2 = []any{"flex items-center gap-3 px-4 py-3 rounded-lg transition-colors", templ.KV("bg-primary/10 text-primary font-medium", activeNav == "dashboard"), templ.KV("text-text-secondary hover:bg-bg-hover hover:text-text-primary", activeNav != "dashboard")}
+		var templ_7745c5c3_Var2 = []any{"flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-colors", templ.KV("bg-primary text-white", activeNav == "dashboard"), templ.KV("text-text-secondary hover:bg-bg-hover hover:text-text-primary", activeNav != "dashboard")}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var2...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -52,11 +52,11 @@ func MobileNav(activeNav string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\"><i data-lucide=\"layout-dashboard\" class=\"w-5 h-5\"></i> <span>Dashboard</span></a> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\"><i data-lucide=\"layout-dashboard\" class=\"w-4 h-4\"></i> <span>Dashboard</span></a> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var4 = []any{"flex items-center gap-3 px-4 py-3 rounded-lg transition-colors", templ.KV("bg-primary/10 text-primary font-medium", activeNav == "plans"), templ.KV("text-text-secondary hover:bg-bg-hover hover:text-text-primary", activeNav != "plans")}
+		var templ_7745c5c3_Var4 = []any{"flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-colors", templ.KV("bg-primary text-white", activeNav == "plans"), templ.KV("text-text-secondary hover:bg-bg-hover hover:text-text-primary", activeNav != "plans")}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var4...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -74,11 +74,11 @@ func MobileNav(activeNav string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\"><i data-lucide=\"list-todo\" class=\"w-5 h-5\"></i> <span>Plans</span></a> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\"><i data-lucide=\"list-todo\" class=\"w-4 h-4\"></i> <span>Plans</span></a> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var6 = []any{"flex items-center gap-3 px-4 py-3 rounded-lg transition-colors", templ.KV("bg-primary/10 text-primary font-medium", activeNav == "payment-dues"), templ.KV("text-text-secondary hover:bg-bg-hover hover:text-text-primary", activeNav != "payment-dues")}
+		var templ_7745c5c3_Var6 = []any{"flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-colors", templ.KV("bg-primary text-white", activeNav == "payment-dues"), templ.KV("text-text-secondary hover:bg-bg-hover hover:text-text-primary", activeNav != "payment-dues")}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var6...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -96,11 +96,11 @@ func MobileNav(activeNav string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\"><i data-lucide=\"dollar-sign\" class=\"w-5 h-5\"></i> <span>Payment Dues</span></a> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\"><i data-lucide=\"dollar-sign\" class=\"w-4 h-4\"></i> <span>Payment Dues</span></a> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var8 = []any{"flex items-center gap-3 px-4 py-3 rounded-lg transition-colors", templ.KV("bg-primary/10 text-primary font-medium", activeNav == "users"), templ.KV("text-text-secondary hover:bg-bg-hover hover:text-text-primary", activeNav != "users")}
+		var templ_7745c5c3_Var8 = []any{"flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-colors", templ.KV("bg-primary text-white", activeNav == "users"), templ.KV("text-text-secondary hover:bg-bg-hover hover:text-text-primary", activeNav != "users")}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var8...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -118,11 +118,11 @@ func MobileNav(activeNav string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\"><i data-lucide=\"users\" class=\"w-5 h-5\"></i> <span>Users</span></a> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\"><i data-lucide=\"users\" class=\"w-4 h-4\"></i> <span>Users</span></a> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var10 = []any{"flex items-center gap-3 px-4 py-3 rounded-lg transition-colors", templ.KV("bg-primary/10 text-primary font-medium", activeNav == "settings"), templ.KV("text-text-secondary hover:bg-bg-hover hover:text-text-primary", activeNav != "settings")}
+		var templ_7745c5c3_Var10 = []any{"flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-colors", templ.KV("bg-primary text-white", activeNav == "settings"), templ.KV("text-text-secondary hover:bg-bg-hover hover:text-text-primary", activeNav != "settings")}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var10...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -140,7 +140,7 @@ func MobileNav(activeNav string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\"><i data-lucide=\"settings\" class=\"w-5 h-5\"></i> <span>Settings</span></a> <button class=\"flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-text-secondary hover:bg-bg-hover hover:text-text-primary w-full text-left logout-btn\"><i data-lucide=\"log-out\" class=\"w-5 h-5\"></i> <span>Logout</span></button></nav></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\"><i data-lucide=\"settings\" class=\"w-4 h-4\"></i> <span>Settings</span></a><div class=\"h-px bg-border my-1\"></div><button class=\"flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-colors text-rose-600 hover:bg-rose-50 w-full text-left logout-btn\"><i data-lucide=\"log-out\" class=\"w-4 h-4\"></i> <span>Logout</span></button></nav></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
