@@ -42,6 +42,11 @@ templ Base(props BaseProps) {
 			lucide.createIcons();
 			
 			// Re-initialize Lucide icons after HTMX content swap
+			document.body.addEventListener('htmx:afterSwap', function(evt) {
+				if (window.lucide) {
+					lucide.createIcons();
+				}
+			});
 			document.body.addEventListener('htmx:afterOnLoad', function(evt) {
 				if (window.lucide) {
 					lucide.createIcons();

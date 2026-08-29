@@ -78,7 +78,7 @@ templ LoadMorePlansButton(nextOffset int) {
 	<div class="mt-6 flex justify-center" id="load-more-plans-container" hx-swap-oob="true">
 		if nextOffset > 0 {
 			<button
-				hx-get={ fmt.Sprintf("/payment-dues?view=plans&offset=%d", nextOffset) }
+				hx-get={ fmt.Sprintf("/admin/payment-dues?view=plans&offset=%d", nextOffset) }
 				hx-target="#plans-container"
 				hx-swap="beforeend"
 				hx-indicator="#load-more-spinner"
