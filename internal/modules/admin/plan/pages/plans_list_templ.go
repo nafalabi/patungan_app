@@ -604,40 +604,62 @@ func PlanCard(plan models.Plan) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			if len(plan.Participants) > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "<span class=\"text-text-muted text-[11px]\">(")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var23 string
-				templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(utils.FormatRupiahSimple(plan.TotalPrice / float64(len(plan.Participants))))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/admin/plan/pages/plans_list.templ`, Line: 265, Col: 126}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "/ea)</span>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
+				if totalPortions := getTotalPortions(plan.Participants); totalPortions > 0 {
+					if totalPortions == len(plan.Participants) {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "<span class=\"text-text-muted text-[11px]\">(")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var23 string
+						templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(utils.FormatRupiahSimple(plan.TotalPrice / float64(totalPortions)))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/admin/plan/pages/plans_list.templ`, Line: 267, Col: 119}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "/ea)</span>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					} else {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "<span class=\"text-text-muted text-[11px]\">(")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var24 string
+						templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(utils.FormatRupiahSimple(plan.TotalPrice / float64(totalPortions)))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/admin/plan/pages/plans_list.templ`, Line: 269, Col: 119}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "/portion)</span>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "<span class=\"text-xs text-text-muted italic\">No participants</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "<span class=\"text-xs text-text-muted italic\">No participants</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "</div><!-- Schedule Status --><div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</div><!-- Schedule Status --><div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if plan.ScheduledTask == nil {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "<span class=\"text-[11px] font-medium text-text-muted bg-bg-subtle border border-border px-2 py-0.5 rounded-full\">Manual</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "<span class=\"text-[11px] font-medium text-text-muted bg-bg-subtle border border-border px-2 py-0.5 rounded-full\">Manual</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -647,46 +669,46 @@ func PlanCard(plan models.Plan) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</div></div></div><!-- Card Actions --><div class=\"px-5 py-3 bg-bg-subtle/40 border-t border-border flex items-center gap-2\"><button hx-get=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "</div></div></div><!-- Card Actions --><div class=\"px-5 py-3 bg-bg-subtle/40 border-t border-border flex items-center gap-2\"><button hx-get=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var24 string
-		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/admin/plans/%d/schedule-popup", plan.ID))
+		var templ_7745c5c3_Var25 string
+		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/admin/plans/%d/schedule-popup", plan.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/admin/plan/pages/plans_list.templ`, Line: 288, Col: 67}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "\" hx-target=\"#global-modal\" class=\"flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg border border-border font-semibold transition-colors bg-bg-card text-text-primary hover:bg-bg-hover text-xs shadow-xs\"><i data-lucide=\"calendar\" class=\"w-3.5 h-3.5 text-text-secondary\"></i> Schedule</button> <a href=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var25 templ.SafeURL
-		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/plans/%d/edit", plan.ID)))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/admin/plan/pages/plans_list.templ`, Line: 296, Col: 70}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/admin/plan/pages/plans_list.templ`, Line: 294, Col: 67}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "\" class=\"flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold no-underline transition-colors bg-primary text-white hover:bg-primary-hover text-xs shadow-xs\"><i data-lucide=\"edit-2\" class=\"w-3.5 h-3.5\"></i> Edit</a><form method=\"POST\" action=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "\" hx-target=\"#global-modal\" class=\"flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg border border-border font-semibold transition-colors bg-bg-card text-text-primary hover:bg-bg-hover text-xs shadow-xs\"><i data-lucide=\"calendar\" class=\"w-3.5 h-3.5 text-text-secondary\"></i> Schedule</button> <a href=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var26 templ.SafeURL
-		templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/plans/%d/delete", plan.ID)))
+		templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/plans/%d/edit", plan.ID)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/admin/plan/pages/plans_list.templ`, Line: 302, Col: 93}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/admin/plan/pages/plans_list.templ`, Line: 302, Col: 70}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "\" onsubmit=\"return confirm('Are you sure you want to delete this plan?')\" class=\"inline-flex\"><button type=\"submit\" class=\"p-1.5 rounded-lg border border-border text-text-muted hover:text-rose-600 hover:bg-rose-50 transition-colors\" title=\"Delete plan\"><i data-lucide=\"trash-2\" class=\"w-3.5 h-3.5\"></i></button></form></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "\" class=\"flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold no-underline transition-colors bg-primary text-white hover:bg-primary-hover text-xs shadow-xs\"><i data-lucide=\"edit-2\" class=\"w-3.5 h-3.5\"></i> Edit</a><form method=\"POST\" action=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var27 templ.SafeURL
+		templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/plans/%d/delete", plan.ID)))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/admin/plan/pages/plans_list.templ`, Line: 308, Col: 93}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "\" onsubmit=\"return confirm('Are you sure you want to delete this plan?')\" class=\"inline-flex\"><button type=\"submit\" class=\"p-1.5 rounded-lg border border-border text-text-muted hover:text-rose-600 hover:bg-rose-50 transition-colors\" title=\"Delete plan\"><i data-lucide=\"trash-2\" class=\"w-3.5 h-3.5\"></i></button></form></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -711,18 +733,18 @@ func PaymentTypeBadge(paymentType string) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var27 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var27 == nil {
-			templ_7745c5c3_Var27 = templ.NopComponent
+		templ_7745c5c3_Var28 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var28 == nil {
+			templ_7745c5c3_Var28 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		if paymentType == "recurring" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "<span class=\"px-2 py-0.5 rounded-md text-[11px] font-medium bg-bg-subtle text-text-secondary border border-border\">Recurring</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "<span class=\"px-2 py-0.5 rounded-md text-[11px] font-medium bg-bg-subtle text-text-secondary border border-border\">Recurring</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "<span class=\"px-2 py-0.5 rounded-md text-[11px] font-medium bg-emerald-50 text-emerald-800 border border-emerald-200\">One-time</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "<span class=\"px-2 py-0.5 rounded-md text-[11px] font-medium bg-emerald-50 text-emerald-800 border border-emerald-200\">One-time</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -751,6 +773,18 @@ func buildPlanURL(base string, filterOwner uint, filterType string, sortBy strin
 
 func getUserInitials(name string) string {
 	return utils.SafeInitials(name)
+}
+
+func getTotalPortions(participants []models.PlanParticipant) int {
+	total := 0
+	for _, p := range participants {
+		if p.Portion > 0 {
+			total += p.Portion
+		} else {
+			total += 1
+		}
+	}
+	return total
 }
 
 var _ = templruntime.GeneratedTemplate

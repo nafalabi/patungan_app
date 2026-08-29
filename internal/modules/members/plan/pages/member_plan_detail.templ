@@ -156,17 +156,17 @@ templ MemberPlanDetail(props MemberPlanDetailProps) {
 																{ utils.FormatRupiah(due.CalculatedPayAmount) }
 															</td>
 															<td class="py-2.5 px-3 text-center">
-																if due.PaymentStatus == "paid" {
+																if due.PaymentStatus == models.PaymentStatusPaid {
 																	<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
 																		<i data-lucide="check" class="w-3 h-3 text-emerald-600"></i>
 																		Paid
 																	</span>
-																} else if due.PaymentStatus == "overdue" {
+																} else if due.PaymentStatus == models.PaymentStatusOverdue {
 																	<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-800 border border-rose-200">
 																		<i data-lucide="alert-circle" class="w-3 h-3 text-rose-600"></i>
 																		Overdue
 																	</span>
-																} else if due.PaymentStatus == "pending" {
+																} else if due.PaymentStatus == models.PaymentStatusPending {
 																	<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
 																		<i data-lucide="clock" class="w-3 h-3 text-amber-600"></i>
 																		Pending
@@ -178,7 +178,7 @@ templ MemberPlanDetail(props MemberPlanDetailProps) {
 																}
 															</td>
 															<td class="py-2.5 px-3 text-right">
-																if due.UserID == props.CurrentUserID && (due.PaymentStatus == "pending" || due.PaymentStatus == "overdue") {
+																if due.UserID == props.CurrentUserID && (due.PaymentStatus == models.PaymentStatusPending || due.PaymentStatus == models.PaymentStatusOverdue) {
 																	<a 
 																		href={ templ.SafeURL(fmt.Sprintf("/p/%s", due.UUID)) }
 																		class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-primary text-white hover:bg-primary-hover transition-colors shadow-xs"
@@ -186,7 +186,7 @@ templ MemberPlanDetail(props MemberPlanDetailProps) {
 																		<i data-lucide="credit-card" class="w-3 h-3"></i>
 																		Pay
 																	</a>
-																} else if due.PaymentStatus == "paid" {
+																} else if due.PaymentStatus == models.PaymentStatusPaid {
 																	<span class="text-[11px] text-text-muted">{ due.DueDate.Format("02 Jan") }</span>
 																} else {
 																	<span class="text-text-muted">—</span>

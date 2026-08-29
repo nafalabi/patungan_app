@@ -262,7 +262,13 @@ templ PlanCard(plan models.Plan) {
 						<div class="text-xs text-text-secondary">
 							<span class="font-medium text-text-primary">{ fmt.Sprintf("%d", len(plan.Participants)) }</span> members
 							if len(plan.Participants) > 0 {
-								<span class="text-text-muted text-[11px]">({ utils.FormatRupiahSimple(plan.TotalPrice/float64(len(plan.Participants))) }/ea)</span>
+								if totalPortions := getTotalPortions(plan.Participants); totalPortions > 0 {
+									if totalPortions == len(plan.Participants) {
+										<span class="text-text-muted text-[11px]">({ utils.FormatRupiahSimple(plan.TotalPrice/float64(totalPortions)) }/ea)</span>
+									} else {
+										<span class="text-text-muted text-[11px]">({ utils.FormatRupiahSimple(plan.TotalPrice/float64(totalPortions)) }/portion)</span>
+									}
+								}
 							}
 						</div>
 					} else {
@@ -341,5 +347,17 @@ func buildPlanURL(base string, filterOwner uint, filterType string, sortBy strin
 
 func getUserInitials(name string) string {
 	return utils.SafeInitials(name)
+}
+
+func getTotalPortions(participants []models.PlanParticipant) int {
+	total := 0
+	for _, p := range participants {
+		if p.Portion > 0 {
+			total += p.Portion
+		} else {
+			total += 1
+		}
+	}
+	return total
 }
 

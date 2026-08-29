@@ -104,7 +104,7 @@ func MemberDashboard(props MemberDashboardProps) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</h3><p class=\"text-[11px] text-text-muted mt-1\">Enrolled subscription groups</p></div><div class=\"w-10 h-10 rounded-xl bg-bg-subtle border border-border flex items-center justify-center text-text-primary\"><i data-lucide=\"layers\" class=\"w-5 h-5\"></i></div></div><!-- Pending Dues --><div class=\"p-5 bg-bg-card border border-border rounded-xl shadow-card flex items-center justify-between\"><div><p class=\"text-xs font-semibold text-text-secondary uppercase tracking-wider\">Pending Dues</p><h3 class=\"text-2xl font-black text-amber-600 dark:text-amber-500 mt-1 font-mono\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</h3><p class=\"text-[11px] text-text-muted mt-1\">Enrolled subscription groups</p></div><div class=\"w-10 h-10 rounded-xl bg-bg-subtle border border-border flex items-center justify-center text-text-primary\"><i data-lucide=\"layers\" class=\"w-5 h-5\"></i></div></div><!-- Outstanding Dues --><div class=\"p-5 bg-bg-card border border-border rounded-xl shadow-card flex items-center justify-between\"><div><p class=\"text-xs font-semibold text-text-secondary uppercase tracking-wider\">Outstanding Dues</p><h3 class=\"text-2xl font-black text-amber-600 dark:text-amber-500 mt-1 font-mono\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -122,7 +122,7 @@ func MemberDashboard(props MemberDashboardProps) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var7 string
-			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d pending payment(s)", props.PendingCount))
+			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d outstanding due(s)", props.PendingCount))
 			if templ_7745c5c3_Err != nil {
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/members/dashboard/pages/member_dashboard.templ`, Line: 72, Col: 108}
 			}
@@ -143,14 +143,14 @@ func MemberDashboard(props MemberDashboardProps) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</h3><p class=\"text-[11px] text-text-muted mt-1\">Successful contributions</p></div><div class=\"w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700\"><i data-lucide=\"check-circle\" class=\"w-5 h-5\"></i></div></div></div><!-- Pending Payments Section --><div class=\"bg-bg-card rounded-xl border border-border shadow-card overflow-hidden\"><div class=\"px-5 py-4 border-b border-border flex items-center justify-between\"><div class=\"flex items-center gap-2\"><i data-lucide=\"alert-circle\" class=\"w-4 h-4 text-amber-600\"></i><h2 class=\"text-sm font-bold text-text-primary tracking-tight\">Pending Payment Dues</h2></div><span class=\"text-xs text-text-muted\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</h3><p class=\"text-[11px] text-text-muted mt-1\">Successful contributions</p></div><div class=\"w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700\"><i data-lucide=\"check-circle\" class=\"w-5 h-5\"></i></div></div></div><!-- Outstanding Payments Section --><div class=\"bg-bg-card rounded-xl border border-border shadow-card overflow-hidden\"><div class=\"px-5 py-4 border-b border-border flex items-center justify-between\"><div class=\"flex items-center gap-2\"><i data-lucide=\"alert-circle\" class=\"w-4 h-4 text-amber-600\"></i><h2 class=\"text-sm font-bold text-text-primary tracking-tight\">Outstanding Payment Dues</h2></div><span class=\"text-xs text-text-muted\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var9 string
-			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d pending", len(props.PendingDues)))
+			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d outstanding", len(props.PendingDues)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/members/dashboard/pages/member_dashboard.templ`, Line: 99, Col: 94}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/members/dashboard/pages/member_dashboard.templ`, Line: 99, Col: 98}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -161,12 +161,12 @@ func MemberDashboard(props MemberDashboardProps) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			if len(props.PendingDues) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div class=\"py-12 px-4 text-center\"><div class=\"w-10 h-10 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 mx-auto mb-2\"><i data-lucide=\"check\" class=\"w-5 h-5\"></i></div><h3 class=\"text-sm font-semibold text-text-primary\">All caught up!</h3><p class=\"text-xs text-text-secondary mt-0.5\">You have no outstanding payment dues.</p></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div class=\"py-12 px-4 text-center\"><div class=\"w-12 h-12 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 mx-auto mb-3\"><i data-lucide=\"check\" class=\"w-6 h-6\"></i></div><h3 class=\"text-sm font-bold text-text-primary\">All caught up!</h3><p class=\"text-xs text-text-secondary mt-1 max-w-sm mx-auto\">You have no outstanding payment dues across any of your subscriptions.</p></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"overflow-x-auto\"><table class=\"w-full border-collapse min-w-[600px]\"><thead><tr class=\"bg-bg-subtle/50 border-b border-border text-left\"><th class=\"py-3 px-5 font-semibold text-text-secondary text-[11px] uppercase tracking-wider\">Plan</th><th class=\"py-3 px-5 font-semibold text-text-secondary text-[11px] uppercase tracking-wider\">Due Date</th><th class=\"py-3 px-5 font-semibold text-text-secondary text-[11px] uppercase tracking-wider text-right\">Amount</th><th class=\"py-3 px-5 font-semibold text-text-secondary text-[11px] uppercase tracking-wider text-center\">Status</th><th class=\"py-3 px-5 font-semibold text-text-secondary text-[11px] uppercase tracking-wider text-right\">Action</th></tr></thead> <tbody class=\"divide-y divide-border\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"overflow-x-auto\"><table class=\"w-full border-collapse\"><thead><tr class=\"border-b border-border bg-bg-subtle/50 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider\"><th class=\"py-3 px-5\">Plan</th><th class=\"py-3 px-5\">Due Date</th><th class=\"py-3 px-5 text-right\">Amount</th><th class=\"py-3 px-5 text-center\">Status</th><th class=\"py-3 px-5 text-right\">Action</th></tr></thead> <tbody class=\"divide-y divide-border\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -227,7 +227,7 @@ func MemberDashboard(props MemberDashboardProps) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					if due.PaymentStatus == "overdue" {
+					if due.PaymentStatus == models.PaymentStatusOverdue {
 						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span class=\"inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-800 border border-rose-200\"><i data-lucide=\"alert-circle\" class=\"w-3 h-3 text-rose-600\"></i> Overdue</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err

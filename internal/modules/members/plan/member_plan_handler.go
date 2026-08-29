@@ -86,10 +86,12 @@ func (h *MemberPlanHandler) ShowPlan(c echo.Context) error {
 	}
 
 	var billingPeriods []models.PaymentBillingPeriod
-	h.db.Where("plan_id = ?", planID).
+	if err := h.db.Where("plan_id = ?", planID).
 		Preload("Dues.User").
 		Order("due_date DESC").
-		Find(&billingPeriods)
+		Find(&billingPeriods).Error; err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to load payment schedule")
+	}
 
 	breadcrumbs := []types.Breadcrumb{
 		{Title: "Home", URL: "/member/dashboard"},
