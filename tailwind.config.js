@@ -48,9 +48,13 @@ module.exports = {
 				}
 			},
 			boxShadow: {
+				'xs': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
 				'card': '0 1px 3px 0 rgba(0, 0, 0, 0.03), 0 1px 2px -1px rgba(0, 0, 0, 0.03)',
 				'card-hover': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05)',
 				'popover': '0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.08)',
+			},
+			backdropBlur: {
+				'xs': '2px',
 			},
 			fontFamily: {
 				sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],

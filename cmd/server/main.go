@@ -15,11 +15,15 @@ import (
 	"patungan_app_echo/internal/services/payment_gateway"
 
 	auth_mod "patungan_app_echo/internal/modules/auth"
-	"patungan_app_echo/internal/modules/dashboard"
-	"patungan_app_echo/internal/modules/payment"
-	"patungan_app_echo/internal/modules/plan"
-	"patungan_app_echo/internal/modules/settings"
-	"patungan_app_echo/internal/modules/user"
+	admin_dashboard "patungan_app_echo/internal/modules/admin/dashboard"
+	admin_payment "patungan_app_echo/internal/modules/admin/payment"
+	admin_plan "patungan_app_echo/internal/modules/admin/plan"
+	admin_settings "patungan_app_echo/internal/modules/admin/settings"
+	admin_user "patungan_app_echo/internal/modules/admin/user"
+	member_dashboard "patungan_app_echo/internal/modules/members/dashboard"
+	member_payment "patungan_app_echo/internal/modules/members/payment"
+	member_plan "patungan_app_echo/internal/modules/members/plan"
+	public_payment "patungan_app_echo/internal/modules/payment"
 
 	"patungan_app_echo/internal/models"
 	"patungan_app_echo/internal/services/cache"
@@ -113,8 +117,6 @@ func main() {
 		log.Println("Warning: REDIS_URL not set, caching disabled")
 	}
 
-	// Initialize Payment Gateways (now handled dynamically within PaymentService)
-
 	// Initialize Email
 	emailService := email.NewEmailService()
 
@@ -151,70 +153,88 @@ func main() {
 
 	// Initialize handlers
 	authHandler := auth_mod.NewAuthHandler(authClient, db)
-	dashboardHandler := dashboard.NewDashboardHandler(db)
-	planHandler := plan.NewPlanHandler(db, redisCache)
-	userHandler := user.NewUserHandler(db, redisCache)
-	paymentDueHandler := payment.NewPaymentDueHandler(db, redisCache, paymentService)
-	userPrefHandler := user.NewUserPreferenceHandler(db)
-	settingsHandler := settings.NewSettingsHandler(db, gatewayManager)
+	adminDashboardHandler := admin_dashboard.NewDashboardHandler(db)
+	adminPlanHandler := admin_plan.NewPlanHandler(db, redisCache)
+	adminUserHandler := admin_user.NewUserHandler(db, redisCache)
+	adminPaymentDueHandler := admin_payment.NewPaymentDueHandler(db, redisCache, paymentService)
+	adminUserPrefHandler := admin_user.NewUserPreferenceHandler(db)
+	adminSettingsHandler := admin_settings.NewSettingsHandler(db, gatewayManager)
+
+	memberDashboardHandler := member_dashboard.NewMemberDashboardHandler(db)
+	memberPlanHandler := member_plan.NewMemberPlanHandler(db)
+	memberPaymentHandler := member_payment.NewMemberPaymentHandler(db, paymentService)
 
 	// Public routes
 	e.GET("/login", authHandler.LoginPage)
 	e.POST("/auth/login", authHandler.HandleLogin)
 	e.POST("/auth/logout", authHandler.HandleLogout)
 
-	publicHandler := payment.NewPublicHandler(db, redisCache, paymentService)
+	publicHandler := public_payment.NewPublicHandler(db, redisCache, paymentService)
 	e.GET("/p/:uuid", publicHandler.ShowPaymentDue)
 	e.POST("/p/:uuid/initiate", publicHandler.InitiatePayment)
 	e.GET("/p/:uuid/active-session", publicHandler.CheckActiveSession)
 	e.GET("/p/:uuid/status", publicHandler.CheckStatus)
 
-	// Protected routes
-	protected := e.Group("")
-	protected.Use(authMiddleware.RequireAuth(authClient, db, redisCache))
-	protected.GET("/dashboard", dashboardHandler.Dashboard)
+	// Admin routes
+	adminGroup := e.Group("/admin")
+	adminGroup.Use(authMiddleware.RequireAuth(authClient, db, redisCache))
+	adminGroup.Use(authMiddleware.RequireAdmin())
 
-	// models.Plan routes
-	protected.GET("/plans", planHandler.ListPlans)
-	protected.GET("/plans/create", planHandler.CreatePlanPage)
-	protected.POST("/plans", planHandler.StorePlan)
-	protected.GET("/plans/:id/edit", planHandler.EditPlanPage)
-	protected.POST("/plans/:id/update", planHandler.UpdatePlan)
-	protected.POST("/plans/:id/delete", planHandler.DeletePlan)
-	protected.GET("/plans/:id/schedule-popup", planHandler.GetSchedulePopup)
-	protected.POST("/plans/:id/schedule", planHandler.SchedulePlan)
-	protected.POST("/plans/:id/disable-schedule", planHandler.DisableSchedulePlan)
+	adminGroup.GET("/dashboard", adminDashboardHandler.Dashboard)
 
-	// models.User routes
-	protected.GET("/users", userHandler.ListUsers)
-	protected.GET("/users/create", userHandler.CreateUserPage)
-	protected.POST("/users", userHandler.StoreUser)
-	protected.GET("/users/:id/edit", userHandler.EditUserPage)
-	protected.POST("/users/:id/update", userHandler.UpdateUser)
-	protected.POST("/users/:id/delete", userHandler.DeleteUser)
+	// Admin Plan routes
+	adminGroup.GET("/plans", adminPlanHandler.ListPlans)
+	adminGroup.GET("/plans/create", adminPlanHandler.CreatePlanPage)
+	adminGroup.POST("/plans", adminPlanHandler.StorePlan)
+	adminGroup.GET("/plans/:id/edit", adminPlanHandler.EditPlanPage)
+	adminGroup.POST("/plans/:id/update", adminPlanHandler.UpdatePlan)
+	adminGroup.POST("/plans/:id/delete", adminPlanHandler.DeletePlan)
+	adminGroup.GET("/plans/:id/schedule-popup", adminPlanHandler.GetSchedulePopup)
+	adminGroup.POST("/plans/:id/schedule", adminPlanHandler.SchedulePlan)
+	adminGroup.POST("/plans/:id/disable-schedule", adminPlanHandler.DisableSchedulePlan)
 
-	// models.User Preference (HTMX)
-	protected.GET("/users/:id/preference", userPrefHandler.GetUserPreference)
-	protected.PUT("/users/:id/preference", userPrefHandler.UpdateUserPreference)
+	// Admin User routes
+	adminGroup.GET("/users", adminUserHandler.ListUsers)
+	adminGroup.GET("/users/create", adminUserHandler.CreateUserPage)
+	adminGroup.POST("/users", adminUserHandler.StoreUser)
+	adminGroup.GET("/users/:id/edit", adminUserHandler.EditUserPage)
+	adminGroup.POST("/users/:id/update", adminUserHandler.UpdateUser)
+	adminGroup.POST("/users/:id/delete", adminUserHandler.DeleteUser)
 
-	// Payment dues routes
-	protected.GET("/payment-dues", paymentDueHandler.ListPaymentDues)
-	protected.GET("/payments/:id/status", paymentDueHandler.CheckPaymentStatus)
-	protected.POST("/payments/:id/mark-complete", paymentDueHandler.HandleMarkAsComplete)
+	// Admin User Preference (HTMX)
+	adminGroup.GET("/users/:id/preference", adminUserPrefHandler.GetUserPreference)
+	adminGroup.PUT("/users/:id/preference", adminUserPrefHandler.UpdateUserPreference)
 
-	// models.Settings routes (Admin only)
-	protected.GET("/admin/settings", settingsHandler.GetSettings)
-	protected.POST("/admin/settings", settingsHandler.UpdateSettings)
+	// Admin Payment dues routes
+	adminGroup.GET("/payment-dues", adminPaymentDueHandler.ListPaymentDues)
+	adminGroup.GET("/payments/:id/status", adminPaymentDueHandler.CheckPaymentStatus)
+	adminGroup.POST("/payments/:id/mark-complete", adminPaymentDueHandler.HandleMarkAsComplete)
 
-	// Webhook does not need auth protection, so it should be outside 'protected' group or explicitly allowed
-	// However, we usually put it under public routes
-	e.POST("/payments/callback/midtrans", paymentDueHandler.MidtransCallback)
-	e.POST("/payments/callback/mayar", paymentDueHandler.MayarCallback)
+	// Admin Settings routes
+	adminGroup.GET("/settings", adminSettingsHandler.GetSettings)
+	adminGroup.POST("/settings", adminSettingsHandler.UpdateSettings)
 
-	// Redirect root to dashboard (or login if not authenticated)
+	// Member routes
+	memberGroup := e.Group("/member")
+	memberGroup.Use(authMiddleware.RequireAuth(authClient, db, redisCache))
+
+	memberGroup.GET("/dashboard", memberDashboardHandler.Dashboard)
+	memberGroup.GET("/plans", memberPlanHandler.ListPlans)
+	memberGroup.GET("/plans/:id", memberPlanHandler.ShowPlan)
+	memberGroup.GET("/payments", memberPaymentHandler.ListPayments)
+
+	// Webhooks
+	e.POST("/payments/callback/midtrans", adminPaymentDueHandler.MidtransCallback)
+	e.POST("/payments/callback/mayar", adminPaymentDueHandler.MayarCallback)
+
+	// Redirect root to role-based dashboard
 	e.GET("/", func(c echo.Context) error {
-		return c.Redirect(http.StatusTemporaryRedirect, "/dashboard")
-	})
+		userType, ok := c.Get("userType").(models.UserType)
+		if ok && userType == models.UserTypeAdmin {
+			return c.Redirect(http.StatusTemporaryRedirect, "/admin/dashboard")
+		}
+		return c.Redirect(http.StatusTemporaryRedirect, "/member/dashboard")
+	}, authMiddleware.RequireAuth(authClient, db, redisCache))
 
 	// Start server
 	port := os.Getenv("PORT")

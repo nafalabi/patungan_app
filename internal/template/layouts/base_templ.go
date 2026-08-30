@@ -17,6 +17,7 @@ type BaseProps struct {
 	Breadcrumbs []types.Breadcrumb
 	UserEmail   string
 	UserUID     string
+	Role        string
 }
 
 // Base is the main layout component
@@ -48,7 +49,7 @@ func Base(props BaseProps) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(props.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/template/layouts/base.templ`, Line: 21, Col: 23}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/template/layouts/base.templ`, Line: 22, Col: 23}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -58,11 +59,11 @@ func Base(props BaseProps) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = Sidebar(props.ActiveNav).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = Sidebar(props.ActiveNav, props.Role).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = MobileNav(props.ActiveNav).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = MobileNav(props.ActiveNav, props.Role).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -82,7 +83,7 @@ func Base(props BaseProps) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</main></div><script>\n\t\t\tlucide.createIcons();\n\t\t\t\n\t\t\t// Re-initialize Lucide icons after HTMX content swap\n\t\t\tdocument.body.addEventListener('htmx:afterOnLoad', function(evt) {\n\t\t\t\tif (window.lucide) {\n\t\t\t\t\tlucide.createIcons();\n\t\t\t\t}\n\t\t\t});\n\n\t\t\t// Global logout handler\n\t\t\tdocument.addEventListener('click', async (e) => {\n\t\t\t\tif (e.target.closest('.logout-btn')) {\n\t\t\t\t\ttry {\n\t\t\t\t\t\tconst response = await fetch('/auth/logout', { method: 'POST' });\n\t\t\t\t\t\tif (response.ok) {\n\t\t\t\t\t\t\twindow.location.href = '/login';\n\t\t\t\t\t\t}\n\t\t\t\t\t} catch (error) {\n\t\t\t\t\t\tconsole.error('Logout failed:', error);\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t});\n\t\t</script></body></html>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</main></div><script>\n\t\t\tlucide.createIcons();\n\t\t\t\n\t\t\t// Re-initialize Lucide icons after HTMX content swap\n\t\t\tdocument.body.addEventListener('htmx:afterSwap', function(evt) {\n\t\t\t\tif (window.lucide) {\n\t\t\t\t\tlucide.createIcons();\n\t\t\t\t}\n\t\t\t});\n\t\t\tdocument.body.addEventListener('htmx:afterOnLoad', function(evt) {\n\t\t\t\tif (window.lucide) {\n\t\t\t\t\tlucide.createIcons();\n\t\t\t\t}\n\t\t\t});\n\n\t\t\t// Global logout handler\n\t\t\tdocument.addEventListener('click', async (e) => {\n\t\t\t\tif (e.target.closest('.logout-btn')) {\n\t\t\t\t\ttry {\n\t\t\t\t\t\tconst response = await fetch('/auth/logout', { method: 'POST' });\n\t\t\t\t\t\tif (response.ok) {\n\t\t\t\t\t\t\twindow.location.href = '/login';\n\t\t\t\t\t\t}\n\t\t\t\t\t} catch (error) {\n\t\t\t\t\t\tconsole.error('Logout failed:', error);\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t});\n\t\t</script></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
