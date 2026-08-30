@@ -16,12 +16,12 @@ import (
 
 	admin_dashboard "patungan_app_echo/internal/modules/admin/dashboard"
 	admin_settings "patungan_app_echo/internal/modules/admin/settings"
-	admin_user "patungan_app_echo/internal/modules/admin/user"
 	auth_mod "patungan_app_echo/internal/modules/auth"
 	member_dashboard "patungan_app_echo/internal/modules/members/dashboard"
 
 	payment "patungan_app_echo/internal/modules/payment"
 	plan "patungan_app_echo/internal/modules/plan"
+	user "patungan_app_echo/internal/modules/user"
 	admin_pages "patungan_app_echo/internal/pages/admin"
 	member_pages "patungan_app_echo/internal/pages/member"
 	public_payment "patungan_app_echo/internal/pages/public/payment"
@@ -158,11 +158,12 @@ func main() {
 	// Initialize PlanService
 	planSvc := plan.NewService(plan.NewGormPlanRepo(db), payment.NewDuesCreatorAdapter(db))
 
+	// Initialize UserService
+	userSvc := user.NewService(user.NewGormUserRepo(db))
+
 	// Initialize handlers
 	authHandler := auth_mod.NewAuthHandler(authClient, db)
 	adminDashboardHandler := admin_dashboard.NewDashboardHandler(db)
-	adminUserHandler := admin_user.NewUserHandler(db, redisCache)
-	adminUserPrefHandler := admin_user.NewUserPreferenceHandler(db)
 	adminSettingsHandler := admin_settings.NewSettingsHandler(db, gatewayManager)
 
 	memberDashboardHandler := member_dashboard.NewMemberDashboardHandler(db)
@@ -185,20 +186,8 @@ func main() {
 
 	adminGroup.GET("/dashboard", adminDashboardHandler.Dashboard)
 
-	// Admin User routes
-	adminGroup.GET("/users", adminUserHandler.ListUsers)
-	adminGroup.GET("/users/create", adminUserHandler.CreateUserPage)
-	adminGroup.POST("/users", adminUserHandler.StoreUser)
-	adminGroup.GET("/users/:id/edit", adminUserHandler.EditUserPage)
-	adminGroup.POST("/users/:id/update", adminUserHandler.UpdateUser)
-	adminGroup.POST("/users/:id/delete", adminUserHandler.DeleteUser)
-
-	// Admin User Preference (HTMX)
-	adminGroup.GET("/users/:id/preference", adminUserPrefHandler.GetUserPreference)
-	adminGroup.PUT("/users/:id/preference", adminUserPrefHandler.UpdateUserPreference)
-
-	// Admin Payment + Plan routes (also registers the two gateway webhook callbacks on the root router)
-	admin_pages.RegisterRoutes(e, adminGroup, admin_pages.Deps{Payments: paymentSvc, Plans: planSvc})
+	// Admin Payment + Plan + User routes (also registers the two gateway webhook callbacks on the root router)
+	admin_pages.RegisterRoutes(e, adminGroup, admin_pages.Deps{Payments: paymentSvc, Plans: planSvc, Users: userSvc})
 
 	// Admin Settings routes
 	adminGroup.GET("/settings", adminSettingsHandler.GetSettings)

@@ -1,8 +1,9 @@
-package user_pages
+package user
 
 import (
 	"fmt"
 	"patungan_app_echo/internal/models"
+	"patungan_app_echo/internal/modules/user"
 	"patungan_app_echo/internal/template/layouts"
 	types "patungan_app_echo/internal/template/types"
 )
@@ -15,7 +16,7 @@ type UserFormProps struct {
 	UserEmail   string
 	UserUID     string
 	IsEdit      bool
-	User        models.User
+	User        *user.UserSummary
 }
 
 // UserForm renders the user create/edit form
@@ -49,7 +50,7 @@ templ UserForm(props UserFormProps) {
 
 		<!-- Form Card -->
 		<div class="w-full bg-bg-card rounded-xl border border-border shadow-card p-6 sm:p-8">
-			<form method="POST" action={ userFormAction(props.IsEdit, props.User.ID) } class="space-y-5">
+			<form method="POST" action={ userFormAction(props.IsEdit, props.User) } class="space-y-5">
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div>
 						<label class="block mb-1.5 text-xs font-semibold text-text-secondary uppercase tracking-wider">Full Name</label>
@@ -86,8 +87,8 @@ templ UserForm(props UserFormProps) {
 					<div>
 						<label class="block mb-1.5 text-xs font-semibold text-text-secondary uppercase tracking-wider">User Role</label>
 						<select name="user_type" class="w-full px-3.5 py-2 rounded-lg border border-border bg-bg-card text-text-primary text-xs focus:outline-none focus:ring-1 focus:ring-primary">
-							<option value="Member" selected?={ props.User.UserType == "" || props.User.UserType == models.UserTypeMember }>Member</option>
-							<option value="Admin" selected?={ props.User.UserType == models.UserTypeAdmin }>Admin</option>
+							<option value="Member" selected?={ props.User.UserType == "" || props.User.UserType == string(models.UserTypeMember) }>Member</option>
+							<option value="Admin" selected?={ props.User.UserType == string(models.UserTypeAdmin) }>Admin</option>
 						</select>
 					</div>
 				</div>
@@ -106,9 +107,9 @@ templ UserForm(props UserFormProps) {
 }
 
 // Helper function to generate user form action URL
-func userFormAction(isEdit bool, userID uint) templ.SafeURL {
+func userFormAction(isEdit bool, u *user.UserSummary) templ.SafeURL {
 	if isEdit {
-		return templ.SafeURL(fmt.Sprintf("/admin/users/%d/update", userID))
+		return templ.SafeURL(fmt.Sprintf("/admin/users/%d/update", u.ID))
 	}
 	return templ.SafeURL("/admin/users")
 }

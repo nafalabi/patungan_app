@@ -5,13 +5,16 @@ import (
 
 	payment "patungan_app_echo/internal/modules/payment"
 	plan "patungan_app_echo/internal/modules/plan"
+	user "patungan_app_echo/internal/modules/user"
 	paymentpages "patungan_app_echo/internal/pages/admin/payment"
 	planpages "patungan_app_echo/internal/pages/admin/plan"
+	userpages "patungan_app_echo/internal/pages/admin/user"
 )
 
 type Deps struct {
 	Payments *payment.Service
 	Plans    *plan.Service
+	Users    *user.Service
 }
 
 func RegisterRoutes(e *echo.Echo, adminGroup *echo.Group, deps Deps) {
@@ -35,4 +38,16 @@ func RegisterRoutes(e *echo.Echo, adminGroup *echo.Group, deps Deps) {
 	adminGroup.GET("/plans/:id/schedule-popup", ph.GetSchedulePopup)
 	adminGroup.POST("/plans/:id/schedule", ph.SchedulePlan)
 	adminGroup.POST("/plans/:id/disable-schedule", ph.DisableSchedulePlan)
+
+	uh := userpages.NewUserHandler(deps.Users)
+	adminGroup.GET("/users", uh.ListUsers)
+	adminGroup.GET("/users/create", uh.CreateUserPage)
+	adminGroup.POST("/users", uh.StoreUser)
+	adminGroup.GET("/users/:id/edit", uh.EditUserPage)
+	adminGroup.POST("/users/:id/update", uh.UpdateUser)
+	adminGroup.POST("/users/:id/delete", uh.DeleteUser)
+
+	// Admin User Preference (HTMX)
+	adminGroup.GET("/users/:id/preference", uh.GetUserPreference)
+	adminGroup.PUT("/users/:id/preference", uh.UpdateUserPreference)
 }

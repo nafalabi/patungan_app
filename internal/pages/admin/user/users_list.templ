@@ -1,8 +1,9 @@
-package user_pages
+package user
 
 import (
 	"fmt"
 	"patungan_app_echo/internal/models"
+	"patungan_app_echo/internal/modules/user"
 	"patungan_app_echo/internal/template/layouts"
 	types "patungan_app_echo/internal/template/types"
 	"patungan_app_echo/internal/template/utils"
@@ -15,7 +16,7 @@ type UsersListProps struct {
 	Breadcrumbs []types.Breadcrumb
 	UserEmail   string
 	UserUID     string
-	Users       []models.User
+	Users       []user.UserSummary
 }
 
 // UsersList renders the users list page
@@ -75,7 +76,7 @@ templ UsersList(props UsersListProps) {
 }
 
 // UserRow renders a single user row
-templ UserRow(user models.User) {
+templ UserRow(user user.UserSummary) {
 	<tr class="hover:bg-bg-hover/50 transition-colors">
 		<td class="py-3.5 px-4">
 			<div class="flex items-center gap-3">
@@ -97,7 +98,7 @@ templ UserRow(user models.User) {
 			}
 		</td>
 		<td class="py-3.5 px-4">
-			if user.UserType == models.UserTypeAdmin {
+			if user.UserType == string(models.UserTypeAdmin) {
 				<span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-zinc-900 text-white">Admin</span>
 			} else {
 				<span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-bg-subtle text-text-secondary border border-border">Member</span>

@@ -1,12 +1,13 @@
-package user_pages
+package user
 
 import (
 	"fmt"
 	"patungan_app_echo/internal/models"
+	"patungan_app_echo/internal/modules/user"
 )
 
 // UserPreferencePopup renders the notification preference popup
-templ UserPreferencePopup(user models.User, pref models.UserNotifPreference) {
+templ UserPreferencePopup(u user.UserSummary, pref models.UserNotifPreference) {
 	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4" id="notif-pref-modal">
 		<div class="bg-bg-card rounded-2xl border border-border shadow-popover p-6 w-full max-w-md relative animate-in fade-in zoom-in-95 duration-150">
 			<button class="absolute top-4 right-4 text-text-muted hover:text-text-primary transition-colors p-1 rounded-lg hover:bg-bg-hover" onclick="document.getElementById('notif-pref-modal').remove()">
@@ -15,10 +16,10 @@ templ UserPreferencePopup(user models.User, pref models.UserNotifPreference) {
 
 			<div class="mb-5">
 				<h2 class="text-lg font-bold text-text-primary tracking-tight">Notification Settings</h2>
-				<p class="text-xs text-text-secondary mt-0.5">User: <span class="font-semibold text-text-primary">{ user.Name }</span></p>
+				<p class="text-xs text-text-secondary mt-0.5">User: <span class="font-semibold text-text-primary">{ u.Name }</span></p>
 			</div>
 
-			<form hx-put={ fmt.Sprintf("/admin/users/%d/preference", user.ID) } hx-target="#notif-pref-modal" hx-swap="outerHTML">
+			<form hx-put={ fmt.Sprintf("/admin/users/%d/preference", u.ID) } hx-target="#notif-pref-modal" hx-swap="outerHTML">
 				<div class="space-y-4">
 					<!-- Channel Selection -->
 					<div>
