@@ -224,6 +224,29 @@ templ PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID ui
 			</div>
 			
 			<div class="flex items-center gap-1.5">
+				<div x-data={ fmt.Sprintf("{ copied: false, url: window.location.origin + '/p/%s' }", due.UUID) } class="relative flex items-center">
+					<button
+						@click="if (navigator.clipboard) { navigator.clipboard.writeText(url); } else { const el = document.createElement('textarea'); el.value = url; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el); }; copied = true; setTimeout(() => copied = false, 2000)"
+						class="p-1 rounded-md text-text-muted hover:text-text-primary hover:bg-bg-hover transition-colors cursor-pointer"
+						title="Copy Payment Link"
+					>
+						<i data-lucide="copy" class="w-3.5 h-3.5"></i>
+					</button>
+					<div
+						x-show="copied"
+						x-transition:enter="transition ease-out duration-200"
+						x-transition:enter-start="opacity-0 translate-y-1"
+						x-transition:enter-end="opacity-100 translate-y-0"
+						x-transition:leave="transition ease-in duration-150"
+						x-transition:leave-start="opacity-100 translate-y-0"
+						x-transition:leave-end="opacity-0 translate-y-1"
+						class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1.5 px-2 py-0.5 bg-zinc-800 text-white text-[10px] font-semibold rounded-md shadow-md whitespace-nowrap z-10"
+						style="display: none;"
+					>
+						Copied!
+						<div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-zinc-800"></div>
+					</div>
+				</div>
 				if due.UserID == currentUserID && due.PaymentStatus != "paid" && due.PaymentStatus != "canceled" {
 					<a
 						href={ templ.SafeURL(fmt.Sprintf("/p/%s", due.UUID)) }
