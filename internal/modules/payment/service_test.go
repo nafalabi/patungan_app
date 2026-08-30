@@ -3,7 +3,9 @@ package payment_test
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"testing"
+	"time"
 
 	"patungan_app_echo/internal/models"
 	"patungan_app_echo/internal/modules/payment"
@@ -34,6 +36,13 @@ type fakeDueRepo struct {
 	listForUserArgs  [][]string
 	sums             map[string]float64
 	sumArgs          [][]string
+	countByStatus    map[string]int64
+	sumByStatus      map[string]float64
+	countSumArgs     [][]string
+	upcoming         []models.PaymentDue
+	upcomingArgs     [][]string
+	paidSince        float64
+	paidSinceArgs    []time.Time
 }
 
 func (f *fakeDueRepo) FindByID(id uint) (*models.PaymentDue, error) {
@@ -124,6 +133,38 @@ func (f *fakeDueRepo) SumForUserByStatus(userID uint, statuses []string) (float6
 		}
 	}
 	return 0, nil
+}
+
+func (f *fakeDueRepo) CountDuesByStatus(status string, userID *uint) (int64, error) {
+	arg := []string{status}
+	if userID != nil {
+		arg = append(arg, fmt.Sprintf("%d", *userID))
+	}
+	f.countSumArgs = append(f.countSumArgs, arg)
+	return f.countByStatus[status], nil
+}
+
+func (f *fakeDueRepo) SumDuesByStatus(status string, userID *uint) (float64, error) {
+	arg := []string{status}
+	if userID != nil {
+		arg = append(arg, fmt.Sprintf("%d", *userID))
+	}
+	f.countSumArgs = append(f.countSumArgs, arg)
+	return f.sumByStatus[status], nil
+}
+
+func (f *fakeDueRepo) ListUpcoming(status string, userID *uint, limit int) ([]models.PaymentDue, error) {
+	arg := []string{status, fmt.Sprintf("limit=%d", limit)}
+	if userID != nil {
+		arg = append(arg, fmt.Sprintf("%d", *userID))
+	}
+	f.upcomingArgs = append(f.upcomingArgs, arg)
+	return f.upcoming, nil
+}
+
+func (f *fakeDueRepo) CountPaidSince(userID uint, since time.Time) (float64, error) {
+	f.paidSinceArgs = append(f.paidSinceArgs, since)
+	return f.paidSince, nil
 }
 
 type fakeSessionRepo struct {
@@ -484,5 +525,52 @@ func TestMemberDuesSummary_FilterAndTotals(t *testing.T) {
 	}
 	if len(repo.listForUserArgs) != 2 || len(repo.listForUserArgs[1]) != 0 {
 		t.Fatalf("want no status filter, got %v", repo.listForUserArgs[1])
+	}
+}
+
+func TestUserDashboardStats_SumsPendingAndPaidThisMonth(t *testing.T) {
+	repo := &fakeDueRepo{
+		forUser: []models.PaymentDue{
+			{ID: 2, DueDate: time.Date(2026, 8, 10, 0, 0, 0, 0, time.UTC), CalculatedPayAmount: 500, PaymentStatus: models.PaymentStatusOverdue, Plan: models.Plan{ID: 2, Name: "Netflix"}},
+			{ID: 1, DueDate: time.Date(2026, 8, 1, 0, 0, 0, 0, time.UTC), CalculatedPayAmount: 1000, PaymentStatus: models.PaymentStatusPending, Plan: models.Plan{ID: 2, Name: "Netflix"}},
+		},
+		paidSince: 15000,
+	}
+	svc := payment.NewService(repo, &fakeSessionRepo{}, &fakeGateway{})
+
+	stats, err := svc.UserDashboardStats(3)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if stats.PendingAmount != 1500 {
+		t.Fatalf("want pending sum incl. overdue 1500, got %f", stats.PendingAmount)
+	}
+	if stats.PendingCount != 2 {
+		t.Fatalf("want 2 pending dues, got %d", stats.PendingCount)
+	}
+	if stats.PaidThisMonth != 15000 {
+		t.Fatalf("want paid this month 15000, got %f", stats.PaidThisMonth)
+	}
+	if len(stats.PendingDues) != 2 || stats.PendingDues[0].ID != 1 || stats.PendingDues[1].ID != 2 {
+		t.Fatalf("want dues ordered by due date asc, got %+v", stats.PendingDues)
+	}
+	if stats.PendingDues[0].PlanName != "Netflix" {
+		t.Fatalf("want PlanName mapped, got %+v", stats.PendingDues[0])
+	}
+	if len(repo.listForUserArgs) != 1 || len(repo.listForUserArgs[0]) != 2 ||
+		repo.listForUserArgs[0][0] != models.PaymentStatusPending || repo.listForUserArgs[0][1] != models.PaymentStatusOverdue {
+		t.Fatalf("want pending+overdue statuses, got %v", repo.listForUserArgs)
+	}
+	if len(repo.paidSinceArgs) != 1 {
+		t.Fatalf("want one paid-since query, got %d", len(repo.paidSinceArgs))
+	}
+	now := time.Now()
+	startOfMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
+	if !repo.paidSinceArgs[0].Equal(startOfMonth) {
+		t.Fatalf("want start of month %v, got %v", startOfMonth, repo.paidSinceArgs[0])
+	}
+	if stats.ActivePlansCount != 0 {
+		t.Fatalf("want ActivePlansCount left to caller, got %d", stats.ActivePlansCount)
 	}
 }

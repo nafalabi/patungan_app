@@ -7,6 +7,7 @@ import (
 	plan "patungan_app_echo/internal/modules/plan"
 	settings "patungan_app_echo/internal/modules/settings"
 	user "patungan_app_echo/internal/modules/user"
+	dashboardpages "patungan_app_echo/internal/pages/admin/dashboard"
 	paymentpages "patungan_app_echo/internal/pages/admin/payment"
 	planpages "patungan_app_echo/internal/pages/admin/plan"
 	settingspages "patungan_app_echo/internal/pages/admin/settings"
@@ -21,6 +22,9 @@ type Deps struct {
 }
 
 func RegisterRoutes(e *echo.Echo, adminGroup *echo.Group, deps Deps) {
+	dh := dashboardpages.NewDashboardHandler(deps.Payments, deps.Users)
+	adminGroup.GET("/dashboard", dh.Dashboard)
+
 	h := paymentpages.NewPaymentDueHandler(deps.Payments)
 
 	// Webhooks live outside the admin group

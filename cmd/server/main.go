@@ -14,9 +14,7 @@ import (
 
 	"patungan_app_echo/internal/services/payment_gateway"
 
-	admin_dashboard "patungan_app_echo/internal/modules/admin/dashboard"
 	auth_mod "patungan_app_echo/internal/modules/auth"
-	member_dashboard "patungan_app_echo/internal/modules/members/dashboard"
 
 	payment "patungan_app_echo/internal/modules/payment"
 	plan "patungan_app_echo/internal/modules/plan"
@@ -166,9 +164,6 @@ func main() {
 
 	// Initialize handlers
 	authHandler := auth_mod.NewAuthHandler(authClient, db)
-	adminDashboardHandler := admin_dashboard.NewDashboardHandler(db)
-
-	memberDashboardHandler := member_dashboard.NewMemberDashboardHandler(db)
 
 	// Public routes
 	e.GET("/login", authHandler.LoginPage)
@@ -186,18 +181,14 @@ func main() {
 	adminGroup.Use(authMiddleware.RequireAuth(authClient, db, redisCache))
 	adminGroup.Use(authMiddleware.RequireAdmin())
 
-	adminGroup.GET("/dashboard", adminDashboardHandler.Dashboard)
-
-	// Admin Payment + Plan + User + Settings routes (also registers the two gateway webhook callbacks on the root router)
+	// Admin Dashboard + Payment + Plan + User + Settings routes (also registers the two gateway webhook callbacks on the root router)
 	admin_pages.RegisterRoutes(e, adminGroup, admin_pages.Deps{Payments: paymentSvc, Plans: planSvc, Users: userSvc, Settings: settingsSvc})
 
 	// Member routes
 	memberGroup := e.Group("/member")
 	memberGroup.Use(authMiddleware.RequireAuth(authClient, db, redisCache))
 
-	memberGroup.GET("/dashboard", memberDashboardHandler.Dashboard)
-
-	// Member Payment + Plan routes
+	// Member Dashboard + Payment + Plan routes
 	member_pages.RegisterRoutes(memberGroup, member_pages.Deps{Payments: paymentSvc, Plans: planSvc})
 
 	// Redirect root to role-based dashboard

@@ -5,6 +5,7 @@ import (
 
 	payment "patungan_app_echo/internal/modules/payment"
 	plan "patungan_app_echo/internal/modules/plan"
+	dashboardpages "patungan_app_echo/internal/pages/member/dashboard"
 	paymentpages "patungan_app_echo/internal/pages/member/payment"
 	planpages "patungan_app_echo/internal/pages/member/plan"
 )
@@ -15,6 +16,9 @@ type Deps struct {
 }
 
 func RegisterRoutes(memberGroup *echo.Group, deps Deps) {
+	dh := dashboardpages.NewMemberDashboardHandler(deps.Payments, deps.Plans)
+	memberGroup.GET("/dashboard", dh.Dashboard)
+
 	memberGroup.GET("/payments", paymentpages.NewMemberPaymentHandler(deps.Payments).ListPayments)
 
 	ph := planpages.NewMemberPlanHandler(deps.Plans)

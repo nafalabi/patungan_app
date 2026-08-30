@@ -91,6 +91,25 @@ type ListFlatParams struct {
 	PageSize   int
 }
 
+// AdminStats is the admin dashboard projection (global numbers).
+type AdminStats struct {
+	TotalActivePlans int
+	PendingDuesCount int
+	PendingAmount    float64
+	PaidAmount       float64
+	UpcomingDues     []DueItem
+}
+
+// UserStats is the member dashboard projection for one user's dues. The
+// enrolled plans count is filled by the caller (plan.Service.EnrolledPlans).
+type UserStats struct {
+	ActivePlansCount int
+	PendingCount     int
+	PendingAmount    float64
+	PaidThisMonth    float64
+	PendingDues      []DueItem
+}
+
 func mapPlan(p models.Plan) PlanOption {
 	return PlanOption{ID: p.ID, Name: p.Name, TotalPrice: p.TotalPrice}
 }

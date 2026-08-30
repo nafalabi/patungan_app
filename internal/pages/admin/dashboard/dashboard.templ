@@ -1,8 +1,8 @@
-package dashboard_pages
+package dashboard
 
-import (	
+import (
 	"fmt"
-	"patungan_app_echo/internal/models"
+	"patungan_app_echo/internal/modules/payment"
 	"patungan_app_echo/internal/template/layouts"
 	types "patungan_app_echo/internal/template/types"
 	"patungan_app_echo/internal/template/utils"
@@ -21,7 +21,7 @@ type DashboardProps struct {
 	PendingDuesCount int
 	PendingAmount    float64
 	PaidAmount       float64
-	UpcomingDues     []models.PaymentDue
+	UpcomingDues     []payment.DueItem
 }
 
 // Dashboard renders the dashboard page
@@ -151,17 +151,17 @@ templ Dashboard(props DashboardProps) {
 									<tr class="hover:bg-bg-hover/70 transition-colors">
 										<td class="px-5 py-3.5 whitespace-nowrap">
 											<div class="flex items-center gap-2.5">
-												<div class="w-7 h-7 rounded-md bg-bg-subtle border border-border flex items-center justify-center text-xs font-bold text-text-primary">
-													{ utils.SafeInitial(due.Plan.Name, "P") }
-												</div>
-												<span class="font-medium text-text-primary">{ due.Plan.Name }</span>
+											<div class="w-7 h-7 rounded-md bg-bg-subtle border border-border flex items-center justify-center text-xs font-bold text-text-primary">
+												{ utils.SafeInitial(due.PlanName, "P") }
 											</div>
-										</td>
-										<td class="px-5 py-3.5 whitespace-nowrap text-text-secondary text-xs">{ due.User.Name }</td>
-										<td class="px-5 py-3.5 whitespace-nowrap text-text-secondary text-xs font-mono">{ due.DueDate.Format("02 Jan 2006") }</td>
-										<td class="px-5 py-3.5 whitespace-nowrap text-right font-semibold text-text-primary text-xs">{ utils.FormatRupiah(due.CalculatedPayAmount) }</td>
-										<td class="px-5 py-3.5 whitespace-nowrap text-center">
-											if due.User.ID == props.UserID {
+											<span class="font-medium text-text-primary">{ due.PlanName }</span>
+										</div>
+									</td>
+									<td class="px-5 py-3.5 whitespace-nowrap text-text-secondary text-xs">{ due.UserName }</td>
+									<td class="px-5 py-3.5 whitespace-nowrap text-text-secondary text-xs font-mono">{ due.DueDate.Format("02 Jan 2006") }</td>
+									<td class="px-5 py-3.5 whitespace-nowrap text-right font-semibold text-text-primary text-xs">{ utils.FormatRupiah(due.Amount) }</td>
+									<td class="px-5 py-3.5 whitespace-nowrap text-center">
+										if due.UserID == props.UserID {
 												<a href={ templ.SafeURL(fmt.Sprintf("/admin/payment-dues#payment-due-%d", due.ID)) } class="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-md bg-primary text-white hover:bg-primary-hover transition-colors shadow-xs">
 													Pay Now
 												</a>

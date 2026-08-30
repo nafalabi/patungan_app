@@ -1,6 +1,8 @@
 package payment
 
 import (
+	"time"
+
 	"patungan_app_echo/internal/models"
 
 	"gorm.io/gorm"
@@ -26,8 +28,12 @@ type DueRepo interface {
 	ListLatestByUser(userID uint, limit int) ([]models.PaymentDue, error)
 	ListPlans() ([]models.Plan, error)
 	ListUsers() ([]models.User, error)
-	ListForUser(userID uint, statuses []string) ([]models.PaymentDue, error) // statuses empty = all
-	SumForUserByStatus(userID uint, statuses []string) (float64, error)      // statuses empty = all
+	ListForUser(userID uint, statuses []string) ([]models.PaymentDue, error)          // statuses empty = all
+	SumForUserByStatus(userID uint, statuses []string) (float64, error)               // statuses empty = all
+	CountDuesByStatus(status string, userID *uint) (int64, error)                     // userID nil = global
+	SumDuesByStatus(status string, userID *uint) (float64, error)                     // userID nil = global
+	ListUpcoming(status string, userID *uint, limit int) ([]models.PaymentDue, error) // Preload Plan+User, order due_date asc
+	CountPaidSince(userID uint, since time.Time) (float64, error)
 }
 
 // SessionRepo persists payment sessions. FindLatestActive, FindByOrderID and
@@ -227,6 +233,44 @@ func (r *gormDueRepo) SumForUserByStatus(userID uint, statuses []string) (float6
 		query = query.Where("payment_status IN ?", statuses)
 	}
 	err := query.Select("COALESCE(SUM(calculated_pay_amount), 0)").Scan(&total).Error
+	return total, err
+}
+
+func (r *gormDueRepo) CountDuesByStatus(status string, userID *uint) (int64, error) {
+	var count int64
+	query := r.db.Model(&models.PaymentDue{}).Where("payment_status = ?", status)
+	if userID != nil {
+		query = query.Where("user_id = ?", *userID)
+	}
+	err := query.Count(&count).Error
+	return count, err
+}
+
+func (r *gormDueRepo) SumDuesByStatus(status string, userID *uint) (float64, error) {
+	var total float64
+	query := r.db.Model(&models.PaymentDue{}).Where("payment_status = ?", status)
+	if userID != nil {
+		query = query.Where("user_id = ?", *userID)
+	}
+	err := query.Select("COALESCE(SUM(calculated_pay_amount), 0)").Scan(&total).Error
+	return total, err
+}
+
+func (r *gormDueRepo) ListUpcoming(status string, userID *uint, limit int) ([]models.PaymentDue, error) {
+	var dues []models.PaymentDue
+	query := r.db.Preload("Plan").Preload("User").Where("payment_status = ?", status)
+	if userID != nil {
+		query = query.Where("user_id = ?", *userID)
+	}
+	err := query.Order("due_date asc").Limit(limit).Find(&dues).Error
+	return dues, err
+}
+
+func (r *gormDueRepo) CountPaidSince(userID uint, since time.Time) (float64, error) {
+	var total float64
+	err := r.db.Model(&models.PaymentDue{}).
+		Where("user_id = ? AND payment_status = ? AND updated_at >= ?", userID, models.PaymentStatusPaid, since).
+		Select("COALESCE(SUM(calculated_pay_amount), 0)").Scan(&total).Error
 	return total, err
 }
 

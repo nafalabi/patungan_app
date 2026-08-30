@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -459,6 +460,69 @@ func (s *Service) MemberDuesSummary(userID uint, statusFilter string) ([]DueItem
 // CreateCallbackHistory persists a gateway callback payload for auditing.
 func (s *Service) CreateCallbackHistory(h *models.PaymentCallbackHistory) error {
 	return s.dues.CreateCallbackHistory(h)
+}
+
+// AdminDashboardStats returns the global dashboard numbers for the admin page.
+func (s *Service) AdminDashboardStats() (AdminStats, error) {
+	plans, err := s.dues.ListPlans()
+	if err != nil {
+		return AdminStats{}, err
+	}
+
+	pendingCount, err := s.dues.CountDuesByStatus(models.PaymentStatusPending, nil)
+	if err != nil {
+		return AdminStats{}, err
+	}
+	pendingAmount, err := s.dues.SumDuesByStatus(models.PaymentStatusPending, nil)
+	if err != nil {
+		return AdminStats{}, err
+	}
+	paidAmount, err := s.dues.SumDuesByStatus(models.PaymentStatusPaid, nil)
+	if err != nil {
+		return AdminStats{}, err
+	}
+	upcoming, err := s.dues.ListUpcoming(models.PaymentStatusPending, nil, 5)
+	if err != nil {
+		return AdminStats{}, err
+	}
+
+	return AdminStats{
+		TotalActivePlans: len(plans),
+		PendingDuesCount: int(pendingCount),
+		PendingAmount:    pendingAmount,
+		PaidAmount:       paidAmount,
+		UpcomingDues:     mapDues(upcoming),
+	}, nil
+}
+
+// UserDashboardStats returns the member dashboard data for a user: the
+// pending (including overdue) dues ordered by due date, their count and sum,
+// and the total paid this month. ActivePlansCount is left to the caller.
+func (s *Service) UserDashboardStats(userID uint) (UserStats, error) {
+	dues, err := s.dues.ListForUser(userID, []string{models.PaymentStatusPending, models.PaymentStatusOverdue})
+	if err != nil {
+		return UserStats{}, err
+	}
+	sort.Slice(dues, func(i, j int) bool { return dues[i].DueDate.Before(dues[j].DueDate) })
+
+	var pendingAmount float64
+	for _, due := range dues {
+		pendingAmount += due.CalculatedPayAmount
+	}
+
+	now := time.Now()
+	startOfMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
+	paidThisMonth, err := s.dues.CountPaidSince(userID, startOfMonth)
+	if err != nil {
+		return UserStats{}, err
+	}
+
+	return UserStats{
+		PendingCount:  len(dues),
+		PendingAmount: pendingAmount,
+		PaidThisMonth: paidThisMonth,
+		PendingDues:   mapDues(dues),
+	}, nil
 }
 
 // FindLatestByGatewayMetadata returns (nil, nil) when no session matches.
