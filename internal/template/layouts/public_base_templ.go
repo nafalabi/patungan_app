@@ -8,6 +8,8 @@ package layouts
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
+import "time"
+
 // PublicBaseProps contains props for the public base layout
 type PublicBaseProps struct {
 	Title string
@@ -42,13 +44,13 @@ func PublicBase(props PublicBaseProps) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(props.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/template/layouts/public_base.templ`, Line: 17, Col: 23}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/template/layouts/public_base.templ`, Line: 18, Col: 23}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " - Patungan App</title><link rel=\"icon\" type=\"image/svg+xml\" href=\"/static/favicon.svg\"><link rel=\"icon\" type=\"image/x-icon\" href=\"/static/favicon.ico\"><link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"><link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin><link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap\" rel=\"stylesheet\"><link rel=\"stylesheet\" href=\"/static/css/tailwind.css\"><script src=\"https://unpkg.com/lucide@latest\"></script><script defer src=\"https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js\"></script><script src=\"https://unpkg.com/htmx.org@1.9.10\" integrity=\"sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC\" crossorigin=\"anonymous\"></script></head><body class=\"bg-bg-body text-text-primary font-sans min-h-screen flex flex-col\"><!-- Simple Header --><header class=\"bg-bg-card border-b border-border sticky top-0 z-40\"><div class=\"max-w-3xl mx-auto px-4 sm:px-6 lg:px-8\"><div class=\"flex h-16 items-center justify-between\"><div class=\"flex items-center gap-3\"><div class=\"bg-primary/10 p-2 rounded-lg text-primary\"><i data-lucide=\"wallet\" class=\"h-6 w-6\"></i></div><span class=\"text-xl font-bold text-text-primary\">Patungan App</span></div></div></div></header><!-- Main Content --><main class=\"flex-1 w-full max-w-3xl mx-auto p-4 sm:p-6 lg:p-8\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " - Patungan App</title><link rel=\"icon\" type=\"image/svg+xml\" href=\"/static/favicon.svg\"><link rel=\"icon\" type=\"image/x-icon\" href=\"/static/favicon.ico\"><link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"><link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin><link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap\" rel=\"stylesheet\"><link rel=\"stylesheet\" href=\"/static/css/tailwind.css\"><script src=\"https://unpkg.com/lucide@latest\"></script><script defer src=\"https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js\"></script><script src=\"https://unpkg.com/htmx.org@1.9.10\" integrity=\"sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC\" crossorigin=\"anonymous\"></script></head><body class=\"bg-bg-body text-text-primary font-sans min-h-screen flex flex-col\"><!-- Simple Header --><header class=\"bg-bg-card border-b border-border sticky top-0 z-40\"><div class=\"max-w-3xl mx-auto px-4 sm:px-6 lg:px-8\"><div class=\"flex h-16 items-center justify-between\"><div class=\"flex items-center gap-3\"><img src=\"/static/logo-lockup.svg\" alt=\"Patungan App\" class=\"h-9 w-auto\"></div></div></div></header><!-- Main Content --><main class=\"flex-1 w-full max-w-3xl mx-auto p-4 sm:p-6 lg:p-8\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -56,7 +58,20 @@ func PublicBase(props PublicBaseProps) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</main><!-- Simple Footer --><footer class=\"bg-bg-body border-t border-border mt-auto\"><div class=\"max-w-3xl mx-auto py-6 px-4 sm:px-6 lg:px-8\"><p class=\"text-center text-sm text-text-secondary\">&copy; 2024 Patungan App. All rights reserved.</p></div></footer><script>\n\t\t\t\tlucide.createIcons();\n\t\t\t</script></body></html>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</main><!-- Simple Footer --><footer class=\"bg-bg-body border-t border-border mt-auto\"><div class=\"max-w-3xl mx-auto py-6 px-4 sm:px-6 lg:px-8\"><p class=\"text-center text-sm text-text-secondary\">&copy; ")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var3 string
+		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(time.Now().Year())
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/template/layouts/public_base.templ`, Line: 50, Col: 32}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, " Patungan App. All rights reserved.</p></div></footer><script>\n\t\t\t\tlucide.createIcons();\n\t\t\t</script></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

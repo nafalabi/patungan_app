@@ -1,4 +1,4 @@
-FROM golang:1.24-alpine
+FROM golang:1.25-alpine
 
 WORKDIR /app
 
@@ -9,7 +9,7 @@ RUN apk add --no-cache git
 RUN go install github.com/air-verse/air@v1.62.0
 
 # Install templ
-RUN go install github.com/a-h/templ/cmd/templ@v0.3.977
+RUN go install github.com/a-h/templ/cmd/templ@v0.3.1020
 
 # Copy go mod and sum files
 COPY go.mod go.sum ./

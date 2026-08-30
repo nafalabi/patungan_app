@@ -1,5 +1,6 @@
 package layouts
 
+import "time"
 
 
 // PublicBaseProps contains props for the public base layout
@@ -30,12 +31,9 @@ templ PublicBase(props PublicBaseProps) {
 			<header class="bg-bg-card border-b border-border sticky top-0 z-40">
 				<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
 					<div class="flex h-16 items-center justify-between">
-						<div class="flex items-center gap-3">
-							<div class="bg-primary/10 p-2 rounded-lg text-primary">
-								<i data-lucide="wallet" class="h-6 w-6"></i>
-							</div>
-							<span class="text-xl font-bold text-text-primary">Patungan App</span>
-						</div>
+<div class="flex items-center gap-3">
+						<img src="/static/logo-lockup.svg" alt="Patungan App" class="h-9 w-auto"/>
+					</div>
 					</div>
 				</div>
 			</header>
@@ -49,7 +47,7 @@ templ PublicBase(props PublicBaseProps) {
 			<footer class="bg-bg-body border-t border-border mt-auto">
 				<div class="max-w-3xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
 					<p class="text-center text-sm text-text-secondary">
-						&copy; 2024 Patungan App. All rights reserved.
+						&copy; { time.Now().Year() } Patungan App. All rights reserved.
 					</p>
 				</div>
 			</footer>
