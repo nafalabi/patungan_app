@@ -692,15 +692,15 @@ func PlanCard(plan models.Plan) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var26 string
-			templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/admin/plans/%d/schedule", plan.ID))
+			templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/admin/plans/%d/schedule-popup", plan.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/admin/plan/pages/plans_list.templ`, Line: 297, Col: 63}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/admin/plan/pages/plans_list.templ`, Line: 297, Col: 69}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "\" hx-target=\"body\" hx-swap=\"beforeend\" class=\"p-1.5 rounded-lg border border-border bg-bg-card hover:bg-bg-hover text-text-secondary hover:text-text-primary transition-colors cursor-pointer\" title=\"Configure Auto-bill Schedule\"><i data-lucide=\"calendar\" class=\"w-3.5 h-3.5\"></i></button> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "\" hx-target=\"#global-modal\" class=\"p-1.5 rounded-lg border border-border bg-bg-card hover:bg-bg-hover text-text-secondary hover:text-text-primary transition-colors cursor-pointer\" title=\"Configure Auto-bill Schedule\"><i data-lucide=\"calendar\" class=\"w-3.5 h-3.5\"></i></button> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -712,7 +712,7 @@ func PlanCard(plan models.Plan) templ.Component {
 		var templ_7745c5c3_Var27 templ.SafeURL
 		templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/plans/%d/edit", plan.ID)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/admin/plan/pages/plans_list.templ`, Line: 307, Col: 71}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/admin/plan/pages/plans_list.templ`, Line: 306, Col: 71}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 		if templ_7745c5c3_Err != nil {
@@ -725,7 +725,7 @@ func PlanCard(plan models.Plan) templ.Component {
 		var templ_7745c5c3_Var28 templ.SafeURL
 		templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/plans/%d/delete", plan.ID)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/admin/plan/pages/plans_list.templ`, Line: 313, Col: 94}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/admin/plan/pages/plans_list.templ`, Line: 312, Col: 94}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 		if templ_7745c5c3_Err != nil {

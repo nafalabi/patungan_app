@@ -73,5 +73,3 @@ func GetTotalPortions(participants []models.PlanParticipant) int {
 	}
 	return total
 }
-
-

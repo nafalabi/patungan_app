@@ -293,10 +293,9 @@ templ PlanCard(plan models.Plan) {
 			<span class="font-mono text-text-muted text-[11px]">ID: #{ fmt.Sprintf("%d", plan.ID) }</span>
 			<div class="flex items-center gap-2">
 				if plan.PaymentType == "recurring" {
-					<button 
-						hx-get={ fmt.Sprintf("/admin/plans/%d/schedule", plan.ID) } 
-						hx-target="body" 
-						hx-swap="beforeend" 
+					<button
+						hx-get={ fmt.Sprintf("/admin/plans/%d/schedule-popup", plan.ID) }
+						hx-target="#global-modal"
 						class="p-1.5 rounded-lg border border-border bg-bg-card hover:bg-bg-hover text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
 						title="Configure Auto-bill Schedule"
 					>

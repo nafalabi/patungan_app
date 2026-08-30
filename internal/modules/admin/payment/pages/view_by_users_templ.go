@@ -217,7 +217,7 @@ func UserListItems(userWithDues []UserWithDues, currentUserID uint, currentUserT
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				if due.UserID == currentUserID && due.PaymentStatus != "paid" {
+				if due.UserID == currentUserID && due.PaymentStatus != models.PaymentStatusPaid {
 					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<a href=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err

@@ -87,7 +87,7 @@ func MemberPayments(props MemberPaymentsProps) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var5 = []any{"px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all", templ.KV("bg-primary text-white shadow-xs", props.StatusFilter == "pending"), templ.KV("text-text-secondary hover:text-text-primary", props.StatusFilter != "pending")}
+			var templ_7745c5c3_Var5 = []any{"px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all", templ.KV("bg-primary text-white shadow-xs", props.StatusFilter == models.PaymentStatusPending), templ.KV("text-text-secondary hover:text-text-primary", props.StatusFilter != models.PaymentStatusPending)}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var5...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -109,7 +109,7 @@ func MemberPayments(props MemberPaymentsProps) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var7 = []any{"px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all", templ.KV("bg-primary text-white shadow-xs", props.StatusFilter == "paid"), templ.KV("text-text-secondary hover:text-text-primary", props.StatusFilter != "paid")}
+			var templ_7745c5c3_Var7 = []any{"px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all", templ.KV("bg-primary text-white shadow-xs", props.StatusFilter == models.PaymentStatusPaid), templ.KV("text-text-secondary hover:text-text-primary", props.StatusFilter != models.PaymentStatusPaid)}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var7...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err

@@ -48,13 +48,13 @@ templ MemberPayments(props MemberPaymentsProps) {
 					</a>
 					<a 
 						href="/member/payments?status=pending" 
-						class={ "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all", templ.KV("bg-primary text-white shadow-xs", props.StatusFilter == "pending"), templ.KV("text-text-secondary hover:text-text-primary", props.StatusFilter != "pending") }
+						class={ "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all", templ.KV("bg-primary text-white shadow-xs", props.StatusFilter == models.PaymentStatusPending), templ.KV("text-text-secondary hover:text-text-primary", props.StatusFilter != models.PaymentStatusPending) }
 					>
 						Pending
 					</a>
 					<a 
 						href="/member/payments?status=paid" 
-						class={ "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all", templ.KV("bg-primary text-white shadow-xs", props.StatusFilter == "paid"), templ.KV("text-text-secondary hover:text-text-primary", props.StatusFilter != "paid") }
+						class={ "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all", templ.KV("bg-primary text-white shadow-xs", props.StatusFilter == models.PaymentStatusPaid), templ.KV("text-text-secondary hover:text-text-primary", props.StatusFilter != models.PaymentStatusPaid) }
 					>
 						Paid
 					</a>
