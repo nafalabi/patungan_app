@@ -14,17 +14,16 @@ import (
 
 	"patungan_app_echo/internal/services/payment_gateway"
 
-	auth_mod "patungan_app_echo/internal/modules/auth"
 	admin_dashboard "patungan_app_echo/internal/modules/admin/dashboard"
-	admin_plan "patungan_app_echo/internal/modules/admin/plan"
 	admin_settings "patungan_app_echo/internal/modules/admin/settings"
 	admin_user "patungan_app_echo/internal/modules/admin/user"
+	auth_mod "patungan_app_echo/internal/modules/auth"
 	member_dashboard "patungan_app_echo/internal/modules/members/dashboard"
-	member_plan "patungan_app_echo/internal/modules/members/plan"
 
 	payment "patungan_app_echo/internal/modules/payment"
+	plan "patungan_app_echo/internal/modules/plan"
 	admin_pages "patungan_app_echo/internal/pages/admin"
-	member_payment_pages "patungan_app_echo/internal/pages/member/payment"
+	member_pages "patungan_app_echo/internal/pages/member"
 	public_payment "patungan_app_echo/internal/pages/public/payment"
 
 	"patungan_app_echo/internal/models"
@@ -156,16 +155,17 @@ func main() {
 		payment.NewGatewayClient(gatewayManager),
 	)
 
+	// Initialize PlanService
+	planSvc := plan.NewService(plan.NewGormPlanRepo(db), payment.NewDuesCreatorAdapter(db))
+
 	// Initialize handlers
 	authHandler := auth_mod.NewAuthHandler(authClient, db)
 	adminDashboardHandler := admin_dashboard.NewDashboardHandler(db)
-	adminPlanHandler := admin_plan.NewPlanHandler(db, redisCache)
 	adminUserHandler := admin_user.NewUserHandler(db, redisCache)
 	adminUserPrefHandler := admin_user.NewUserPreferenceHandler(db)
 	adminSettingsHandler := admin_settings.NewSettingsHandler(db, gatewayManager)
 
 	memberDashboardHandler := member_dashboard.NewMemberDashboardHandler(db)
-	memberPlanHandler := member_plan.NewMemberPlanHandler(db)
 
 	// Public routes
 	e.GET("/login", authHandler.LoginPage)
@@ -185,17 +185,6 @@ func main() {
 
 	adminGroup.GET("/dashboard", adminDashboardHandler.Dashboard)
 
-	// Admin Plan routes
-	adminGroup.GET("/plans", adminPlanHandler.ListPlans)
-	adminGroup.GET("/plans/create", adminPlanHandler.CreatePlanPage)
-	adminGroup.POST("/plans", adminPlanHandler.StorePlan)
-	adminGroup.GET("/plans/:id/edit", adminPlanHandler.EditPlanPage)
-	adminGroup.POST("/plans/:id/update", adminPlanHandler.UpdatePlan)
-	adminGroup.POST("/plans/:id/delete", adminPlanHandler.DeletePlan)
-	adminGroup.GET("/plans/:id/schedule-popup", adminPlanHandler.GetSchedulePopup)
-	adminGroup.POST("/plans/:id/schedule", adminPlanHandler.SchedulePlan)
-	adminGroup.POST("/plans/:id/disable-schedule", adminPlanHandler.DisableSchedulePlan)
-
 	// Admin User routes
 	adminGroup.GET("/users", adminUserHandler.ListUsers)
 	adminGroup.GET("/users/create", adminUserHandler.CreateUserPage)
@@ -208,8 +197,8 @@ func main() {
 	adminGroup.GET("/users/:id/preference", adminUserPrefHandler.GetUserPreference)
 	adminGroup.PUT("/users/:id/preference", adminUserPrefHandler.UpdateUserPreference)
 
-	// Admin Payment routes (also registers the two gateway webhook callbacks on the root router)
-	admin_pages.RegisterRoutes(e, adminGroup, admin_pages.Deps{Payments: paymentSvc})
+	// Admin Payment + Plan routes (also registers the two gateway webhook callbacks on the root router)
+	admin_pages.RegisterRoutes(e, adminGroup, admin_pages.Deps{Payments: paymentSvc, Plans: planSvc})
 
 	// Admin Settings routes
 	adminGroup.GET("/settings", adminSettingsHandler.GetSettings)
@@ -220,9 +209,9 @@ func main() {
 	memberGroup.Use(authMiddleware.RequireAuth(authClient, db, redisCache))
 
 	memberGroup.GET("/dashboard", memberDashboardHandler.Dashboard)
-	memberGroup.GET("/plans", memberPlanHandler.ListPlans)
-	memberGroup.GET("/plans/:id", memberPlanHandler.ShowPlan)
-	memberGroup.GET("/payments", member_payment_pages.NewMemberPaymentHandler(paymentSvc).ListPayments)
+
+	// Member Payment + Plan routes
+	member_pages.RegisterRoutes(memberGroup, member_pages.Deps{Payments: paymentSvc, Plans: planSvc})
 
 	// Redirect root to role-based dashboard
 	e.GET("/", func(c echo.Context) error {

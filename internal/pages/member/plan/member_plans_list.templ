@@ -1,8 +1,8 @@
-package plan_pages
+package plan
 
 import (
 	"fmt"
-	"patungan_app_echo/internal/models"
+	"patungan_app_echo/internal/modules/plan"
 	"patungan_app_echo/internal/template/layouts"
 	types "patungan_app_echo/internal/template/types"
 	"patungan_app_echo/internal/template/utils"
@@ -14,7 +14,7 @@ type MemberPlansListProps struct {
 	Breadcrumbs   []types.Breadcrumb
 	UserEmail     string
 	UserUID       string
-	EnrolledPlans []models.Plan
+	EnrolledPlans []plan.PlanSummary
 }
 
 templ MemberPlansList(props MemberPlansListProps) {
@@ -58,12 +58,12 @@ templ MemberPlansList(props MemberPlansListProps) {
 												{ plan.Name }
 											</h3>
 											<p class="text-[11px] text-text-muted mt-0.5">
-												Owner: <span class="font-medium text-text-secondary">{ plan.Owner.Name }</span>
+												Owner: <span class="font-medium text-text-secondary">{ plan.OwnerName }</span>
 											</p>
 										</div>
 									</div>
 									<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-bg-subtle text-text-secondary border border-border capitalize">
-										{ string(plan.PaymentType) }
+										{ plan.PaymentType }
 									</span>
 								</div>
 
@@ -78,7 +78,7 @@ templ MemberPlansList(props MemberPlansListProps) {
 							<div class="pt-3 border-t border-border/60 flex items-center justify-between">
 								<span class="text-xs text-text-muted flex items-center gap-1.5">
 									<i data-lucide="users" class="w-3.5 h-3.5"></i>
-									{ fmt.Sprintf("%d members", len(plan.Participants)) }
+									{ fmt.Sprintf("%d members", plan.ParticipantCount) }
 								</span>
 								<a 
 									href={ templ.SafeURL(fmt.Sprintf("/member/plans/%d", plan.ID)) }

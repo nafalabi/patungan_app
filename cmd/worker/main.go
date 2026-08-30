@@ -15,8 +15,9 @@ import (
 	"patungan_app_echo/internal/tasks"
 
 	"patungan_app_echo/internal/models"
-	"patungan_app_echo/internal/modules/admin/plan"
 	"patungan_app_echo/internal/modules/notification"
+	"patungan_app_echo/internal/modules/payment"
+	plan "patungan_app_echo/internal/modules/plan"
 	"patungan_app_echo/internal/modules/scheduler"
 	"patungan_app_echo/internal/services/database"
 )
@@ -43,7 +44,13 @@ func main() {
 	// Initialize Task Registry
 	tasks.Initialize()
 	tasks.RegisterHandler(scheduler.LogInfoTask.TaskID(), scheduler.LogInfoTask.HandleExecution)
-	tasks.RegisterHandler(plan.ProcessPlanScheduleTask.TaskID(), plan.ProcessPlanScheduleTask.HandleExecution)
+
+	// Composition root: bind the plan schedule task to the plan service
+	planSvc := plan.NewService(plan.NewGormPlanRepo(db), payment.NewDuesCreatorAdapter(db))
+	plan.ProcessPlanScheduleTask = plan.NewProcessScheduleTask(planSvc)
+	processTask := plan.NewProcessScheduleTask(planSvc)
+	tasks.RegisterHandler(processTask.TaskID(), processTask.HandleExecution)
+
 	tasks.RegisterHandler(notification.SendNotificationTask.TaskID(), notification.SendNotificationTask.HandleExecution)
 	tasks.DefineTasks()
 

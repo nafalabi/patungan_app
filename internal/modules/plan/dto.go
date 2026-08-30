@@ -20,9 +20,36 @@ type ListParams struct {
 type PlanSummary struct {
 	ID         uint
 	Name       string
+	OwnerID    uint
 	OwnerName  string
 	TotalPrice float64
 	StartDate  time.Time
+
+	PaymentType string
+	NextDue     time.Time
+
+	ParticipantCount    int
+	ParticipantNames    []string
+	TotalPortions       int
+	ScheduledTaskStatus string // empty when the plan has no scheduled task
+}
+
+// UserOption is a user entry for dropdowns (owner filter, participants).
+type UserOption struct {
+	ID    uint
+	Name  string
+	Email string
+}
+
+// ScheduleView is the schedule-popup projection of a plan.
+type ScheduleView struct {
+	ID          uint
+	Name        string
+	NextDue     time.Time
+	CurrentDue  *time.Time // nil when the plan has no scheduled task
+	TaskStatus  string     // empty when the plan has no scheduled task
+	TaskID      *uint
+	PaymentType string
 }
 
 // PlanDetail is the member/admin detail-page projection of a plan.
@@ -55,6 +82,7 @@ type DueView struct {
 	Status   string
 	UserID   uint
 	UserName string
+	DueDate  time.Time
 }
 
 // UpdateInput carries the already-validated form fields for Update.

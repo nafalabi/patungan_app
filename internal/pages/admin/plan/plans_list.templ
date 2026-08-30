@@ -1,8 +1,8 @@
-package plan_pages
+package plan
 
 import (	
 	"fmt"
-	"patungan_app_echo/internal/models"
+	"patungan_app_echo/internal/modules/plan"
 	"patungan_app_echo/internal/template/layouts"
 	types "patungan_app_echo/internal/template/types"
 	"patungan_app_echo/internal/template/utils"
@@ -15,7 +15,7 @@ type PlansListProps struct {
 	Breadcrumbs []types.Breadcrumb
 	UserEmail   string
 	UserUID     string
-	Plans       []models.Plan
+	Plans       []plan.PlanSummary
 
 	// Filtering
 	FilterOwner uint
@@ -32,7 +32,7 @@ type PlansListProps struct {
 	PageSize    int
 
 	// For dropdowns
-	AllUsers []models.User
+	AllUsers []plan.UserOption
 }
 
 // PlansList renders the plans list page with improved card-based UI
@@ -205,7 +205,7 @@ templ PlansList(props PlansListProps) {
 }
 
 // PlanCard renders a single plan as a card
-templ PlanCard(plan models.Plan) {
+templ PlanCard(plan plan.PlanSummary) {
 	<div class="bg-bg-card rounded-xl border border-border overflow-hidden shadow-card hover:shadow-card-hover transition-all flex flex-col justify-between">
 		<!-- Card Header & Content -->
 		<div class="p-5 space-y-4">
@@ -218,8 +218,8 @@ templ PlanCard(plan models.Plan) {
 					<div>
 						<h3 class="text-base font-bold text-text-primary tracking-tight leading-snug">{ plan.Name }</h3>
 						<p class="text-xs text-text-secondary mt-0.5">
-							if plan.Owner.Name != "" {
-								<span>{ plan.Owner.Name }</span>
+							if plan.OwnerName != "" {
+								<span>{ plan.OwnerName }</span>
 							} else {
 								<span class="italic text-text-muted">No owner assigned</span>
 							}
@@ -237,37 +237,35 @@ templ PlanCard(plan models.Plan) {
 				</div>
 				<div class="text-right">
 					<span class="text-[10px] font-semibold uppercase tracking-wider text-text-secondary block">Next Due</span>
-					<span class="text-xs font-semibold text-text-primary font-mono">{ plan.NextDue().Format("02 Jan 2006") }</span>
+					<span class="text-xs font-semibold text-text-primary font-mono">{ plan.NextDue.Format("02 Jan 2006") }</span>
 				</div>
 			</div>
 
 			<!-- Participants Avatar Stack & Split Info -->
 			<div class="flex items-center justify-between pt-1">
 				<div class="flex items-center">
-					if len(plan.Participants) > 0 {
+					if plan.ParticipantCount > 0 {
 						<div class="flex items-center -space-x-1.5 mr-2.5">
-							for i, participant := range plan.Participants {
+							for i, name := range plan.ParticipantNames {
 								if i < 3 {
-									<div class="w-6 h-6 rounded-full bg-zinc-800 text-white flex items-center justify-center text-[9px] font-bold border-2 border-white" title={ participant.User.Name }>
-										{ utils.SafeInitials(participant.User.Name) }
+									<div class="w-6 h-6 rounded-full bg-zinc-800 text-white flex items-center justify-center text-[9px] font-bold border-2 border-white" title={ name }>
+										{ utils.SafeInitials(name) }
 									</div>
 								}
 							}
-							if len(plan.Participants) > 3 {
+							if plan.ParticipantCount > 3 {
 								<div class="w-6 h-6 rounded-full bg-zinc-400 text-white flex items-center justify-center text-[9px] font-bold border-2 border-white">
-									{ fmt.Sprintf("+%d", len(plan.Participants)-3) }
+									{ fmt.Sprintf("+%d", plan.ParticipantCount-3) }
 								</div>
 							}
 						</div>
 						<div class="text-xs text-text-secondary">
-							<span class="font-medium text-text-primary">{ fmt.Sprintf("%d", len(plan.Participants)) }</span> members
-							if len(plan.Participants) > 0 {
-								if totalPortions := utils.GetTotalPortions(plan.Participants); totalPortions > 0 {
-									if totalPortions == len(plan.Participants) {
-										<span class="text-text-muted text-[11px]">({ utils.FormatRupiahSimple(plan.TotalPrice/float64(totalPortions)) }/ea)</span>
-									} else {
-										<span class="text-text-muted text-[11px]">({ utils.FormatRupiahSimple(plan.TotalPrice/float64(totalPortions)) }/portion)</span>
-									}
+							<span class="font-medium text-text-primary">{ fmt.Sprintf("%d", plan.ParticipantCount) }</span> members
+							if plan.TotalPortions > 0 {
+								if plan.TotalPortions == plan.ParticipantCount {
+									<span class="text-text-muted text-[11px]">({ utils.FormatRupiahSimple(plan.TotalPrice/float64(plan.TotalPortions)) }/ea)</span>
+								} else {
+									<span class="text-text-muted text-[11px]">({ utils.FormatRupiahSimple(plan.TotalPrice/float64(plan.TotalPortions)) }/portion)</span>
 								}
 							}
 						</div>
@@ -277,12 +275,12 @@ templ PlanCard(plan models.Plan) {
 				</div>
 				<!-- Schedule Status -->
 				<div>
-					if plan.ScheduledTask == nil {
+					if plan.ScheduledTaskStatus == "" {
 						<span class="text-[11px] font-medium text-text-muted bg-bg-subtle border border-border px-2 py-0.5 rounded-full">
 							Manual
 						</span>
 					} else {
-						@StatusBadge(string(plan.ScheduledTask.Status), string(plan.PaymentType))
+						@StatusBadge(plan.ScheduledTaskStatus, plan.PaymentType)
 					}
 				</div>
 			</div>

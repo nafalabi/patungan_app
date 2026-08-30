@@ -24,6 +24,7 @@ type PlanRepo interface {
 	SaveTask(task *models.ScheduledTask) error
 	CreateTask(task *models.ScheduledTask) error
 	FindUser(id uint) (*models.User, error) // for Update admin check; (nil, nil) when missing
+	ListUsers() ([]models.User, error)      // for form dropdowns
 	CountActiveForUser(userID uint) (int64, error)
 	CountAll() (int64, error)
 }
@@ -213,6 +214,12 @@ func (r *gormPlanRepo) FindUser(id uint) (*models.User, error) {
 		return nil, err
 	}
 	return &user, nil
+}
+
+func (r *gormPlanRepo) ListUsers() ([]models.User, error) {
+	var users []models.User
+	err := r.db.Find(&users).Error
+	return users, err
 }
 
 func (r *gormPlanRepo) CountActiveForUser(userID uint) (int64, error) {

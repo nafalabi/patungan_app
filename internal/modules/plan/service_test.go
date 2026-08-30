@@ -118,6 +118,14 @@ func (f *fakePlanRepo) FindUser(id uint) (*models.User, error) {
 	return nil, nil
 }
 
+func (f *fakePlanRepo) ListUsers() ([]models.User, error) {
+	users := make([]models.User, 0, len(f.users))
+	for _, u := range f.users {
+		users = append(users, u)
+	}
+	return users, nil
+}
+
 func (f *fakePlanRepo) CountActiveForUser(userID uint) (int64, error) {
 	return f.total, nil
 }

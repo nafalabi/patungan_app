@@ -1,12 +1,13 @@
-package plan_pages
+package plan
 
 import (	
 	"fmt"
 	"patungan_app_echo/internal/models"
+	"patungan_app_echo/internal/modules/plan"
 )
 
 // SchedulePopup renders the schedule management popup
-templ SchedulePopup(plan models.Plan) {
+templ SchedulePopup(view plan.ScheduleView) {
 	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4" id="schedule-popup">
 		<div class="bg-bg-card rounded-2xl border border-border shadow-popover p-6 w-full max-w-md relative animate-in fade-in zoom-in-95 duration-150">
 			<button class="absolute top-4 right-4 text-text-muted hover:text-text-primary transition-colors p-1 rounded-lg hover:bg-bg-hover" onclick="document.getElementById('schedule-popup').remove()">
@@ -15,59 +16,59 @@ templ SchedulePopup(plan models.Plan) {
 
 			<div class="mb-5">
 				<h2 class="text-lg font-bold text-text-primary tracking-tight">Manage Schedule</h2>
-				<p class="text-xs text-text-secondary mt-0.5">Plan: <span class="font-semibold text-text-primary">{ plan.Name }</span></p>
+				<p class="text-xs text-text-secondary mt-0.5">Plan: <span class="font-semibold text-text-primary">{ view.Name }</span></p>
 			</div>
 
 			<div class="space-y-4">
 				<div class="bg-bg-subtle/70 rounded-xl p-4 border border-border/70 space-y-2.5">
 					<div class="flex justify-between items-center">
 						<span class="text-xs font-semibold text-text-secondary uppercase tracking-wider">Current Status</span>
-						if plan.ScheduledTask == nil {
+						if view.TaskStatus == "" {
 							<span class="px-2 py-0.5 rounded-md text-[11px] font-medium bg-bg-card text-text-muted border border-border">Not Scheduled</span>
 						} else {
-							@StatusBadge(string(plan.ScheduledTask.Status), string(plan.PaymentType))
+							@StatusBadge(view.TaskStatus, view.PaymentType)
 						}
 					</div>
-					if plan.ScheduledTask != nil {
+					if view.CurrentDue != nil {
 						<div class="flex justify-between items-center text-xs">
 							<span class="text-text-secondary">Current Due</span>
-							<span class="text-text-primary font-semibold font-mono">{ plan.ScheduledTask.Due.Format("02 Jan 2006, 15:04") }</span>
+							<span class="text-text-primary font-semibold font-mono">{ view.CurrentDue.Format("02 Jan 2006, 15:04") }</span>
 						</div>
 					}
-					if plan.ScheduledTask != nil && (plan.ScheduledTask.Status == models.ScheduledTaskStatusFailure || plan.ScheduledTask.Status == models.ScheduledTaskStatusDisabled) {
+					if view.TaskStatus == string(models.ScheduledTaskStatusFailure) || view.TaskStatus == string(models.ScheduledTaskStatusDisabled) {
 						<div class="flex justify-between items-center text-xs">
 							<span class="text-text-secondary">New Due</span>
-							<span class="text-text-primary font-semibold font-mono">{ plan.NextDue().Format("02 Jan 2006, 15:04") }</span>
+							<span class="text-text-primary font-semibold font-mono">{ view.NextDue.Format("02 Jan 2006, 15:04") }</span>
 						</div>
 					}
 				</div>
 
 				<div class="flex flex-col gap-2 pt-2">
-					if plan.ScheduledTask == nil {
+					if view.TaskStatus == "" {
 						<!-- Not Scheduled -> Schedule Plan -->
-						<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/plans/%d/schedule", plan.ID)) }>
+						<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/plans/%d/schedule", view.ID)) }>
 							<button type="submit" class="w-full inline-flex justify-center items-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-xs bg-primary text-white hover:bg-primary-hover transition-colors shadow-sm">
 								<i data-lucide="calendar-plus" class="w-4 h-4"></i>
 								Schedule Automatic Reminders
 							</button>
 						</form>
-					} else if plan.ScheduledTask.Status == models.ScheduledTaskStatusActive {
+					} else if view.TaskStatus == string(models.ScheduledTaskStatusActive) {
 						<!-- Active -> Disable -->
-						<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/plans/%d/disable-schedule", plan.ID)) }>
+						<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/plans/%d/disable-schedule", view.ID)) }>
 							<button type="submit" class="w-full inline-flex justify-center items-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-xs border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 transition-colors">
 								<i data-lucide="calendar-off" class="w-4 h-4"></i>
 								Disable Schedule
 							</button>
 						</form>
-					} else if plan.ScheduledTask.Status == models.ScheduledTaskStatusFailure || plan.ScheduledTask.Status == models.ScheduledTaskStatusDisabled {
+					} else if view.TaskStatus == string(models.ScheduledTaskStatusFailure) || view.TaskStatus == string(models.ScheduledTaskStatusDisabled) {
 						<!-- Failure/Disabled -> Reschedule -->
-						<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/plans/%d/schedule", plan.ID)) }>
+						<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/plans/%d/schedule", view.ID)) }>
 							<button type="submit" class="w-full inline-flex justify-center items-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-xs bg-primary text-white hover:bg-primary-hover transition-colors shadow-sm">
 								<i data-lucide="refresh-cw" class="w-4 h-4"></i>
 								Reschedule Plan
 							</button>
 						</form>
-					} else if plan.ScheduledTask.Status == models.ScheduledTaskStatusDone {
+					} else if view.TaskStatus == string(models.ScheduledTaskStatusDone) {
 						<p class="text-center text-xs text-text-secondary italic">This plan is completed.</p>
 					}
 				</div>

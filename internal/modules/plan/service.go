@@ -60,6 +60,44 @@ func (s *Service) EnrolledPlans(userID uint) ([]PlanSummary, error) {
 	return mapSummaries(plans), nil
 }
 
+// ListUsers returns user options for form dropdowns.
+func (s *Service) ListUsers() ([]UserOption, error) {
+	users, err := s.plans.ListUsers()
+	if err != nil {
+		return nil, err
+	}
+	options := make([]UserOption, 0, len(users))
+	for _, u := range users {
+		options = append(options, UserOption{ID: u.ID, Name: u.Name, Email: u.Email})
+	}
+	return options, nil
+}
+
+// ScheduleView returns the schedule-popup projection for a plan.
+func (s *Service) ScheduleView(id uint) (ScheduleView, error) {
+	p, err := s.plans.FindByIDWithTask(id)
+	if err != nil {
+		return ScheduleView{}, err
+	}
+	if p == nil {
+		return ScheduleView{}, ErrNotFound
+	}
+
+	view := ScheduleView{
+		ID:          p.ID,
+		Name:        p.Name,
+		NextDue:     p.NextDue(),
+		PaymentType: p.PaymentType,
+	}
+	if p.ScheduledTask != nil {
+		due := p.ScheduledTask.Due
+		view.CurrentDue = &due
+		view.TaskStatus = string(p.ScheduledTask.Status)
+		view.TaskID = p.ScheduledTaskID
+	}
+	return view, nil
+}
+
 // GetForEdit returns the raw plan plus its participant portions for the edit form.
 func (s *Service) GetForEdit(id uint) (*models.Plan, map[uint]int, error) {
 	p, err := s.plans.FindByIDWithParticipants(id)
@@ -248,6 +286,7 @@ func (s *Service) DetailForUser(planID, userID uint, isAdmin bool) (*PlanDetail,
 		Plan: PlanSummary{
 			ID:         p.ID,
 			Name:       p.Name,
+			OwnerID:    p.OwnerID,
 			OwnerName:  p.Owner.Name,
 			TotalPrice: p.TotalPrice,
 			StartDate:  p.PlanStartDate,
@@ -381,13 +420,31 @@ func (s *Service) ProcessSchedule(planID uint, due time.Time) (map[string]interf
 func mapSummaries(plans []models.Plan) []PlanSummary {
 	summaries := make([]PlanSummary, 0, len(plans))
 	for _, p := range plans {
-		summaries = append(summaries, PlanSummary{
+		names := make([]string, 0, len(p.Participants))
+		totalPortions := 0
+		for _, participant := range p.Participants {
+			names = append(names, participant.User.Name)
+			totalPortions += participant.Portion
+		}
+		summary := PlanSummary{
 			ID:         p.ID,
 			Name:       p.Name,
+			OwnerID:    p.OwnerID,
 			OwnerName:  p.Owner.Name,
 			TotalPrice: p.TotalPrice,
 			StartDate:  p.PlanStartDate,
-		})
+
+			PaymentType: p.PaymentType,
+			NextDue:     p.NextDue(),
+
+			ParticipantCount: len(p.Participants),
+			ParticipantNames: names,
+			TotalPortions:    totalPortions,
+		}
+		if p.ScheduledTask != nil {
+			summary.ScheduledTaskStatus = string(p.ScheduledTask.Status)
+		}
+		summaries = append(summaries, summary)
 	}
 	return summaries
 }
@@ -409,6 +466,7 @@ func mapPeriods(periods []models.PaymentBillingPeriod) []PeriodView {
 				Status:   due.PaymentStatus,
 				UserID:   due.UserID,
 				UserName: due.User.Name,
+				DueDate:  due.DueDate,
 			})
 		}
 		views = append(views, view)
