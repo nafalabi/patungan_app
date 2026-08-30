@@ -2,23 +2,21 @@ package settings
 
 import (
 	"net/http"
-	"patungan_app_echo/internal/middleware"
-	"patungan_app_echo/internal/models"
-	settings_pages "patungan_app_echo/internal/modules/admin/settings/pages"
-	"patungan_app_echo/internal/services/payment_gateway"
-	types "patungan_app_echo/internal/template/types"
 
 	"github.com/labstack/echo/v4"
-	"gorm.io/gorm"
+
+	"patungan_app_echo/internal/middleware"
+	"patungan_app_echo/internal/models"
+	settings "patungan_app_echo/internal/modules/settings"
+	types "patungan_app_echo/internal/template/types"
 )
 
 type SettingsHandler struct {
-	db             *gorm.DB
-	gatewayManager *payment_gateway.GatewayManager
+	settings *settings.Service
 }
 
-func NewSettingsHandler(db *gorm.DB, gatewayManager *payment_gateway.GatewayManager) *SettingsHandler {
-	return &SettingsHandler{db: db, gatewayManager: gatewayManager}
+func NewSettingsHandler(settings *settings.Service) *SettingsHandler {
+	return &SettingsHandler{settings: settings}
 }
 
 func (h *SettingsHandler) GetSettings(c echo.Context) error {
@@ -28,7 +26,7 @@ func (h *SettingsHandler) GetSettings(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusForbidden, "Only admins can access settings")
 	}
 
-	settings, err := h.gatewayManager.GetSettings()
+	view, err := h.settings.Get()
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to fetch settings")
 	}
@@ -38,15 +36,15 @@ func (h *SettingsHandler) GetSettings(c echo.Context) error {
 		{Title: "Settings", URL: ""},
 	}
 
-	props := settings_pages.PaymentSettingsProps{
+	props := PaymentSettingsProps{
 		Title:       "Application Settings",
 		ActiveNav:   "settings",
 		Breadcrumbs: breadcrumbs,
 		UserEmail:   middleware.GetString(c, "userEmail"),
-		Settings:    *settings,
+		Settings:    view,
 	}
 
-	return settings_pages.PaymentSettings(props).Render(c.Request().Context(), c.Response())
+	return PaymentSettings(props).Render(c.Request().Context(), c.Response())
 }
 
 func (h *SettingsHandler) UpdateSettings(c echo.Context) error {
@@ -56,21 +54,17 @@ func (h *SettingsHandler) UpdateSettings(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusForbidden, "Only admins can update settings")
 	}
 
-	settings, err := h.gatewayManager.GetSettings()
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to fetch settings")
+	input := settings.UpdateInput{
+		ActiveGateway:        c.FormValue("active_payment_gateway"),
+		MidtransMerchantID:   c.FormValue("midtrans_merchant_id"),
+		MidtransServerKey:    c.FormValue("midtrans_server_key"),
+		MidtransClientKey:    c.FormValue("midtrans_client_key"),
+		MidtransIsProduction: c.FormValue("midtrans_is_production") == "true",
+		MayarAPIKey:          c.FormValue("mayar_api_key"),
+		MayarIsProduction:    c.FormValue("mayar_is_production") == "true",
 	}
 
-	// Update fields from form
-	settings.ActivePaymentGateway = models.PaymentGateway(c.FormValue("active_payment_gateway"))
-	settings.MidtransMerchantID = c.FormValue("midtrans_merchant_id")
-	settings.MidtransServerKey = c.FormValue("midtrans_server_key")
-	settings.MidtransClientKey = c.FormValue("midtrans_client_key")
-	settings.MidtransIsProduction = c.FormValue("midtrans_is_production") == "true"
-	settings.MayarAPIKey = c.FormValue("mayar_api_key")
-	settings.MayarIsProduction = c.FormValue("mayar_is_production") == "true"
-
-	if err := h.db.Save(settings).Error; err != nil {
+	if err := h.settings.Update(input); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to update settings")
 	}
 

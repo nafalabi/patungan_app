@@ -5,9 +5,11 @@ import (
 
 	payment "patungan_app_echo/internal/modules/payment"
 	plan "patungan_app_echo/internal/modules/plan"
+	settings "patungan_app_echo/internal/modules/settings"
 	user "patungan_app_echo/internal/modules/user"
 	paymentpages "patungan_app_echo/internal/pages/admin/payment"
 	planpages "patungan_app_echo/internal/pages/admin/plan"
+	settingspages "patungan_app_echo/internal/pages/admin/settings"
 	userpages "patungan_app_echo/internal/pages/admin/user"
 )
 
@@ -15,6 +17,7 @@ type Deps struct {
 	Payments *payment.Service
 	Plans    *plan.Service
 	Users    *user.Service
+	Settings *settings.Service
 }
 
 func RegisterRoutes(e *echo.Echo, adminGroup *echo.Group, deps Deps) {
@@ -50,4 +53,8 @@ func RegisterRoutes(e *echo.Echo, adminGroup *echo.Group, deps Deps) {
 	// Admin User Preference (HTMX)
 	adminGroup.GET("/users/:id/preference", uh.GetUserPreference)
 	adminGroup.PUT("/users/:id/preference", uh.UpdateUserPreference)
+
+	sh := settingspages.NewSettingsHandler(deps.Settings)
+	adminGroup.GET("/settings", sh.GetSettings)
+	adminGroup.POST("/settings", sh.UpdateSettings)
 }

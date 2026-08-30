@@ -15,12 +15,12 @@ import (
 	"patungan_app_echo/internal/services/payment_gateway"
 
 	admin_dashboard "patungan_app_echo/internal/modules/admin/dashboard"
-	admin_settings "patungan_app_echo/internal/modules/admin/settings"
 	auth_mod "patungan_app_echo/internal/modules/auth"
 	member_dashboard "patungan_app_echo/internal/modules/members/dashboard"
 
 	payment "patungan_app_echo/internal/modules/payment"
 	plan "patungan_app_echo/internal/modules/plan"
+	settings "patungan_app_echo/internal/modules/settings"
 	user "patungan_app_echo/internal/modules/user"
 	admin_pages "patungan_app_echo/internal/pages/admin"
 	member_pages "patungan_app_echo/internal/pages/member"
@@ -161,10 +161,12 @@ func main() {
 	// Initialize UserService
 	userSvc := user.NewService(user.NewGormUserRepo(db))
 
+	// Initialize SettingsService
+	settingsSvc := settings.NewService(settings.NewGormSettingsRepo(db))
+
 	// Initialize handlers
 	authHandler := auth_mod.NewAuthHandler(authClient, db)
 	adminDashboardHandler := admin_dashboard.NewDashboardHandler(db)
-	adminSettingsHandler := admin_settings.NewSettingsHandler(db, gatewayManager)
 
 	memberDashboardHandler := member_dashboard.NewMemberDashboardHandler(db)
 
@@ -186,12 +188,8 @@ func main() {
 
 	adminGroup.GET("/dashboard", adminDashboardHandler.Dashboard)
 
-	// Admin Payment + Plan + User routes (also registers the two gateway webhook callbacks on the root router)
-	admin_pages.RegisterRoutes(e, adminGroup, admin_pages.Deps{Payments: paymentSvc, Plans: planSvc, Users: userSvc})
-
-	// Admin Settings routes
-	adminGroup.GET("/settings", adminSettingsHandler.GetSettings)
-	adminGroup.POST("/settings", adminSettingsHandler.UpdateSettings)
+	// Admin Payment + Plan + User + Settings routes (also registers the two gateway webhook callbacks on the root router)
+	admin_pages.RegisterRoutes(e, adminGroup, admin_pages.Deps{Payments: paymentSvc, Plans: planSvc, Users: userSvc, Settings: settingsSvc})
 
 	// Member routes
 	memberGroup := e.Group("/member")
