@@ -1,0 +1,334 @@
+package payment
+
+import (
+	"fmt"
+	"patungan_app_echo/internal/models"
+	payment "patungan_app_echo/internal/modules/payment"
+	"patungan_app_echo/internal/template/layouts"
+	types "patungan_app_echo/internal/template/types"
+
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
+)
+
+// PaymentDuesProps contains props for the payment dues page
+type PaymentDuesProps struct {
+	Title             string
+	ActiveNav         string
+	Breadcrumbs       []types.Breadcrumb
+	UserEmail         string
+	UserUIDString     string
+	CurrentUserID     uint
+	CurrentUserType   models.UserType
+	MidtransClientKey string
+
+	// Data
+	PlanDues    []payment.PlanDuesGroup
+	PeriodPlans []payment.PeriodPlansGroup
+	UserDues    []payment.UserDuesGroup
+	FlatDues    []payment.DueItem
+
+	// Pagination/Offsets
+	CurrentPage int
+	TotalPages  int
+	TotalCount  int
+	PageSize    int
+	NextOffset  int
+
+	// Filter/Sort state
+	ViewMode     string
+	FilterPlan   uint
+	FilterUser   uint
+	ShowCanceled bool
+	SortBy       string
+	SortOrder    string
+
+	// For dropdowns
+	AllPlans []payment.PlanOption
+	AllUsers []payment.UserOption
+}
+
+// PaymentDues renders the payment dues page
+templ PaymentDues(props PaymentDuesProps) {
+	@layouts.Base(layouts.BaseProps{
+		Title:       props.Title,
+		ActiveNav:   props.ActiveNav,
+		Breadcrumbs: props.Breadcrumbs,
+		UserEmail:   props.UserEmail,
+		UserUID:     props.UserUIDString,
+	}) {
+		<div class="mb-6">
+			<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+				<div>
+					<h1 class="text-xl md:text-2xl font-bold text-text-primary tracking-tight">Payment Dues</h1>
+					<p class="text-xs md:text-sm text-text-secondary mt-0.5">Manage and track shared subscription dues</p>
+				</div>
+				<!-- View mode toggle -->
+				<div class="flex p-1 bg-bg-subtle/80 rounded-xl border border-border w-full sm:w-auto overflow-x-auto no-scrollbar gap-1">
+					@ViewToggle(props)
+				</div>
+			</div>
+
+			<!-- Filters and sorting -->
+			<div class="bg-bg-card rounded-xl border border-border p-4 shadow-card">
+				<form method="GET" action="/admin/payment-dues" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+					<input type="hidden" name="view" value={ props.ViewMode }/>
+					<!-- Filter by Plan -->
+					<div>
+						<label class="block text-xs font-semibold text-text-secondary uppercase tracking-wider mb-1.5">Plan</label>
+						<select name="filter_plan" class="w-full px-3 py-1.5 bg-bg-body border border-border rounded-lg text-text-primary text-xs focus:outline-none focus:ring-1 focus:ring-primary">
+							<option value="">All Plans</option>
+							for _, plan := range props.AllPlans {
+								<option value={ fmt.Sprintf("%d", plan.ID) } selected?={ props.FilterPlan == plan.ID }>
+									{ plan.Name }
+								</option>
+							}
+						</select>
+					</div>
+					<!-- Filter by User -->
+					<div>
+						<label class="block text-xs font-semibold text-text-secondary uppercase tracking-wider mb-1.5">User</label>
+						<select name="filter_user" class="w-full px-3 py-1.5 bg-bg-body border border-border rounded-lg text-text-primary text-xs focus:outline-none focus:ring-1 focus:ring-primary">
+							<option value="">All Users</option>
+							for _, user := range props.AllUsers {
+								<option value={ fmt.Sprintf("%d", user.ID) } selected?={ props.FilterUser == user.ID }>
+									{ user.Name }
+								</option>
+							}
+						</select>
+					</div>
+					<!-- Sort by -->
+					<div>
+						<label class="block text-xs font-semibold text-text-secondary uppercase tracking-wider mb-1.5">Sort By</label>
+						<select name="sort_by" class="w-full px-3 py-1.5 bg-bg-body border border-border rounded-lg text-text-primary text-xs focus:outline-none focus:ring-1 focus:ring-primary">
+							<option value="created_at" selected?={ props.SortBy == "created_at" }>Created Date</option>
+							<option value="plan" selected?={ props.SortBy == "plan" }>Plan Name</option>
+							<option value="user" selected?={ props.SortBy == "user" }>User Name</option>
+							<option value="due_date" selected?={ props.SortBy == "due_date" }>Due Date</option>
+						</select>
+					</div>
+					<!-- Sort order -->
+					<div>
+						<label class="block text-xs font-semibold text-text-secondary uppercase tracking-wider mb-1.5">Order</label>
+						<select name="sort_order" class="w-full px-3 py-1.5 bg-bg-body border border-border rounded-lg text-text-primary text-xs focus:outline-none focus:ring-1 focus:ring-primary">
+							<option value="asc" selected?={ props.SortOrder == "asc" }>Ascending</option>
+							<option value="desc" selected?={ props.SortOrder == "desc" }>Descending</option>
+						</select>
+					</div>
+					<!-- Actions -->
+					<div class="flex gap-2">
+						<button type="submit" class="flex-1 px-4 py-1.5 bg-primary text-white rounded-lg text-xs font-semibold hover:bg-primary-hover transition-colors shadow-xs">
+							Apply
+						</button>
+						<a href={ templ.SafeURL(fmt.Sprintf("/admin/payment-dues?view=%s", props.ViewMode)) } class="p-1.5 bg-bg-card text-text-secondary border border-border rounded-lg hover:bg-bg-hover hover:text-text-primary transition-colors flex items-center justify-center" title="Reset Filters">
+							<i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+						</a>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<!-- Content -->
+		<div id="view-content-container">
+			if props.ViewMode == "plans" {
+				@ViewByPlans(props.PlanDues, props.CurrentUserID, props.CurrentUserType, props.NextOffset)
+			} else if props.ViewMode == "periods" {
+				@ViewByPeriods(props.PeriodPlans, props.CurrentUserID, props.CurrentUserType, props.NextOffset)
+			} else if props.ViewMode == "users" {
+				@ViewByUsers(props.UserDues, props.CurrentUserID, props.CurrentUserType, props.NextOffset)
+			} else {
+				@ViewAll(props.FlatDues, props.CurrentUserID, props.CurrentUserType, props.CurrentPage, props.TotalPages, props.TotalCount, props.PageSize, props.ViewMode, props.FilterPlan, props.FilterUser, props.SortBy, props.SortOrder)
+			}
+		</div>
+	}
+}
+
+templ ViewToggle(props PaymentDuesProps) {
+	for _, mode := range []struct{Value, Label, Icon string}{
+		{"all", "All Dues", "list"},
+		{"plans", "By Plan", "layers"},
+		{"periods", "By Period", "calendar-range"},
+		{"users", "By User", "users"},
+	} {
+		<a
+			href={ templ.SafeURL(buildURL("/admin/payment-dues", mode.Value, props.FilterPlan, props.FilterUser, props.SortBy, props.SortOrder)) }
+			class={
+				"flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150 whitespace-nowrap",
+				templ.KV("bg-primary text-white shadow-xs", props.ViewMode == mode.Value),
+				templ.KV("text-text-secondary hover:bg-bg-card hover:text-text-primary", props.ViewMode != mode.Value),
+			}
+		>
+			<i data-lucide={ mode.Icon } class="w-3.5 h-3.5"></i>
+			{ mode.Label }
+		</a>
+	}
+}
+
+// PaymentDueItem renders a single payment due
+templ PaymentDueItem(due payment.DueItem, displayMode string, currentUserID uint, currentUserType models.UserType) {
+	<div 
+		id={ fmt.Sprintf("payment-due-%d", due.ID) }
+		class="p-4 hover:bg-bg-hover/60 transition-colors flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3"
+	>
+		<div class="flex items-center gap-3.5 w-full sm:w-auto">
+			@PaymentStatusIcon(due.Status)
+			<div class="flex-1 min-w-0">
+				if displayMode == "user" {
+					<p class="text-sm font-bold text-text-primary leading-tight truncate">{ due.UserName }</p>
+					<p class="text-xs text-text-secondary mt-0.5 truncate">{ due.UserEmail }</p>
+				} else if displayMode == "plan" {
+					<p class="text-sm font-bold text-text-primary leading-tight truncate">{ due.PlanName }</p>
+					<p class="text-xs text-text-secondary mt-0.5">Plan #{ fmt.Sprintf("%d", due.PlanID) }</p>
+				} else {
+					<div class="flex flex-col">
+						<p class="text-sm font-bold text-text-primary leading-tight truncate">{ due.PlanName }</p>
+						<p class="text-xs text-text-secondary mt-0.5 truncate">{ due.UserName } <span class="text-text-muted font-mono">({ due.UserEmail })</span></p>
+					</div>
+				}
+			</div>
+		</div>
+
+		<div class="flex items-center justify-between sm:justify-end gap-5 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-border/60">
+			<div class="text-left sm:text-right">
+				<p class="text-sm sm:text-base font-bold text-text-primary font-mono">{ formatRupiah(due.Amount) }</p>
+				<p class="text-[10px] font-semibold text-text-secondary uppercase tracking-wider">Due { due.DueDate.Format("02 Jan 2006") }</p>
+			</div>
+			
+			<div class="flex items-center gap-1.5">
+				<div x-data={ fmt.Sprintf("{ copied: false, url: window.location.origin + '/p/%s' }", due.UUID) } class="relative flex items-center">
+					<button
+						@click="if (navigator.clipboard) { navigator.clipboard.writeText(url); } else { const el = document.createElement('textarea'); el.value = url; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el); }; copied = true; setTimeout(() => copied = false, 2000)"
+						class="p-1 rounded-md text-text-muted hover:text-text-primary hover:bg-bg-hover transition-colors cursor-pointer"
+						title="Copy Payment Link"
+					>
+						<i data-lucide="copy" class="w-3.5 h-3.5"></i>
+					</button>
+					<div
+						x-show="copied"
+						x-transition:enter="transition ease-out duration-200"
+						x-transition:enter-start="opacity-0 translate-y-1"
+						x-transition:enter-end="opacity-100 translate-y-0"
+						x-transition:leave="transition ease-in duration-150"
+						x-transition:leave-start="opacity-100 translate-y-0"
+						x-transition:leave-end="opacity-0 translate-y-1"
+						class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1.5 px-2 py-0.5 bg-zinc-800 text-white text-[10px] font-semibold rounded-md shadow-md whitespace-nowrap z-10"
+						style="display: none;"
+					>
+						Copied!
+						<div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-zinc-800"></div>
+					</div>
+				</div>
+				if due.UserID == currentUserID && due.Status != models.PaymentStatusPaid && due.Status != models.PaymentStatusCanceled {
+					<a
+						href={ templ.SafeURL(fmt.Sprintf("/p/%s", due.UUID)) }
+						target="_blank"
+						class="p-1.5 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors shadow-xs"
+						title="Pay Now"
+					>
+						<i data-lucide="external-link" class="w-4 h-4"></i>
+					</a>
+				}
+				<button
+					hx-get={ fmt.Sprintf("/admin/payments/%d/status?display_mode=%s", due.ID, displayMode) }
+					hx-target={ fmt.Sprintf("#status-container-%d", due.ID) }
+					hx-swap="outerHTML"
+					class="p-1 rounded-md text-text-muted hover:text-text-primary hover:bg-bg-hover transition-colors"
+					title="Check Payment Gateway Status"
+				>
+					<i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+				</button>
+				if currentUserType == "Admin" && due.Status != models.PaymentStatusPaid {
+					<button
+						hx-post={ fmt.Sprintf("/admin/payments/%d/mark-complete?display_mode=%s", due.ID, displayMode) }
+						hx-target={ fmt.Sprintf("#status-container-%d", due.ID) }
+						hx-swap="outerHTML"
+						hx-confirm="Are you sure you want to mark this payment as complete manually?"
+						class="p-1 rounded-md text-text-muted hover:text-emerald-700 hover:bg-emerald-50 transition-colors"
+						title="Mark as Complete Manually"
+					>
+						<i data-lucide="check" class="w-3.5 h-3.5"></i>
+					</button>
+				}
+			</div>
+		</div>
+	</div>
+}
+
+// PaymentStatusIcon renders an icon with color and tooltip based on status
+templ PaymentStatusIcon(status string) {
+	<div 
+		class={
+			"w-8 h-8 rounded-lg flex items-center justify-center border shadow-xs flex-shrink-0",
+			templ.KV("bg-emerald-50 border-emerald-200 text-emerald-700", status == models.PaymentStatusPaid),
+			templ.KV("bg-amber-50 border-amber-200 text-amber-800", status == models.PaymentStatusPending),
+			templ.KV("bg-rose-50 border-rose-200 text-rose-700", status == models.PaymentStatusOverdue),
+			templ.KV("bg-zinc-100 border-zinc-200 text-zinc-600", status == models.PaymentStatusCanceled),
+		}
+		title={ fmt.Sprintf("Status: %s", status) }
+	>
+		if status == models.PaymentStatusPaid {
+			<i data-lucide="check-circle-2" class="w-4 h-4"></i>
+		} else if status == models.PaymentStatusOverdue {
+			<i data-lucide="alert-circle" class="w-4 h-4"></i>
+		} else if status == models.PaymentStatusCanceled {
+			<i data-lucide="x-circle" class="w-4 h-4"></i>
+		} else {
+			<i data-lucide="clock" class="w-4 h-4"></i>
+		}
+	</div>
+}
+
+// PaymentStatusBadge renders a status badge
+templ PaymentStatusBadge(status string) {
+	if status == models.PaymentStatusPaid {
+		<span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-800 border border-emerald-200">Paid</span>
+	} else if status == models.PaymentStatusOverdue {
+		<span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-rose-50 text-rose-800 border border-rose-200">Overdue</span>
+	} else if status == models.PaymentStatusCanceled {
+		<span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-bg-subtle text-text-muted border border-border">Canceled</span>
+	} else {
+		<span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-800 border border-amber-200">Pending</span>
+	}
+}
+
+// buildURL is a helper function to build URLs with query parameters
+func buildURL(base string, view string, filterPlan uint, filterUser uint, sortBy string, sortOrder string) string {
+	return buildURLWithPage(base, view, filterPlan, filterUser, sortBy, sortOrder, 1)
+}
+
+// buildURLWithPage is a helper function to build URLs with query parameters including page
+func buildURLWithPage(base string, view string, filterPlan uint, filterUser uint, sortBy string, sortOrder string, page int) string {
+	url := fmt.Sprintf("%s?view=%s", base, view)
+	if filterPlan > 0 {
+		url += fmt.Sprintf("&filter_plan=%d", filterPlan)
+	}
+	if filterUser > 0 {
+		url += fmt.Sprintf("&filter_user=%d", filterUser)
+	}
+	if sortBy != "" {
+		url += fmt.Sprintf("&sort_by=%s", sortBy)
+	}
+	if sortOrder != "" {
+		url += fmt.Sprintf("&sort_order=%s", sortOrder)
+	}
+	if page > 1 {
+		url += fmt.Sprintf("&page=%d", page)
+	}
+	return url
+}
+
+// formatRupiah formats a float64 to Indonesian Rupiah format (e.g., Rp 73.000,00)
+func formatRupiah(amount float64) string {
+	// Separate thousands with dot and decimals with comma
+	p := message.NewPrinter(language.Indonesian)
+	return p.Sprintf("Rp %.2f", amount)
+}
+
+// min returns the minimum of two integers
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+

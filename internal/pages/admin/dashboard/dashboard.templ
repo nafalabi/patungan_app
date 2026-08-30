@@ -1,0 +1,218 @@
+package dashboard
+
+import (
+	"fmt"
+	"patungan_app_echo/internal/modules/payment"
+	"patungan_app_echo/internal/template/layouts"
+	types "patungan_app_echo/internal/template/types"
+	"patungan_app_echo/internal/template/utils"
+)
+
+// DashboardProps contains props for the dashboard page
+type DashboardProps struct {
+	Title            string
+	ActiveNav        string
+	Breadcrumbs      []types.Breadcrumb
+	UserEmail        string
+	UserUID          string
+	UserID           uint
+	CurrentUserType  string
+	TotalActivePlans int
+	PendingDuesCount int
+	PendingAmount    float64
+	PaidAmount       float64
+	UpcomingDues     []payment.DueItem
+}
+
+// Dashboard renders the dashboard page
+templ Dashboard(props DashboardProps) {
+	@layouts.Base(layouts.BaseProps{
+		Title:       props.Title,
+		ActiveNav:   props.ActiveNav,
+		Breadcrumbs: props.Breadcrumbs,
+		UserEmail:   props.UserEmail,
+		UserUID:     props.UserUID,
+	}) {
+		<div class="space-y-6">
+			<!-- Welcome Section -->
+			<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+				<div>
+					<h1 class="text-xl md:text-2xl font-bold text-text-primary tracking-tight">Dashboard</h1>
+					<p class="text-xs md:text-sm text-text-secondary mt-0.5">Welcome back, { props.UserEmail }</p>
+				</div>
+				if props.CurrentUserType == "Admin" || props.CurrentUserType == "PlanCreator" {
+					<a href="/plans/create" class="w-full sm:w-auto inline-flex justify-center items-center gap-2 px-4 py-2 rounded-lg bg-primary text-white text-xs font-semibold hover:bg-primary-hover transition-colors shadow-sm">
+						<i data-lucide="plus" class="w-4 h-4"></i>
+						Create Plan
+					</a>
+				}
+			</div>
+
+			<!-- Stats Grid -->
+			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+				<!-- Total Active Plans -->
+				<div class="bg-bg-card border border-border rounded-xl p-5 shadow-card hover:shadow-card-hover transition-all">
+					<div class="flex items-center justify-between mb-3">
+						<span class="text-xs font-semibold uppercase tracking-wider text-text-secondary">Active Plans</span>
+						<div class="w-8 h-8 rounded-lg bg-bg-subtle border border-border flex items-center justify-center text-text-secondary">
+							<i data-lucide="layers" class="w-4 h-4"></i>
+						</div>
+					</div>
+					<div class="text-2xl font-bold text-text-primary tracking-tight">{ fmt.Sprintf("%d", props.TotalActivePlans) }</div>
+					<div class="mt-2 flex items-center gap-2">
+						<span class="text-[11px] font-medium text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">Active</span>
+						<span class="text-xs text-text-secondary">shared groups</span>
+					</div>
+				</div>
+
+				<!-- Pending Dues Count -->
+				<div class="bg-bg-card border border-border rounded-xl p-5 shadow-card hover:shadow-card-hover transition-all">
+					<div class="flex items-center justify-between mb-3">
+						<span class="text-xs font-semibold uppercase tracking-wider text-text-secondary">Pending Dues</span>
+						<div class="w-8 h-8 rounded-lg bg-bg-subtle border border-border flex items-center justify-center text-text-secondary">
+							<i data-lucide="clock" class="w-4 h-4"></i>
+						</div>
+					</div>
+					<div class="text-2xl font-bold text-text-primary tracking-tight">{ fmt.Sprintf("%d", props.PendingDuesCount) }</div>
+					<div class="mt-2 flex items-center gap-2">
+						if props.PendingDuesCount > 0 {
+							<span class="text-[11px] font-medium text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md">Action needed</span>
+						} else {
+							<span class="text-[11px] font-medium text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">All settled</span>
+						}
+						<span class="text-xs text-text-secondary">awaiting payment</span>
+					</div>
+				</div>
+
+				<!-- Pending Amount -->
+				<div class="bg-bg-card border border-border rounded-xl p-5 shadow-card hover:shadow-card-hover transition-all">
+					<div class="flex items-center justify-between mb-3">
+						<span class="text-xs font-semibold uppercase tracking-wider text-text-secondary">Pending Amount</span>
+						<div class="w-8 h-8 rounded-lg bg-bg-subtle border border-border flex items-center justify-center text-text-secondary">
+							<i data-lucide="alert-circle" class="w-4 h-4"></i>
+						</div>
+					</div>
+					<div class="text-2xl font-bold text-text-primary tracking-tight">{ utils.FormatRupiah(props.PendingAmount) }</div>
+					<div class="mt-2 flex items-center gap-2">
+						<span class="text-[11px] font-medium text-text-secondary bg-bg-subtle border border-border px-2 py-0.5 rounded-md">Uncollected</span>
+						<span class="text-xs text-text-secondary">balance</span>
+					</div>
+				</div>
+
+				<!-- Total Paid Amount -->
+				<div class="bg-bg-card border border-border rounded-xl p-5 shadow-card hover:shadow-card-hover transition-all">
+					<div class="flex items-center justify-between mb-3">
+						<span class="text-xs font-semibold uppercase tracking-wider text-text-secondary">Total Paid</span>
+						<div class="w-8 h-8 rounded-lg bg-bg-subtle border border-border flex items-center justify-center text-emerald-600">
+							<i data-lucide="check-circle" class="w-4 h-4"></i>
+						</div>
+					</div>
+					<div class="text-2xl font-bold text-emerald-700 tracking-tight">{ utils.FormatRupiah(props.PaidAmount) }</div>
+					<div class="mt-2 flex items-center gap-2">
+						<span class="text-[11px] font-medium text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">Collected</span>
+						<span class="text-xs text-text-secondary">to date</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Upcoming Dues Section -->
+			<div class="bg-bg-card border border-border rounded-xl shadow-card overflow-hidden">
+				<div class="p-5 border-b border-border flex justify-between items-center bg-bg-card">
+					<div>
+						<h2 class="text-base font-bold text-text-primary tracking-tight">Upcoming Dues</h2>
+						<p class="text-xs text-text-secondary">Upcoming subscription payments requiring attention</p>
+					</div>
+					<a href="/admin/payment-dues" class="text-xs text-text-primary font-semibold hover:text-text-secondary flex items-center gap-1 transition-colors">
+						View All <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+					</a>
+				</div>
+				if len(props.UpcomingDues) == 0 {
+					<div class="py-12 px-6 flex flex-col items-center justify-center text-center">
+						<div class="w-12 h-12 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 mb-3">
+							<i data-lucide="check-circle-2" class="w-6 h-6"></i>
+						</div>
+						<h3 class="text-sm font-semibold text-text-primary">No upcoming dues found</h3>
+						<p class="text-xs text-text-secondary mt-1">You're all caught up with your shared subscription payments!</p>
+					</div>
+				} else {
+					<div class="overflow-x-auto">
+						<table class="w-full text-left">
+							<thead class="bg-bg-subtle/60 border-b border-border">
+								<tr>
+									<th class="px-5 py-3 text-[11px] font-semibold text-text-secondary uppercase tracking-wider">Plan</th>
+									<th class="px-5 py-3 text-[11px] font-semibold text-text-secondary uppercase tracking-wider">Member</th>
+									<th class="px-5 py-3 text-[11px] font-semibold text-text-secondary uppercase tracking-wider">Due Date</th>
+									<th class="px-5 py-3 text-[11px] font-semibold text-text-secondary uppercase tracking-wider text-right">Amount</th>
+									<th class="px-5 py-3 text-[11px] font-semibold text-text-secondary uppercase tracking-wider text-center">Action</th>
+								</tr>
+							</thead>
+							<tbody class="divide-y divide-border text-sm">
+								for _, due := range props.UpcomingDues {
+									<tr class="hover:bg-bg-hover/70 transition-colors">
+										<td class="px-5 py-3.5 whitespace-nowrap">
+											<div class="flex items-center gap-2.5">
+											<div class="w-7 h-7 rounded-md bg-bg-subtle border border-border flex items-center justify-center text-xs font-bold text-text-primary">
+												{ utils.SafeInitial(due.PlanName, "P") }
+											</div>
+											<span class="font-medium text-text-primary">{ due.PlanName }</span>
+										</div>
+									</td>
+									<td class="px-5 py-3.5 whitespace-nowrap text-text-secondary text-xs">{ due.UserName }</td>
+									<td class="px-5 py-3.5 whitespace-nowrap text-text-secondary text-xs font-mono">{ due.DueDate.Format("02 Jan 2006") }</td>
+									<td class="px-5 py-3.5 whitespace-nowrap text-right font-semibold text-text-primary text-xs">{ utils.FormatRupiah(due.Amount) }</td>
+									<td class="px-5 py-3.5 whitespace-nowrap text-center">
+										if due.UserID == props.UserID {
+												<a href={ templ.SafeURL(fmt.Sprintf("/admin/payment-dues#payment-due-%d", due.ID)) } class="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-md bg-primary text-white hover:bg-primary-hover transition-colors shadow-xs">
+													Pay Now
+												</a>
+											} else {
+												<span class="text-xs text-text-muted">—</span>
+											}
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+			</div>
+
+			<!-- Quick Actions -->
+			if props.CurrentUserType == "Admin" || props.CurrentUserType == "PlanCreator" {
+				<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+					<a href="/admin/plans" class="p-5 bg-bg-card border border-border rounded-xl shadow-card hover:border-zinc-400 transition-all group flex items-start justify-between">
+						<div>
+							<h3 class="text-sm font-semibold text-text-primary group-hover:text-primary transition-colors flex items-center gap-1.5">
+								<i data-lucide="list-todo" class="w-4 h-4 text-text-secondary"></i>
+								Manage Plans
+							</h3>
+							<p class="text-xs text-text-secondary mt-1">View, edit, and organize all your subscription groups.</p>
+						</div>
+						<i data-lucide="chevron-right" class="w-4 h-4 text-text-muted group-hover:text-text-primary transition-transform group-hover:translate-x-0.5"></i>
+					</a>
+					<a href="/admin/payment-dues" class="p-5 bg-bg-card border border-border rounded-xl shadow-card hover:border-zinc-400 transition-all group flex items-start justify-between">
+						<div>
+							<h3 class="text-sm font-semibold text-text-primary group-hover:text-primary transition-colors flex items-center gap-1.5">
+								<i data-lucide="dollar-sign" class="w-4 h-4 text-text-secondary"></i>
+								Track Payments
+							</h3>
+							<p class="text-xs text-text-secondary mt-1">Review dues breakdown by plan, period, or member.</p>
+						</div>
+						<i data-lucide="chevron-right" class="w-4 h-4 text-text-muted group-hover:text-text-primary transition-transform group-hover:translate-x-0.5"></i>
+					</a>
+					<a href="/admin/users" class="p-5 bg-bg-card border border-border rounded-xl shadow-card hover:border-zinc-400 transition-all group flex items-start justify-between">
+						<div>
+							<h3 class="text-sm font-semibold text-text-primary group-hover:text-primary transition-colors flex items-center gap-1.5">
+								<i data-lucide="users" class="w-4 h-4 text-text-secondary"></i>
+								Manage Members
+							</h3>
+							<p class="text-xs text-text-secondary mt-1">Add members, update notification preferences, and assign roles.</p>
+						</div>
+						<i data-lucide="chevron-right" class="w-4 h-4 text-text-muted group-hover:text-text-primary transition-transform group-hover:translate-x-0.5"></i>
+					</a>
+				</div>
+			}
+		</div>
+	}
+}
+

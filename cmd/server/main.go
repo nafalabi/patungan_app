@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"net/http"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -14,23 +13,23 @@ import (
 
 	"patungan_app_echo/internal/services/payment_gateway"
 
-	auth_mod "patungan_app_echo/internal/modules/auth"
-	admin_dashboard "patungan_app_echo/internal/modules/admin/dashboard"
-	admin_payment "patungan_app_echo/internal/modules/admin/payment"
-	admin_plan "patungan_app_echo/internal/modules/admin/plan"
-	admin_settings "patungan_app_echo/internal/modules/admin/settings"
-	admin_user "patungan_app_echo/internal/modules/admin/user"
-	member_dashboard "patungan_app_echo/internal/modules/members/dashboard"
-	member_payment "patungan_app_echo/internal/modules/members/payment"
-	member_plan "patungan_app_echo/internal/modules/members/plan"
-	public_payment "patungan_app_echo/internal/modules/payment"
+	auth "patungan_app_echo/internal/modules/auth"
+
+	payment "patungan_app_echo/internal/modules/payment"
+	plan "patungan_app_echo/internal/modules/plan"
+	settings "patungan_app_echo/internal/modules/settings"
+	user "patungan_app_echo/internal/modules/user"
+	admin_pages "patungan_app_echo/internal/pages/admin"
+	authpages "patungan_app_echo/internal/pages/auth"
+	member_pages "patungan_app_echo/internal/pages/member"
+	publicpages "patungan_app_echo/internal/pages/public"
+	public_payment "patungan_app_echo/internal/pages/public/payment"
 
 	"patungan_app_echo/internal/models"
 	"patungan_app_echo/internal/services/cache"
 	"patungan_app_echo/internal/services/database"
 	"patungan_app_echo/internal/services/email"
 	"patungan_app_echo/internal/services/firebase"
-	"patungan_app_echo/internal/services/payment_service"
 	"patungan_app_echo/internal/services/waha"
 )
 
@@ -149,92 +148,48 @@ func main() {
 
 	// Initialize PaymentService
 	gatewayManager := payment_gateway.NewGatewayManager(db)
-	paymentService := payment_service.NewPaymentService(db, gatewayManager)
+	paymentSvc := payment.NewService(
+		payment.NewGormDueRepo(db),
+		payment.NewGormSessionRepo(db),
+		payment.NewGatewayClient(gatewayManager),
+	)
+
+	// Initialize PlanService
+	planSvc := plan.NewService(plan.NewGormPlanRepo(db), payment.NewDuesCreatorAdapter(db))
+
+	// Initialize UserService
+	userSvc := user.NewService(user.NewGormUserRepo(db))
+
+	// Initialize SettingsService
+	settingsSvc := settings.NewService(settings.NewGormSettingsRepo(db))
 
 	// Initialize handlers
-	authHandler := auth_mod.NewAuthHandler(authClient, db)
-	adminDashboardHandler := admin_dashboard.NewDashboardHandler(db)
-	adminPlanHandler := admin_plan.NewPlanHandler(db, redisCache)
-	adminUserHandler := admin_user.NewUserHandler(db, redisCache)
-	adminPaymentDueHandler := admin_payment.NewPaymentDueHandler(db, redisCache, paymentService)
-	adminUserPrefHandler := admin_user.NewUserPreferenceHandler(db)
-	adminSettingsHandler := admin_settings.NewSettingsHandler(db, gatewayManager)
+	authSvc := auth.NewService(auth.NewGormUserRepo(db))
+	authHandler := authpages.NewHandler(authSvc, authClient)
 
-	memberDashboardHandler := member_dashboard.NewMemberDashboardHandler(db)
-	memberPlanHandler := member_plan.NewMemberPlanHandler(db)
-	memberPaymentHandler := member_payment.NewMemberPaymentHandler(db, paymentService)
+	// Shared auth middleware for role groups and the root redirect
+	requireAuth := authMiddleware.RequireAuth(authClient, db, redisCache)
 
-	// Public routes
-	e.GET("/login", authHandler.LoginPage)
-	e.POST("/auth/login", authHandler.HandleLogin)
-	e.POST("/auth/logout", authHandler.HandleLogout)
+	// Auth routes
+	authpages.RegisterRoutes(e, authHandler)
 
-	publicHandler := public_payment.NewPublicHandler(db, redisCache, paymentService)
-	e.GET("/p/:uuid", publicHandler.ShowPaymentDue)
-	e.POST("/p/:uuid/initiate", publicHandler.InitiatePayment)
-	e.GET("/p/:uuid/active-session", publicHandler.CheckActiveSession)
-	e.GET("/p/:uuid/status", publicHandler.CheckStatus)
+	// Public routes (payment-due pages + root role-based redirect)
+	publicpages.RegisterRoutes(e, public_payment.NewPublicHandler(paymentSvc), requireAuth)
 
 	// Admin routes
 	adminGroup := e.Group("/admin")
-	adminGroup.Use(authMiddleware.RequireAuth(authClient, db, redisCache))
+	adminGroup.Use(requireAuth)
 	adminGroup.Use(authMiddleware.RequireAdmin())
 
-	adminGroup.GET("/dashboard", adminDashboardHandler.Dashboard)
-
-	// Admin Plan routes
-	adminGroup.GET("/plans", adminPlanHandler.ListPlans)
-	adminGroup.GET("/plans/create", adminPlanHandler.CreatePlanPage)
-	adminGroup.POST("/plans", adminPlanHandler.StorePlan)
-	adminGroup.GET("/plans/:id/edit", adminPlanHandler.EditPlanPage)
-	adminGroup.POST("/plans/:id/update", adminPlanHandler.UpdatePlan)
-	adminGroup.POST("/plans/:id/delete", adminPlanHandler.DeletePlan)
-	adminGroup.GET("/plans/:id/schedule-popup", adminPlanHandler.GetSchedulePopup)
-	adminGroup.POST("/plans/:id/schedule", adminPlanHandler.SchedulePlan)
-	adminGroup.POST("/plans/:id/disable-schedule", adminPlanHandler.DisableSchedulePlan)
-
-	// Admin User routes
-	adminGroup.GET("/users", adminUserHandler.ListUsers)
-	adminGroup.GET("/users/create", adminUserHandler.CreateUserPage)
-	adminGroup.POST("/users", adminUserHandler.StoreUser)
-	adminGroup.GET("/users/:id/edit", adminUserHandler.EditUserPage)
-	adminGroup.POST("/users/:id/update", adminUserHandler.UpdateUser)
-	adminGroup.POST("/users/:id/delete", adminUserHandler.DeleteUser)
-
-	// Admin User Preference (HTMX)
-	adminGroup.GET("/users/:id/preference", adminUserPrefHandler.GetUserPreference)
-	adminGroup.PUT("/users/:id/preference", adminUserPrefHandler.UpdateUserPreference)
-
-	// Admin Payment dues routes
-	adminGroup.GET("/payment-dues", adminPaymentDueHandler.ListPaymentDues)
-	adminGroup.GET("/payments/:id/status", adminPaymentDueHandler.CheckPaymentStatus)
-	adminGroup.POST("/payments/:id/mark-complete", adminPaymentDueHandler.HandleMarkAsComplete)
-
-	// Admin Settings routes
-	adminGroup.GET("/settings", adminSettingsHandler.GetSettings)
-	adminGroup.POST("/settings", adminSettingsHandler.UpdateSettings)
+	// Admin Dashboard + Payment + Plan + User + Settings routes (also registers the two gateway webhook callbacks on the root router)
+	admin_pages.RegisterRoutes(e, adminGroup, admin_pages.Deps{Payments: paymentSvc, Plans: planSvc, Users: userSvc, Settings: settingsSvc})
 
 	// Member routes
 	memberGroup := e.Group("/member")
-	memberGroup.Use(authMiddleware.RequireAuth(authClient, db, redisCache))
+	memberGroup.Use(requireAuth)
 
-	memberGroup.GET("/dashboard", memberDashboardHandler.Dashboard)
-	memberGroup.GET("/plans", memberPlanHandler.ListPlans)
-	memberGroup.GET("/plans/:id", memberPlanHandler.ShowPlan)
-	memberGroup.GET("/payments", memberPaymentHandler.ListPayments)
-
-	// Webhooks
-	e.POST("/payments/callback/midtrans", adminPaymentDueHandler.MidtransCallback)
-	e.POST("/payments/callback/mayar", adminPaymentDueHandler.MayarCallback)
-
-	// Redirect root to role-based dashboard
-	e.GET("/", func(c echo.Context) error {
-		userType, ok := c.Get("userType").(models.UserType)
-		if ok && userType == models.UserTypeAdmin {
-			return c.Redirect(http.StatusTemporaryRedirect, "/admin/dashboard")
-		}
-		return c.Redirect(http.StatusTemporaryRedirect, "/member/dashboard")
-	}, authMiddleware.RequireAuth(authClient, db, redisCache))
+	// Member Dashboard + Payment + Plan routes
+	member_pages.RegisterRoutes(memberGroup, member_pages.Deps{Payments: paymentSvc, Plans: planSvc})
 
 	// Start server
 	port := os.Getenv("PORT")
