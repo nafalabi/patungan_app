@@ -1,8 +1,7 @@
-package tasks
+package scheduler
 
 import (
 	"context"
-	"fmt"
 	"sync"
 
 	"gorm.io/gorm"
@@ -50,11 +49,7 @@ func GetHandler(name string) (TaskHandler, bool) {
 	return GlobalRegistry.Get(name)
 }
 
-// Initialize registers default tasks (can be expanded)
-func Initialize() {
-	// Example task
-	RegisterHandler("example_task", func(ctx context.Context, db *gorm.DB, task models.ScheduledTask) (map[string]interface{}, error) {
-		fmt.Printf("Executing example_task with args: %v\n", task.Arguments)
-		return map[string]interface{}{"status": "success", "message": "Example task executed"}, nil
-	})
-}
+// Initialize is a no-op kept for compatibility with existing callers
+// (cmd/worker). Task registration happens at the composition root via
+// RegisterHandler.
+func Initialize() {}

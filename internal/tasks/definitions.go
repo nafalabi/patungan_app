@@ -1,3 +1,0 @@
-package tasks
-
-func DefineTasks() {}

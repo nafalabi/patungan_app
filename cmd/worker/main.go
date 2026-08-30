@@ -12,14 +12,14 @@ import (
 	"github.com/joho/godotenv"
 	"gorm.io/gorm"
 
-	"patungan_app_echo/internal/tasks"
-
 	"patungan_app_echo/internal/models"
 	"patungan_app_echo/internal/modules/notification"
 	"patungan_app_echo/internal/modules/payment"
 	plan "patungan_app_echo/internal/modules/plan"
 	"patungan_app_echo/internal/modules/scheduler"
 	"patungan_app_echo/internal/services/database"
+	"patungan_app_echo/internal/services/email"
+	"patungan_app_echo/internal/services/waha"
 )
 
 const MaxConcurrentTasks = 10
@@ -42,17 +42,19 @@ func main() {
 	}
 
 	// Initialize Task Registry
-	tasks.Initialize()
-	tasks.RegisterHandler(scheduler.LogInfoTask.TaskID(), scheduler.LogInfoTask.HandleExecution)
+	scheduler.Initialize()
+	scheduler.RegisterHandler(scheduler.LogInfoTask.TaskID(), scheduler.LogInfoTask.HandleExecution)
 
 	// Composition root: bind the plan schedule task to the plan service
 	planSvc := plan.NewService(plan.NewGormPlanRepo(db), payment.NewDuesCreatorAdapter(db))
 	plan.ProcessPlanScheduleTask = plan.NewProcessScheduleTask(planSvc)
 	processTask := plan.NewProcessScheduleTask(planSvc)
-	tasks.RegisterHandler(processTask.TaskID(), processTask.HandleExecution)
+	scheduler.RegisterHandler(processTask.TaskID(), processTask.HandleExecution)
 
-	tasks.RegisterHandler(notification.SendNotificationTask.TaskID(), notification.SendNotificationTask.HandleExecution)
-	tasks.DefineTasks()
+	// Composition root: bind the notification task to the notification service
+	notifSvc := notification.NewService(email.NewEmailService(), waha.NewWahaService(), notification.NewGormPrefRepo(db), notification.NewGormTaskRepo(db))
+	notifTask := notification.NewSendNotificationTask(notifSvc)
+	scheduler.RegisterHandler(notifTask.TaskID(), notifTask.HandleExecution)
 
 	log.Println("Worker started. Waiting for next tick...")
 
@@ -141,7 +143,7 @@ func executeTask(ctx context.Context, db *gorm.DB, task models.ScheduledTask, cu
 	task.Arguments["max_attempt"] = task.MaxAttempt
 
 	// Find task handle
-	handler, found := tasks.GetHandler(task.TaskName)
+	handler, found := scheduler.GetHandler(task.TaskName)
 	if !found {
 		log.Printf("Task handler not found for: %s. Marking as failure.", task.TaskName)
 
