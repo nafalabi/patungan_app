@@ -2,7 +2,7 @@
 
 This document provides a visual overview and technical description of the Patungan App interfaces.
 
-Built using Go (Echo), Templ, HTMX, and Tailwind CSS, the application offers a server-rendered user experience with dynamic, localized updates.
+Built using Go (Echo), Templ, HTMX, and Tailwind CSS, the application offers a server-rendered user experience with dynamic, localized updates. The codebase is organized into `internal/modules` (business services, repositories, scheduled tasks) and `internal/pages` (HTTP handlers and templates per audience: admin, member, public, auth).
 
 ---
 
@@ -24,9 +24,9 @@ The user entry point for authentication.
 ![Login Screen](docs/screenshots/login.webp)
 
 ### Key Technical Aspects:
-- **Firebase Authentication**: Uses the Firebase Admin SDK to handle session tokens and verification on the backend.
+- **Firebase Authentication**: Sign-in is handled by Firebase Auth with a single Google sign-in button, backed by the Firebase Admin SDK for token verification on the server.
+- **Session Cookies**: On success the backend exchanges the ID token for a secure, HTTP-only session cookie (valid for 5 days).
 - **Responsive Layout**: Scales to both desktop and mobile viewports.
-- **Form Validation**: Displays inline error messages and verification status upon validation failure.
 
 ---
 
@@ -37,9 +37,9 @@ The main dashboard providing an overview of active costing groups, outstanding d
 ![Dashboard](docs/screenshots/dashboard.webp)
 
 ### Key Technical Aspects:
-- **Metrics Grid**: Card elements showing total active plans, pending dues, paid invoices, and active members.
-- **Activity Log**: Displays recent transaction histories and payment status transitions.
-- **Dynamic Swaps**: Stats and logs are updated asynchronously using HTMX polling features.
+- **Metrics Grid**: Card elements showing active plans, pending dues, pending amount, and total paid to date.
+- **Upcoming Dues**: Table of the nearest subscription payments requiring attention, with one-click *Pay Now* shortcuts.
+- **Quick Actions**: Shortcut cards for managing plans, tracking payments, and managing members.
 
 ---
 
@@ -50,9 +50,9 @@ Allows administrators to define and organize cost-sharing plans and billing sche
 ![Plan Management](docs/screenshots/plans.webp)
 
 ### Key Technical Aspects:
-- **Plan Cards**: Displays the group name, description, cost, recurrence interval (weekly/monthly), and active participant count.
-- **Contextual Operations**: Access buttons to trigger due generation, view related bills, edit configurations, or archive plans.
-- **Modal Integrations**: Uses HTMX overlays to load creation/edition forms without requiring full-page navigation.
+- **Plan Cards**: Displays the group name, owner, cost, recurrence type (one-time/recurring), participant count with per-member cost, and status badges (Active, Dispatched, Manual).
+- **Contextual Operations**: Schedule due generation, edit, or delete plans directly from each card; the schedule dialog loads over the page via HTMX.
+- **Filtering and Sorting**: Narrow the list by owner and payment type, with configurable sort field and order.
 
 ---
 
@@ -63,9 +63,9 @@ Manages user list, contact details, and account activation states.
 ![User Directory](docs/screenshots/users.webp)
 
 ### Key Technical Aspects:
-- **Asynchronous Search**: Table content filters instantly on keypress events using `hx-trigger="keyup changed delay:300ms"`.
-- **Status Indicators**: Badges display user states (Active, Pending, or Inactive).
-- **Communication Fields**: Shows configured email addresses and WhatsApp contact numbers.
+- **Directory Table**: Lists each user's name, email, phone, and role badge (Admin or Member).
+- **User Management**: Create and edit users through dedicated forms; activate, update contact details, or remove accounts.
+- **Notification Preferences**: Per-user communication settings (email/WhatsApp) load in an HTMX-driven modal from the row's bell action.
 
 ---
 
@@ -76,9 +76,9 @@ Tracks payment cycles, billing items, and payment progress for specific plans.
 ![Payment Dues By Plan](docs/screenshots/payment-dues-by-plan-fixed.webp)
 
 ### Key Technical Aspects:
-- **Cycle Filtering**: Displays payment status organized by specific billing dates.
-- **Reminders Engine**: Integrated with WAHA (WhatsApp HTTP API) to dispatch payment notices directly to user accounts or groups.
-- **Manual Verification**: Admins can override payment statuses manually to record offline settlements.
+- **Multiple Views**: Toggle between All Dues, By Plan, By Period, and By User, with plan/user filters and sorting applied via HTMX partial swaps.
+- **Per-Fee Actions**: Copy the member's payment link, trigger gateway checkout, re-check gateway status, or manually mark a due as complete.
+- **Reminder Engine**: Payment notices are dispatched by the notification module (email via SMTP, WhatsApp via WAHA) through scheduled tasks.
 
 ---
 
@@ -89,9 +89,9 @@ The portal interface shown to users during checkout.
 ![Payment Due Portal](docs/screenshots/payment-due-payment.webp)
 
 ### Key Technical Aspects:
-- **Invoice Breakdown**: Details the base cost, service fees, taxes, and final payable sum.
-- **Gateway Integration**: Directly linked with Midtrans and Mayar.id checkout processes.
-- **Automatic Callbacks**: Midtrans/Mayar payment webhooks handle automated transaction verification and database updates.
+- **Tokenized Access**: Each due is reachable via a public, unguessable URL (`/p/:uuid`) — no login required for members.
+- **Invoice Summary**: Shows the total amount due, payment status, subscription plan, member details, due date, and portion split.
+- **Gateway Checkout**: *Pay Now* initiates a Midtrans or Mayar.id session, with a *Check Status* action for polling; payment webhooks verify transactions and update the database automatically.
 
 ---
 
@@ -102,9 +102,9 @@ Administrative settings for system-wide variables and credentials.
 ![System Settings](docs/screenshots/settings.webp)
 
 ### Key Technical Aspects:
-- **Gateway Keys**: Interface to configure production and sandbox API keys for Midtrans and Mayar.id.
-- **Notification Routing**: Toggle options to enable or disable notification dispatches across email, WhatsApp personal chats, or WhatsApp groups.
-- **Integration Diagnostics**: Simple dashboard elements showing API and database connection states.
+- **Active Gateway**: A global selector decides which payment gateway (Midtrans or Mayar.id) handles new payment initiations by default.
+- **Gateway Keys**: Configure Midtrans merchant/server/client keys and the Mayar.id API key, each with a production-mode toggle; secrets are masked in the UI.
+- **Persistence**: Settings are stored server-side and applied application-wide on save.
 
 ---
 
