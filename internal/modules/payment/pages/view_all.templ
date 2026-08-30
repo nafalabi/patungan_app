@@ -8,12 +8,16 @@ import (
 // ViewAll renders a flat list of payment dues with classic pagination
 templ ViewAll(dues []models.PaymentDue, currentUserID uint, currentUserType models.UserType, currentPage, totalPages, totalCount, pageSize int, viewMode string, filterPlan, filterUser uint, sortBy, sortOrder string) {
 	if len(dues) == 0 {
-		<div class="bg-bg-card rounded-xl border border-border p-8 text-center text-text-secondary">
-			No payment dues found.
+		<div class="bg-bg-card rounded-xl border border-border p-12 text-center text-text-secondary shadow-card">
+			<div class="w-12 h-12 rounded-full bg-bg-subtle border border-border flex items-center justify-center text-text-secondary mx-auto mb-3">
+				<i data-lucide="inbox" class="w-6 h-6"></i>
+			</div>
+			<h3 class="text-sm font-semibold text-text-primary">No payment dues found</h3>
+			<p class="text-xs text-text-secondary mt-1">Payment dues will appear here when scheduled tasks run.</p>
 		</div>
 	} else {
 		<div class="space-y-4">
-			<div class="bg-bg-card rounded-xl border border-border overflow-hidden shadow-sm">
+			<div class="bg-bg-card rounded-xl border border-border overflow-hidden shadow-card">
 				<div class="divide-y divide-border">
 					for _, due := range dues {
 						@PaymentDueItem(due, "both", currentUserID, currentUserType)
@@ -24,15 +28,15 @@ templ ViewAll(dues []models.PaymentDue, currentUserID uint, currentUserType mode
 
 		<!-- Pagination -->
 		if totalPages > 1 {
-			<div class="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-				<div class="text-sm text-text-secondary order-2 sm:order-1">
+			<div class="mt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
+				<div class="text-xs text-text-secondary order-2 sm:order-1">
 					Showing { fmt.Sprintf("%d-%d", (currentPage-1)*pageSize+1, min((currentPage)*pageSize, totalCount)) } of { fmt.Sprintf("%d", totalCount) } payment dues
 				</div>
-				<div class="flex gap-2 order-1 sm:order-2">
+				<div class="flex items-center gap-1.5 order-1 sm:order-2">
 					if currentPage > 1 {
 						<a
 							href={ templ.SafeURL(buildURLWithPage("/payment-dues", viewMode, filterPlan, filterUser, sortBy, sortOrder, currentPage-1)) }
-							class="px-3 py-2 bg-bg-card text-text-primary border border-border rounded-lg font-medium hover:bg-bg-hover transition-all duration-200 text-sm"
+							class="px-3 py-1.5 bg-bg-card text-text-secondary hover:text-text-primary border border-border rounded-lg text-xs font-medium hover:bg-bg-hover transition-colors"
 						>
 							Previous
 						</a>
@@ -40,25 +44,25 @@ templ ViewAll(dues []models.PaymentDue, currentUserID uint, currentUserType mode
 					<div class="flex gap-1 overflow-x-auto max-w-[200px] sm:max-w-none">
 						for i := 1; i <= totalPages; i++ {
 							if i == currentPage {
-								<span class="px-3 py-2 bg-primary text-white rounded-lg font-medium text-sm">
+								<span class="px-3 py-1.5 bg-primary text-white rounded-lg text-xs font-semibold shadow-xs">
 									{ fmt.Sprintf("%d", i) }
 								</span>
 							} else if i == 1 || i == totalPages || (i >= currentPage-2 && i <= currentPage+2) {
 								<a
 									href={ templ.SafeURL(buildURLWithPage("/payment-dues", viewMode, filterPlan, filterUser, sortBy, sortOrder, i)) }
-									class="px-3 py-2 bg-bg-card text-text-primary border border-border rounded-lg font-medium hover:bg-bg-hover transition-all duration-200 text-sm"
+									class="px-3 py-1.5 bg-bg-card text-text-secondary hover:text-text-primary border border-border rounded-lg text-xs font-medium hover:bg-bg-hover transition-colors"
 								>
 									{ fmt.Sprintf("%d", i) }
 								</a>
 							} else if i == currentPage-3 || i == currentPage+3 {
-								<span class="px-3 py-2 text-text-secondary">...</span>
+								<span class="px-2 py-1.5 text-xs text-text-muted">...</span>
 							}
 						}
 					</div>
 					if currentPage < totalPages {
 						<a
 							href={ templ.SafeURL(buildURLWithPage("/payment-dues", viewMode, filterPlan, filterUser, sortBy, sortOrder, currentPage+1)) }
-							class="px-3 py-2 bg-bg-card text-text-primary border border-border rounded-lg font-medium hover:bg-bg-hover transition-all duration-200 text-sm"
+							class="px-3 py-1.5 bg-bg-card text-text-secondary hover:text-text-primary border border-border rounded-lg text-xs font-medium hover:bg-bg-hover transition-colors"
 						>
 							Next
 						</a>
@@ -68,3 +72,4 @@ templ ViewAll(dues []models.PaymentDue, currentUserID uint, currentUserType mode
 		}
 	}
 }
+

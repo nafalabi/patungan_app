@@ -8,11 +8,11 @@ import (
 // ViewByPlans renders payment dues grouped by plans, showing only the latest period per plan
 templ ViewByPlans(planWithDues []PlanWithDues, currentUserID uint, currentUserType models.UserType, nextOffset int) {
 	if len(planWithDues) == 0 {
-		<div class="bg-bg-card rounded-xl border border-border p-8 text-center text-text-secondary">
+		<div class="bg-bg-card rounded-xl border border-border p-8 text-center text-text-secondary shadow-card">
 			No plans with payment dues found.
 		</div>
 	} else {
-		<div id="plans-container" class="space-y-6">
+		<div id="plans-container" class="space-y-5">
 			@PlanListItems(planWithDues, currentUserID, currentUserType)
 		</div>
 		
@@ -23,18 +23,18 @@ templ ViewByPlans(planWithDues []PlanWithDues, currentUserID uint, currentUserTy
 // PlanListItems renders just the plan cards (useful for HTMX partial updates)
 templ PlanListItems(planWithDues []PlanWithDues, currentUserID uint, currentUserType models.UserType) {
 	for _, pwd := range planWithDues {
-		<div class="bg-bg-card rounded-2xl border border-border overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
+		<div class="bg-bg-card rounded-xl border border-border overflow-hidden shadow-card hover:shadow-card-hover transition-all">
 			<!-- Plan header -->
-			<div class="bg-primary/[0.03] border-b border-border p-5">
+			<div class="bg-bg-subtle/50 border-b border-border p-4">
 				<div class="flex justify-between items-center">
 					<div class="flex items-center gap-3">
-						<div class="p-2.5 bg-primary/10 rounded-xl text-primary">
-							<i data-lucide="layers" class="w-6 h-6"></i>
+						<div class="w-8 h-8 rounded-lg bg-bg-card border border-border flex items-center justify-center text-text-primary">
+							<i data-lucide="layers" class="w-4 h-4"></i>
 						</div>
 						<div>
-							<h3 class="text-xl font-bold text-text-primary leading-tight">{ pwd.Plan.Name }</h3>
-							<p class="text-sm text-text-secondary mt-0.5">
-								Total Price: <span class="font-medium text-text-primary">{ formatRupiah(pwd.Plan.TotalPrice) }</span>
+							<h3 class="text-base font-bold text-text-primary leading-tight tracking-tight">{ pwd.Plan.Name }</h3>
+							<p class="text-xs text-text-secondary mt-0.5">
+								Total: <span class="font-semibold text-text-primary font-mono">{ formatRupiah(pwd.Plan.TotalPrice) }</span>
 							</p>
 						</div>
 					</div>
@@ -42,22 +42,22 @@ templ PlanListItems(planWithDues []PlanWithDues, currentUserID uint, currentUser
 			</div>
 			
 			<!-- Latest Period -->
-			<div class="p-5 bg-white">
+			<div class="p-4 bg-bg-card">
 				if len(pwd.Periods) > 0 {
 					for _, pwd_period := range pwd.Periods {
-						<div class="border border-border/60 rounded-xl overflow-hidden bg-bg-body/30">
-							<div class="bg-bg-hover/40 px-4 py-2.5 border-b border-border/60 flex justify-between items-center">
-								<h4 class="font-bold text-text-primary text-sm flex items-center gap-2">
-									<i data-lucide="calendar" class="w-4 h-4 text-primary"></i>
+						<div class="border border-border/80 rounded-lg overflow-hidden bg-bg-card">
+							<div class="bg-bg-subtle/60 px-4 py-2 border-b border-border/80 flex justify-between items-center">
+								<h4 class="font-bold text-text-primary text-xs flex items-center gap-2">
+									<i data-lucide="calendar" class="w-3.5 h-3.5 text-text-secondary"></i>
 									if pwd_period.Period.ID != 0 {
 										{ pwd_period.Period.Name }
 									} else {
 										{ pwd_period.Dues[0].DueDate.Format("January 2006") } (Uncategorized)
 									}
-									<span class="ml-2 px-2 py-0.5 bg-primary/10 text-primary text-[10px] uppercase tracking-wider rounded-md">Latest Period</span>
+									<span class="ml-2 px-2 py-0.5 bg-bg-card text-text-secondary border border-border text-[10px] font-semibold uppercase tracking-wider rounded-md">Latest Period</span>
 								</h4>
 							</div>
-							<div class="divide-y divide-border/50">
+							<div class="divide-y divide-border/60">
 								for _, due := range pwd_period.Dues {
 									@PaymentDueItem(due, "user", currentUserID, currentUserType)
 								}
@@ -65,7 +65,7 @@ templ PlanListItems(planWithDues []PlanWithDues, currentUserID uint, currentUser
 						</div>
 					}
 				} else {
-					<div class="text-center py-4 text-text-secondary text-sm italic">
+					<div class="text-center py-4 text-text-secondary text-xs italic">
 						No active periods found for this plan.
 					</div>
 				}
@@ -75,18 +75,19 @@ templ PlanListItems(planWithDues []PlanWithDues, currentUserID uint, currentUser
 }
 
 templ LoadMorePlansButton(nextOffset int) {
-	<div class="mt-8 flex justify-center" id="load-more-plans-container" hx-swap-oob="true">
+	<div class="mt-6 flex justify-center" id="load-more-plans-container" hx-swap-oob="true">
 		if nextOffset > 0 {
 			<button
 				hx-get={ fmt.Sprintf("/payment-dues?view=plans&offset=%d", nextOffset) }
 				hx-target="#plans-container"
 				hx-swap="beforeend"
 				hx-indicator="#load-more-spinner"
-				class="px-6 py-2.5 bg-bg-card text-primary border border-primary/20 rounded-xl font-semibold hover:bg-primary hover:text-white transition-all duration-300 shadow-sm flex items-center gap-2"
+				class="px-4 py-2 bg-bg-card text-text-primary border border-border rounded-lg text-xs font-semibold hover:bg-bg-hover transition-colors shadow-xs flex items-center gap-2 cursor-pointer"
 			>
 				<span>Load More Plans</span>
-				<div id="load-more-spinner" class="htmx-indicator animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full"></div>
+				<div id="load-more-spinner" class="htmx-indicator animate-spin h-3.5 w-3.5 border-2 border-current border-t-transparent rounded-full"></div>
 			</button>
 		}
 	</div>
 }
+

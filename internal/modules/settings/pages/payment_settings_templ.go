@@ -56,7 +56,7 @@ func PaymentSettings(props PaymentSettingsProps) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"max-w-4xl mx-auto\"><div class=\"mb-6\"><h1 class=\"text-2xl font-bold text-text-primary\">Application Settings</h1><p class=\"text-sm text-text-secondary mt-1\">Manage payment gateways and global configurations</p></div><form action=\"/admin/settings\" method=\"POST\" class=\"space-y-6\"><!-- Active Gateway Selection --><div class=\"bg-bg-card rounded-xl border border-border overflow-hidden\"><div class=\"p-5 border-b border-border bg-bg-body\"><h3 class=\"text-lg font-semibold text-text-primary flex items-center gap-2\"><i data-lucide=\"settings\" class=\"w-5 h-5\"></i> General Settings</h3></div><div class=\"p-5\"><label class=\"block text-sm font-medium text-text-secondary mb-2\">Active Payment Gateway</label> <select name=\"active_payment_gateway\" class=\"w-full px-4 py-2.5 bg-bg-body border border-border rounded-lg text-text-primary focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all\"><option value=\"midtrans\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"w-full\"><div class=\"mb-6\"><h1 class=\"text-xl md:text-2xl font-bold text-text-primary tracking-tight\">Application Settings</h1><p class=\"text-xs md:text-sm text-text-secondary mt-0.5\">Manage payment gateways and global configurations</p></div><form action=\"/admin/settings\" method=\"POST\" class=\"space-y-6\"><!-- Active Gateway Selection --><div class=\"bg-bg-card rounded-xl border border-border overflow-hidden shadow-card\"><div class=\"p-4 border-b border-border bg-bg-subtle/50\"><h3 class=\"text-sm font-bold text-text-primary flex items-center gap-2\"><i data-lucide=\"sliders\" class=\"w-4 h-4 text-text-secondary\"></i> General Settings</h3></div><div class=\"p-5\"><label class=\"block text-xs font-semibold text-text-secondary uppercase tracking-wider mb-2\">Active Payment Gateway</label> <select name=\"active_payment_gateway\" class=\"w-full px-3.5 py-2 bg-bg-body border border-border rounded-lg text-text-primary text-xs focus:outline-none focus:ring-1 focus:ring-primary transition-colors max-w-md\"><option value=\"midtrans\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -76,7 +76,7 @@ func PaymentSettings(props PaymentSettingsProps) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, ">Mayar.id</option></select><p class=\"mt-2 text-xs text-text-secondary\">This gateway will be used for all new payment initiations by default.</p></div></div><div class=\"grid grid-cols-1 md:grid-cols-2 gap-6\"><!-- Midtrans Configuration --><div class=\"bg-bg-card rounded-xl border border-border overflow-hidden\"><div class=\"p-5 border-b border-border bg-bg-body\"><h3 class=\"text-lg font-semibold text-text-primary flex items-center gap-2\"><i data-lucide=\"credit-card\" class=\"w-5 h-5\"></i> Midtrans</h3></div><div class=\"p-5 space-y-4\"><div><label class=\"block text-sm font-medium text-text-secondary mb-1.5\">Merchant ID</label> <input type=\"text\" name=\"midtrans_merchant_id\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, ">Mayar.id</option></select><p class=\"mt-1.5 text-[11px] text-text-muted\">This gateway will be used for all new payment initiations by default.</p></div></div><div class=\"grid grid-cols-1 md:grid-cols-2 gap-6\"><!-- Midtrans Configuration --><div class=\"bg-bg-card rounded-xl border border-border overflow-hidden shadow-card\"><div class=\"p-4 border-b border-border bg-bg-subtle/50\"><h3 class=\"text-sm font-bold text-text-primary flex items-center gap-2\"><i data-lucide=\"credit-card\" class=\"w-4 h-4 text-text-secondary\"></i> Midtrans</h3></div><div class=\"p-5 space-y-3.5\"><div><label class=\"block text-xs font-semibold text-text-secondary uppercase tracking-wider mb-1\">Merchant ID</label> <input type=\"text\" name=\"midtrans_merchant_id\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -89,7 +89,7 @@ func PaymentSettings(props PaymentSettingsProps) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\" class=\"w-full px-4 py-2 bg-bg-body border border-border rounded-lg text-text-primary focus:ring-2 focus:ring-primary outline-none\" placeholder=\"e.g. G123456789\"></div><div x-data=\"{ show: false }\"><label class=\"block text-sm font-medium text-text-secondary mb-1.5\">Server Key</label><div class=\"relative\"><input :type=\"show ? 'text' : 'password'\" name=\"midtrans_server_key\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\" class=\"w-full px-3.5 py-2 bg-bg-body border border-border rounded-lg text-text-primary text-xs focus:outline-none focus:ring-1 focus:ring-primary font-mono\" placeholder=\"e.g. G123456789\"></div><div x-data=\"{ show: false }\"><label class=\"block text-xs font-semibold text-text-secondary uppercase tracking-wider mb-1\">Server Key</label><div class=\"relative\"><input :type=\"show ? 'text' : 'password'\" name=\"midtrans_server_key\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -102,7 +102,7 @@ func PaymentSettings(props PaymentSettingsProps) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\" class=\"w-full px-4 py-2 bg-bg-body border border-border rounded-lg text-text-primary focus:ring-2 focus:ring-primary outline-none pr-10\"> <button type=\"button\" @click=\"show = !show\" class=\"absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-primary transition-colors\"><i :data-lucide=\"show ? 'eye-off' : 'eye'\" class=\"w-4 h-4\"></i></button></div></div><div><label class=\"block text-sm font-medium text-text-secondary mb-1.5\">Client Key</label> <input type=\"text\" name=\"midtrans_client_key\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\" class=\"w-full px-3.5 py-2 bg-bg-body border border-border rounded-lg text-text-primary text-xs focus:outline-none focus:ring-1 focus:ring-primary font-mono pr-9\"> <button type=\"button\" @click=\"show = !show\" class=\"absolute right-2.5 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors\"><i :data-lucide=\"show ? 'eye-off' : 'eye'\" class=\"w-3.5 h-3.5\"></i></button></div></div><div><label class=\"block text-xs font-semibold text-text-secondary uppercase tracking-wider mb-1\">Client Key</label> <input type=\"text\" name=\"midtrans_client_key\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -115,7 +115,7 @@ func PaymentSettings(props PaymentSettingsProps) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" class=\"w-full px-4 py-2 bg-bg-body border border-border rounded-lg text-text-primary focus:ring-2 focus:ring-primary outline-none\"></div><div class=\"flex items-center gap-3 mt-2\"><input type=\"checkbox\" id=\"midtrans_is_production\" name=\"midtrans_is_production\" value=\"true\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" class=\"w-full px-3.5 py-2 bg-bg-body border border-border rounded-lg text-text-primary text-xs focus:outline-none focus:ring-1 focus:ring-primary font-mono\"></div><div class=\"flex items-center gap-2.5 pt-1\"><input type=\"checkbox\" id=\"midtrans_is_production\" name=\"midtrans_is_production\" value=\"true\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -125,7 +125,7 @@ func PaymentSettings(props PaymentSettingsProps) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, " class=\"w-4 h-4 rounded border-border text-primary focus:ring-primary\"> <label for=\"midtrans_is_production\" class=\"text-sm font-medium text-text-primary\">Enable Production Mode</label></div></div></div><!-- Mayar Configuration --><div class=\"bg-bg-card rounded-xl border border-border overflow-hidden\"><div class=\"p-5 border-b border-border bg-bg-body\"><h3 class=\"text-lg font-semibold text-text-primary flex items-center gap-2\"><i data-lucide=\"zap\" class=\"w-5 h-5 text-yellow-500\"></i> Mayar.id</h3></div><div class=\"p-5 space-y-4\"><div x-data=\"{ show: false }\"><label class=\"block text-sm font-medium text-text-secondary mb-1.5\">API Key</label><div class=\"relative\"><input :type=\"show ? 'text' : 'password'\" name=\"mayar_api_key\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, " class=\"w-4 h-4 rounded border-border text-primary focus:ring-primary\"> <label for=\"midtrans_is_production\" class=\"text-xs font-medium text-text-primary cursor-pointer select-none\">Enable Production Mode</label></div></div></div><!-- Mayar Configuration --><div class=\"bg-bg-card rounded-xl border border-border overflow-hidden shadow-card\"><div class=\"p-4 border-b border-border bg-bg-subtle/50\"><h3 class=\"text-sm font-bold text-text-primary flex items-center gap-2\"><i data-lucide=\"zap\" class=\"w-4 h-4 text-amber-600\"></i> Mayar.id</h3></div><div class=\"p-5 space-y-3.5\"><div x-data=\"{ show: false }\"><label class=\"block text-xs font-semibold text-text-secondary uppercase tracking-wider mb-1\">API Key</label><div class=\"relative\"><input :type=\"show ? 'text' : 'password'\" name=\"mayar_api_key\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -138,7 +138,7 @@ func PaymentSettings(props PaymentSettingsProps) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" class=\"w-full px-4 py-2 bg-bg-body border border-border rounded-lg text-text-primary focus:ring-2 focus:ring-primary outline-none pr-10\"> <button type=\"button\" @click=\"show = !show\" class=\"absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-primary transition-colors\"><i :data-lucide=\"show ? 'eye-off' : 'eye'\" class=\"w-4 h-4\"></i></button></div></div><div class=\"flex items-center gap-3 mt-6\"><input type=\"checkbox\" id=\"mayar_is_production\" name=\"mayar_is_production\" value=\"true\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" class=\"w-full px-3.5 py-2 bg-bg-body border border-border rounded-lg text-text-primary text-xs focus:outline-none focus:ring-1 focus:ring-primary font-mono pr-9\"> <button type=\"button\" @click=\"show = !show\" class=\"absolute right-2.5 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors\"><i :data-lucide=\"show ? 'eye-off' : 'eye'\" class=\"w-3.5 h-3.5\"></i></button></div></div><div class=\"flex items-center gap-2.5 pt-1\"><input type=\"checkbox\" id=\"mayar_is_production\" name=\"mayar_is_production\" value=\"true\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -148,7 +148,7 @@ func PaymentSettings(props PaymentSettingsProps) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, " class=\"w-4 h-4 rounded border-border text-primary focus:ring-primary\"> <label for=\"mayar_is_production\" class=\"text-sm font-medium text-text-primary\">Enable Production Mode</label></div></div></div></div><div class=\"flex justify-end pt-4\"><button type=\"submit\" class=\"px-8 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-hover hover:-translate-y-px transition-all shadow-lg shadow-primary/20\">Save Settings</button></div></form></div><script>\n\t\t\t// Re-initialize lucide icons when Alpine.js toggles them\n\t\t\tdocument.addEventListener('alpine:init', () => {\n\t\t\t\tAlpine.effect(() => {\n\t\t\t\t\tsetTimeout(() => lucide.createIcons(), 0);\n\t\t\t\t});\n\t\t\t});\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, " class=\"w-4 h-4 rounded border-border text-primary focus:ring-primary\"> <label for=\"mayar_is_production\" class=\"text-xs font-medium text-text-primary cursor-pointer select-none\">Enable Production Mode</label></div></div></div></div><div class=\"flex justify-end pt-2\"><button type=\"submit\" class=\"px-5 py-2 bg-primary text-white text-xs font-semibold rounded-lg hover:bg-primary-hover transition-colors shadow-xs cursor-pointer flex items-center gap-1.5\"><i data-lucide=\"check\" class=\"w-4 h-4\"></i> Save Settings</button></div></form></div><script>\n\t\t\t// Re-initialize lucide icons when Alpine.js toggles them\n\t\t\tdocument.addEventListener('alpine:init', () => {\n\t\t\t\tAlpine.effect(() => {\n\t\t\t\t\tsetTimeout(() => lucide.createIcons(), 0);\n\t\t\t\t});\n\t\t\t});\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -66,14 +66,14 @@ func Dashboard(props DashboardProps) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"space-y-8\"><!-- Welcome Section --><div class=\"flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4\"><div><h1 class=\"text-2xl font-bold text-text-primary\">Dashboard</h1><p class=\"text-text-secondary\">Welcome back, ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"space-y-6\"><!-- Welcome Section --><div class=\"flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4\"><div><h1 class=\"text-xl md:text-2xl font-bold text-text-primary tracking-tight\">Dashboard</h1><p class=\"text-xs md:text-sm text-text-secondary mt-0.5\">Welcome back, ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(props.UserEmail)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/dashboard/pages/dashboard.templ`, Line: 41, Col: 67}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/dashboard/pages/dashboard.templ`, Line: 41, Col: 93}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -84,174 +84,207 @@ func Dashboard(props DashboardProps) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			if props.CurrentUserType == "Admin" || props.CurrentUserType == "PlanCreator" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<a href=\"/plans/create\" class=\"w-full sm:w-auto inline-flex justify-center items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-white font-medium hover:bg-primary-hover transition-colors\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-plus\"><path d=\"M5 12h14\"></path><path d=\"M12 5v14\"></path></svg> Create Plan</a>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<a href=\"/plans/create\" class=\"w-full sm:w-auto inline-flex justify-center items-center gap-2 px-4 py-2 rounded-lg bg-primary text-white text-xs font-semibold hover:bg-primary-hover transition-colors shadow-sm\"><i data-lucide=\"plus\" class=\"w-4 h-4\"></i> Create Plan</a>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><!-- Stats Grid --><div class=\"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4\"><!-- Total Plans --><div class=\"bg-bg-card border border-border rounded-xl p-5\"><div class=\"flex items-center gap-4\"><div class=\"p-3 bg-blue-500/10 rounded-lg text-blue-500\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-layers\"><path d=\"m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z\"></path><path d=\"m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65\"></path><path d=\"m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65\"></path></svg></div><div><p class=\"text-sm font-medium text-text-secondary\">Active Plans</p><h3 class=\"text-2xl font-bold text-text-primary\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><!-- Stats Grid --><div class=\"grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4\"><!-- Total Active Plans --><div class=\"bg-bg-card border border-border rounded-xl p-5 shadow-card hover:shadow-card-hover transition-all\"><div class=\"flex items-center justify-between mb-3\"><span class=\"text-xs font-semibold uppercase tracking-wider text-text-secondary\">Active Plans</span><div class=\"w-8 h-8 rounded-lg bg-bg-subtle border border-border flex items-center justify-center text-text-secondary\"><i data-lucide=\"layers\" class=\"w-4 h-4\"></i></div></div><div class=\"text-2xl font-bold text-text-primary tracking-tight\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", props.TotalActivePlans))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/dashboard/pages/dashboard.templ`, Line: 61, Col: 99}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/dashboard/pages/dashboard.templ`, Line: 61, Col: 113}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</h3></div></div></div><!-- Pending Dues Count --><div class=\"bg-bg-card border border-border rounded-xl p-5\"><div class=\"flex items-center gap-4\"><div class=\"p-3 bg-yellow-500/10 rounded-lg text-yellow-500\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-clock\"><circle cx=\"12\" cy=\"12\" r=\"10\"></circle><polyline points=\"12 6 12 12 16 14\"></polyline></svg></div><div><p class=\"text-sm font-medium text-text-secondary\">Pending Dues</p><h3 class=\"text-2xl font-bold text-text-primary\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div><div class=\"mt-2 flex items-center gap-2\"><span class=\"text-[11px] font-medium text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md\">Active</span> <span class=\"text-xs text-text-secondary\">shared groups</span></div></div><!-- Pending Dues Count --><div class=\"bg-bg-card border border-border rounded-xl p-5 shadow-card hover:shadow-card-hover transition-all\"><div class=\"flex items-center justify-between mb-3\"><span class=\"text-xs font-semibold uppercase tracking-wider text-text-secondary\">Pending Dues</span><div class=\"w-8 h-8 rounded-lg bg-bg-subtle border border-border flex items-center justify-center text-text-secondary\"><i data-lucide=\"clock\" class=\"w-4 h-4\"></i></div></div><div class=\"text-2xl font-bold text-text-primary tracking-tight\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", props.PendingDuesCount))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/dashboard/pages/dashboard.templ`, Line: 74, Col: 99}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/dashboard/pages/dashboard.templ`, Line: 76, Col: 113}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</h3></div></div></div><!-- Pending Amount --><div class=\"bg-bg-card border border-border rounded-xl p-5\"><div class=\"flex items-center gap-4\"><div class=\"p-3 bg-red-500/10 rounded-lg text-red-500\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-alert-circle\"><circle cx=\"12\" cy=\"12\" r=\"10\"></circle><line x1=\"12\" x2=\"12\" y1=\"8\" y2=\"12\"></line><line x1=\"12\" x2=\"12.01\" y1=\"16\" y2=\"16\"></line></svg></div><div><p class=\"text-sm font-medium text-text-secondary\">Pending Amount</p><h3 class=\"text-2xl font-bold text-text-primary\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div><div class=\"mt-2 flex items-center gap-2\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if props.PendingDuesCount > 0 {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span class=\"text-[11px] font-medium text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md\">Action needed</span> ")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span class=\"text-[11px] font-medium text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md\">All settled</span> ")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<span class=\"text-xs text-text-secondary\">awaiting payment</span></div></div><!-- Pending Amount --><div class=\"bg-bg-card border border-border rounded-xl p-5 shadow-card hover:shadow-card-hover transition-all\"><div class=\"flex items-center justify-between mb-3\"><span class=\"text-xs font-semibold uppercase tracking-wider text-text-secondary\">Pending Amount</span><div class=\"w-8 h-8 rounded-lg bg-bg-subtle border border-border flex items-center justify-center text-text-secondary\"><i data-lucide=\"alert-circle\" class=\"w-4 h-4\"></i></div></div><div class=\"text-2xl font-bold text-text-primary tracking-tight\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(utils.FormatRupiah(props.PendingAmount))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/dashboard/pages/dashboard.templ`, Line: 87, Col: 97}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/dashboard/pages/dashboard.templ`, Line: 95, Col: 111}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</h3></div></div></div><!-- Paid Amount --><div class=\"bg-bg-card border border-border rounded-xl p-5\"><div class=\"flex items-center gap-4\"><div class=\"p-3 bg-green-500/10 rounded-lg text-green-500\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-check-circle-2\"><circle cx=\"12\" cy=\"12\" r=\"10\"></circle><path d=\"m9 12 2 2 4-4\"></path></svg></div><div><p class=\"text-sm font-medium text-text-secondary\">Total Paid</p><h3 class=\"text-2xl font-bold text-text-primary\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div><div class=\"mt-2 flex items-center gap-2\"><span class=\"text-[11px] font-medium text-text-secondary bg-bg-subtle border border-border px-2 py-0.5 rounded-md\">Uncollected</span> <span class=\"text-xs text-text-secondary\">balance</span></div></div><!-- Total Paid Amount --><div class=\"bg-bg-card border border-border rounded-xl p-5 shadow-card hover:shadow-card-hover transition-all\"><div class=\"flex items-center justify-between mb-3\"><span class=\"text-xs font-semibold uppercase tracking-wider text-text-secondary\">Total Paid</span><div class=\"w-8 h-8 rounded-lg bg-bg-subtle border border-border flex items-center justify-center text-emerald-600\"><i data-lucide=\"check-circle\" class=\"w-4 h-4\"></i></div></div><div class=\"text-2xl font-bold text-emerald-700 tracking-tight\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(utils.FormatRupiah(props.PaidAmount))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/dashboard/pages/dashboard.templ`, Line: 100, Col: 94}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/dashboard/pages/dashboard.templ`, Line: 110, Col: 107}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</h3></div></div></div></div><!-- Upcoming Dues Section --><div class=\"bg-bg-card border border-border rounded-xl overflow-hidden\"><div class=\"p-6 border-b border-border flex justify-between items-center\"><h2 class=\"text-lg font-bold text-text-primary\">Upcoming Dues</h2><a href=\"/payment-dues\" class=\"text-sm text-primary hover:text-primary-hover font-medium\">View All</a></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div><div class=\"mt-2 flex items-center gap-2\"><span class=\"text-[11px] font-medium text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md\">Collected</span> <span class=\"text-xs text-text-secondary\">to date</span></div></div></div><!-- Upcoming Dues Section --><div class=\"bg-bg-card border border-border rounded-xl shadow-card overflow-hidden\"><div class=\"p-5 border-b border-border flex justify-between items-center bg-bg-card\"><div><h2 class=\"text-base font-bold text-text-primary tracking-tight\">Upcoming Dues</h2><p class=\"text-xs text-text-secondary\">Upcoming subscription payments requiring attention</p></div><a href=\"/payment-dues\" class=\"text-xs text-text-primary font-semibold hover:text-text-secondary flex items-center gap-1 transition-colors\">View All <i data-lucide=\"arrow-right\" class=\"w-3.5 h-3.5\"></i></a></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(props.UpcomingDues) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div class=\"p-8 text-center text-text-secondary\">No upcoming dues found. You're all caught up!</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"py-12 px-6 flex flex-col items-center justify-center text-center\"><div class=\"w-12 h-12 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 mb-3\"><i data-lucide=\"check-circle-2\" class=\"w-6 h-6\"></i></div><h3 class=\"text-sm font-semibold text-text-primary\">No upcoming dues found</h3><p class=\"text-xs text-text-secondary mt-1\">You're all caught up with your shared subscription payments!</p></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"overflow-x-auto\"><table class=\"w-full\"><thead class=\"bg-bg-body text-left\"><tr><th class=\"px-6 py-3 text-xs font-medium text-text-secondary uppercase tracking-wider\">Plan</th><th class=\"px-6 py-3 text-xs font-medium text-text-secondary uppercase tracking-wider\">User</th><th class=\"px-6 py-3 text-xs font-medium text-text-secondary uppercase tracking-wider\">Due Date</th><th class=\"px-6 py-3 text-xs font-medium text-text-secondary uppercase tracking-wider text-right\">Amount</th><th class=\"px-6 py-3 text-xs font-medium text-text-secondary uppercase tracking-wider text-center\">Action</th></tr></thead> <tbody class=\"divide-y divide-border\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div class=\"overflow-x-auto\"><table class=\"w-full text-left\"><thead class=\"bg-bg-subtle/60 border-b border-border\"><tr><th class=\"px-5 py-3 text-[11px] font-semibold text-text-secondary uppercase tracking-wider\">Plan</th><th class=\"px-5 py-3 text-[11px] font-semibold text-text-secondary uppercase tracking-wider\">Member</th><th class=\"px-5 py-3 text-[11px] font-semibold text-text-secondary uppercase tracking-wider\">Due Date</th><th class=\"px-5 py-3 text-[11px] font-semibold text-text-secondary uppercase tracking-wider text-right\">Amount</th><th class=\"px-5 py-3 text-[11px] font-semibold text-text-secondary uppercase tracking-wider text-center\">Action</th></tr></thead> <tbody class=\"divide-y divide-border text-sm\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, due := range props.UpcomingDues {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<tr class=\"hover:bg-bg-hover transition-colors\"><td class=\"px-6 py-4 whitespace-nowrap text-sm font-medium text-text-primary\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<tr class=\"hover:bg-bg-hover/70 transition-colors\"><td class=\"px-5 py-3.5 whitespace-nowrap\"><div class=\"flex items-center gap-2.5\"><div class=\"w-7 h-7 rounded-md bg-bg-subtle border border-border flex items-center justify-center text-xs font-bold text-text-primary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var8 string
-					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(due.Plan.Name)
+					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(string([]rune(due.Plan.Name)[0:1]))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/dashboard/pages/dashboard.templ`, Line: 131, Col: 103}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/dashboard/pages/dashboard.templ`, Line: 155, Col: 49}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</td><td class=\"px-6 py-4 whitespace-nowrap text-sm text-text-secondary\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div><span class=\"font-medium text-text-primary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var9 string
-					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(due.User.Name)
+					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(due.Plan.Name)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/dashboard/pages/dashboard.templ`, Line: 132, Col: 93}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/dashboard/pages/dashboard.templ`, Line: 157, Col: 71}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</td><td class=\"px-6 py-4 whitespace-nowrap text-sm text-text-secondary\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</span></div></td><td class=\"px-5 py-3.5 whitespace-nowrap text-text-secondary text-xs\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var10 string
-					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(due.DueDate.Format("02 Jan 2006"))
+					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(due.User.Name)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/dashboard/pages/dashboard.templ`, Line: 133, Col: 113}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/dashboard/pages/dashboard.templ`, Line: 160, Col: 95}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</td><td class=\"px-6 py-4 whitespace-nowrap text-sm font-medium text-text-primary text-right\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</td><td class=\"px-5 py-3.5 whitespace-nowrap text-text-secondary text-xs font-mono\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var11 string
-					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(utils.FormatRupiah(due.CalculatedPayAmount))
+					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(due.DueDate.Format("02 Jan 2006"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/dashboard/pages/dashboard.templ`, Line: 134, Col: 144}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/dashboard/pages/dashboard.templ`, Line: 161, Col: 125}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</td><td class=\"px-6 py-4 whitespace-nowrap text-sm text-center\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</td><td class=\"px-5 py-3.5 whitespace-nowrap text-right font-semibold text-text-primary text-xs\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var12 string
+					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(utils.FormatRupiah(due.CalculatedPayAmount))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/dashboard/pages/dashboard.templ`, Line: 162, Col: 148}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</td><td class=\"px-5 py-3.5 whitespace-nowrap text-center\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if due.User.ID == props.UserID {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<a href=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<a href=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						var templ_7745c5c3_Var12 templ.SafeURL
-						templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/payment-dues#payment-due-%d", due.ID)))
+						var templ_7745c5c3_Var13 templ.SafeURL
+						templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/payment-dues#payment-due-%d", due.ID)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/dashboard/pages/dashboard.templ`, Line: 137, Col: 88}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/dashboard/pages/dashboard.templ`, Line: 165, Col: 88}
 						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\" class=\"text-primary hover:text-primary-hover font-medium\">Pay Now</a>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\" class=\"inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-md bg-primary text-white hover:bg-primary-hover transition-colors shadow-xs\">Pay Now</a>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					} else {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<span class=\"text-xs text-text-muted\">—</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</td></tr>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</td></tr>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</tbody></table></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</tbody></table></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div><!-- Quick Actions (Mobile only or additional) -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</div><!-- Quick Actions -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if props.CurrentUserType == "Admin" || props.CurrentUserType == "PlanCreator" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<div class=\"grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4\"><a href=\"/plans\" class=\"block p-6 bg-bg-card border border-border rounded-xl hover:border-primary transition-colors group\"><h3 class=\"text-lg font-bold text-text-primary group-hover:text-primary mb-2\">Manage Plans</h3><p class=\"text-sm text-text-secondary\">View and manage all your subscription plans.</p></a></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<div class=\"grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4\"><a href=\"/plans\" class=\"p-5 bg-bg-card border border-border rounded-xl shadow-card hover:border-zinc-400 transition-all group flex items-start justify-between\"><div><h3 class=\"text-sm font-semibold text-text-primary group-hover:text-primary transition-colors flex items-center gap-1.5\"><i data-lucide=\"list-todo\" class=\"w-4 h-4 text-text-secondary\"></i> Manage Plans</h3><p class=\"text-xs text-text-secondary mt-1\">View, edit, and organize all your subscription groups.</p></div><i data-lucide=\"chevron-right\" class=\"w-4 h-4 text-text-muted group-hover:text-text-primary transition-transform group-hover:translate-x-0.5\"></i></a> <a href=\"/payment-dues\" class=\"p-5 bg-bg-card border border-border rounded-xl shadow-card hover:border-zinc-400 transition-all group flex items-start justify-between\"><div><h3 class=\"text-sm font-semibold text-text-primary group-hover:text-primary transition-colors flex items-center gap-1.5\"><i data-lucide=\"dollar-sign\" class=\"w-4 h-4 text-text-secondary\"></i> Track Payments</h3><p class=\"text-xs text-text-secondary mt-1\">Review dues breakdown by plan, period, or member.</p></div><i data-lucide=\"chevron-right\" class=\"w-4 h-4 text-text-muted group-hover:text-text-primary transition-transform group-hover:translate-x-0.5\"></i></a> <a href=\"/users\" class=\"p-5 bg-bg-card border border-border rounded-xl shadow-card hover:border-zinc-400 transition-all group flex items-start justify-between\"><div><h3 class=\"text-sm font-semibold text-text-primary group-hover:text-primary transition-colors flex items-center gap-1.5\"><i data-lucide=\"users\" class=\"w-4 h-4 text-text-secondary\"></i> Manage Members</h3><p class=\"text-xs text-text-secondary mt-1\">Add members, update notification preferences, and assign roles.</p></div><i data-lucide=\"chevron-right\" class=\"w-4 h-4 text-text-muted group-hover:text-text-primary transition-transform group-hover:translate-x-0.5\"></i></a></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

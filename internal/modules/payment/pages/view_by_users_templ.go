@@ -36,12 +36,12 @@ func ViewByUsers(userWithDues []UserWithDues, currentUserID uint, currentUserTyp
 		}
 		ctx = templ.ClearChildren(ctx)
 		if len(userWithDues) == 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"bg-bg-card rounded-xl border border-border p-8 text-center text-text-secondary\">No users with payment dues found.</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"bg-bg-card rounded-xl border border-border p-8 text-center text-text-secondary shadow-card\">No users with payment dues found.</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div id=\"users-container\" class=\"space-y-8\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div id=\"users-container\" class=\"space-y-6\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -85,77 +85,84 @@ func UserListItems(userWithDues []UserWithDues, currentUserID uint, currentUserT
 		}
 		ctx = templ.ClearChildren(ctx)
 		for _, uwd := range userWithDues {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"bg-bg-card rounded-2xl border border-border overflow-hidden shadow-sm\"><!-- User header --><div class=\"bg-bg-hover/30 border-b border-border p-5\"><div class=\"flex justify-between items-center\"><div class=\"flex items-center gap-4\"><div class=\"w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold text-xl border-2 border-white shadow-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"bg-bg-card rounded-xl border border-border overflow-hidden shadow-card\"><!-- User header --><div class=\"bg-bg-subtle/50 border-b border-border p-4\"><div class=\"flex justify-between items-center\"><div class=\"flex items-center gap-3\"><div class=\"w-9 h-9 bg-zinc-900 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(uwd.User.Name[0:1])
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/view_by_users.templ`, Line: 32, Col: 27}
+			if len(uwd.User.Name) > 0 {
+				var templ_7745c5c3_Var3 string
+				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(string([]rune(uwd.User.Name)[0:1]))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/view_by_users.templ`, Line: 33, Col: 44}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "U")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div><div><h3 class=\"text-xl font-extrabold text-text-primary\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div><div><h3 class=\"text-sm font-bold text-text-primary leading-tight\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(uwd.User.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/view_by_users.templ`, Line: 35, Col: 75}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/view_by_users.templ`, Line: 39, Col: 84}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</h3><p class=\"text-sm text-text-secondary font-medium\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</h3><p class=\"text-xs text-text-secondary font-mono mt-0.5\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(uwd.User.Email)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/view_by_users.templ`, Line: 36, Col: 74}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/view_by_users.templ`, Line: 40, Col: 79}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</p></div></div><div class=\"text-right\"><span class=\"text-xs font-black bg-white px-3 py-1 rounded-full border border-border text-text-secondary uppercase\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</p></div></div><div><span class=\"text-[10px] font-semibold bg-bg-card px-2 py-0.5 rounded-md border border-border text-text-secondary uppercase\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d total dues", len(uwd.Dues)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/view_by_users.templ`, Line: 41, Col: 52}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/view_by_users.templ`, Line: 45, Col: 52}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</span></div></div></div><!-- Plans for this user --><div class=\"p-5\"><div class=\"grid grid-cols-1 md:grid-cols-2 gap-4\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</span></div></div></div><!-- Plans for this user --><div class=\"p-4\"><div class=\"grid grid-cols-1 md:grid-cols-2 gap-3\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, due := range uwd.Dues {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div class=\"border border-border/80 rounded-xl p-4 bg-bg-body/20 hover:bg-white hover:shadow-md hover:border-primary/20 transition-all duration-200\"><div class=\"flex justify-between items-start mb-3\"><div class=\"flex items-center gap-2\"><div class=\"p-1.5 bg-primary/5 rounded-lg\"><i data-lucide=\"layout\" class=\"w-4 h-4 text-primary\"></i></div><h4 class=\"font-bold text-text-primary truncate max-w-[150px]\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"border border-border/80 rounded-lg p-3.5 bg-bg-card hover:bg-bg-hover/40 transition-colors\"><div class=\"flex justify-between items-start mb-2.5\"><div class=\"flex items-center gap-2\"><div class=\"w-6 h-6 rounded-md bg-bg-subtle border border-border flex items-center justify-center text-text-primary text-xs\"><i data-lucide=\"layers\" class=\"w-3.5 h-3.5\"></i></div><h4 class=\"font-bold text-xs text-text-primary truncate max-w-[140px]\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(due.Plan.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/view_by_users.templ`, Line: 57, Col: 87}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/view_by_users.templ`, Line: 61, Col: 95}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</h4></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</h4></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -163,84 +170,84 @@ func UserListItems(userWithDues []UserWithDues, currentUserID uint, currentUserT
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div><div class=\"flex justify-between items-end mt-2\"><div class=\"text-xs text-text-secondary\"><p>Due: <span class=\"font-bold text-text-primary\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div><div class=\"flex justify-between items-end mt-2 pt-2 border-t border-border/60\"><div class=\"text-xs text-text-secondary\"><p>Due: <span class=\"font-semibold text-text-primary font-mono\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var8 string
-				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(due.DueDate.Format("02 Jan 06"))
+				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(due.DueDate.Format("02 Jan 2006"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/view_by_users.templ`, Line: 64, Col: 92}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/view_by_users.templ`, Line: 68, Col: 108}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</span></p>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</span></p>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if due.BillingPeriod.ID != 0 {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<p class=\"mt-0.5\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<p class=\"text-[11px] text-text-muted mt-0.5\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var9 string
 					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(due.BillingPeriod.Name)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/view_by_users.templ`, Line: 66, Col: 52}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/view_by_users.templ`, Line: 70, Col: 80}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</p>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</p>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div><div class=\"text-right\"><p class=\"text-sm font-black text-text-primary\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div><div class=\"text-right\"><p class=\"text-xs font-bold text-text-primary font-mono\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var10 string
 				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(formatRupiah(due.CalculatedPayAmount))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/view_by_users.templ`, Line: 70, Col: 96}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/view_by_users.templ`, Line: 74, Col: 105}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</p>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</p>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if due.UserID == currentUserID && due.PaymentStatus != "paid" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<a href=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<a href=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var11 templ.SafeURL
 					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/p/%s", due.UUID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/view_by_users.templ`, Line: 72, Col: 65}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/view_by_users.templ`, Line: 76, Col: 65}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\" class=\"text-[10px] text-primary font-bold hover:underline\">Pay Now →</a>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" class=\"text-[11px] text-primary font-semibold hover:underline mt-0.5 inline-block\">Pay Now →</a>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div></div></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div></div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -270,30 +277,30 @@ func LoadMoreUsersButton(nextOffset int) templ.Component {
 			templ_7745c5c3_Var12 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<div class=\"mt-10 flex justify-center\" id=\"load-more-users-container\" hx-swap-oob=\"true\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<div class=\"mt-6 flex justify-center\" id=\"load-more-users-container\" hx-swap-oob=\"true\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if nextOffset > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<button hx-get=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<button hx-get=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/payment-dues?view=users&offset=%d", nextOffset))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/view_by_users.templ`, Line: 88, Col: 74}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/view_by_users.templ`, Line: 92, Col: 74}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\" hx-target=\"#users-container\" hx-swap=\"beforeend\" hx-indicator=\"#load-more-users-spinner\" class=\"px-6 py-3 bg-white text-text-primary border-2 border-border rounded-2xl font-bold hover:border-primary hover:text-primary transition-all duration-300 shadow-sm flex items-center gap-2\"><i data-lucide=\"user-plus\" class=\"w-5 h-5\"></i> <span>Load More Users</span><div id=\"load-more-users-spinner\" class=\"htmx-indicator animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full\"></div></button>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" hx-target=\"#users-container\" hx-swap=\"beforeend\" hx-indicator=\"#load-more-users-spinner\" class=\"px-4 py-2 bg-bg-card text-text-primary border border-border rounded-lg text-xs font-semibold hover:bg-bg-hover transition-colors shadow-xs flex items-center gap-2 cursor-pointer\"><i data-lucide=\"user-plus\" class=\"w-4 h-4\"></i> <span>Load More Users</span><div id=\"load-more-users-spinner\" class=\"htmx-indicator animate-spin h-3.5 w-3.5 border-2 border-primary border-t-transparent rounded-full\"></div></button>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

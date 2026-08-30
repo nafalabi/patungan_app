@@ -10,30 +10,50 @@ module.exports = {
 		extend: {
 			colors: {
 				primary: {
-					DEFAULT: '#2563eb', // --primary
-					hover: '#1d4ed8',   // --primary-hover
+					DEFAULT: '#18181b', // Zinc 900
+					hover: '#27272a',   // Zinc 800
 				},
 				bg: {
-					body: '#f8fafc',    // --bg-body
-					card: '#ffffff',    // --bg-card
-					hover: '#f1f5f9',   // --bg-hover
+					body: '#fafafa',    // Zinc 50
+					card: '#ffffff',    // Clean white
+					hover: '#f4f4f5',   // Zinc 100
+					subtle: '#f4f4f5',  // Zinc 100
 				},
 				text: {
-					primary: '#1e293b', // --text-primary
-					secondary: '#64748b', // --text-secondary
+					primary: '#18181b', // Zinc 900
+					secondary: '#71717a', // Zinc 500
+					muted: '#a1a1aa',   // Zinc 400
 				},
 				border: {
-					DEFAULT: '#e2e8f0', // --border
+					DEFAULT: '#e4e4e7', // Zinc 200
+					subtle: '#f4f4f5',  // Zinc 100
 				},
-				success: '#10b981',   // --success
-				danger: '#ef4444',    // --danger
-				warning: '#f59e0b',   // --warning
+				success: {
+					DEFAULT: '#166534', // Emerald 800
+					bg: '#f0fdf4',      // Emerald 50
+					border: '#dcfce7',  // Emerald 100
+				},
+				warning: {
+					DEFAULT: '#854d0e', // Yellow 800
+					bg: '#fefce8',      // Yellow 50
+					border: '#fef08a',  // Yellow 200
+				},
+				danger: {
+					DEFAULT: '#9f1239', // Rose 800
+					bg: '#fff1f2',      // Rose 50
+					border: '#ffe4e6',  // Rose 200
+				},
 				input: {
-					bg: '#ffffff'     // --input-bg
+					bg: '#ffffff'
 				}
 			},
+			boxShadow: {
+				'card': '0 1px 3px 0 rgba(0, 0, 0, 0.03), 0 1px 2px -1px rgba(0, 0, 0, 0.03)',
+				'card-hover': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05)',
+				'popover': '0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.08)',
+			},
 			fontFamily: {
-				sans: ['Inter', 'sans-serif'],
+				sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
 			},
 			keyframes: {
 				fadeIn: {

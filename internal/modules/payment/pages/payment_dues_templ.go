@@ -119,7 +119,7 @@ func PaymentDues(props PaymentDuesProps) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"mb-8\"><div class=\"flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8\"><div><h1 class=\"text-2xl font-bold text-text-primary\">Payment Dues</h1><p class=\"text-text-secondary mt-1\">Manage and track shared subscription payments</p></div><!-- View mode toggle --><div class=\"flex p-1.5 bg-bg-card rounded-2xl border border-border shadow-sm w-full sm:w-auto overflow-x-auto no-scrollbar\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"mb-6\"><div class=\"flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6\"><div><h1 class=\"text-xl md:text-2xl font-bold text-text-primary tracking-tight\">Payment Dues</h1><p class=\"text-xs md:text-sm text-text-secondary mt-0.5\">Manage and track shared subscription dues</p></div><!-- View mode toggle --><div class=\"flex p-1 bg-bg-subtle/80 rounded-xl border border-border w-full sm:w-auto overflow-x-auto no-scrollbar gap-1\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -127,20 +127,20 @@ func PaymentDues(props PaymentDuesProps) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div></div><!-- Filters and sorting --><div class=\"bg-bg-card rounded-2xl border border-border p-5 shadow-sm\"><form method=\"GET\" action=\"/payment-dues\" class=\"grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5 items-end\"><input type=\"hidden\" name=\"view\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div></div><!-- Filters and sorting --><div class=\"bg-bg-card rounded-xl border border-border p-4 shadow-card\"><form method=\"GET\" action=\"/payment-dues\" class=\"grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end\"><input type=\"hidden\" name=\"view\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(props.ViewMode)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 103, Col: 60}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 104, Col: 60}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\"><!-- Filter by Plan --><div><label class=\"block text-xs font-bold text-text-secondary uppercase tracking-wider mb-2 ml-1\">Plan</label> <select name=\"filter_plan\" class=\"w-full px-4 py-2.5 bg-bg-body border border-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all\"><option value=\"\">All Plans</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\"><!-- Filter by Plan --><div><label class=\"block text-xs font-semibold text-text-secondary uppercase tracking-wider mb-1.5\">Plan</label> <select name=\"filter_plan\" class=\"w-full px-3 py-1.5 bg-bg-body border border-border rounded-lg text-text-primary text-xs focus:outline-none focus:ring-1 focus:ring-primary\"><option value=\"\">All Plans</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -152,7 +152,7 @@ func PaymentDues(props PaymentDuesProps) templ.Component {
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", plan.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 110, Col: 50}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 111, Col: 50}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -175,7 +175,7 @@ func PaymentDues(props PaymentDuesProps) templ.Component {
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(plan.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 111, Col: 20}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 112, Col: 20}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -186,7 +186,7 @@ func PaymentDues(props PaymentDuesProps) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</select></div><!-- Filter by User --><div><label class=\"block text-xs font-bold text-text-secondary uppercase tracking-wider mb-2 ml-1\">User</label> <select name=\"filter_user\" class=\"w-full px-4 py-2.5 bg-bg-body border border-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all\"><option value=\"\">All Users</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</select></div><!-- Filter by User --><div><label class=\"block text-xs font-semibold text-text-secondary uppercase tracking-wider mb-1.5\">User</label> <select name=\"filter_user\" class=\"w-full px-3 py-1.5 bg-bg-body border border-border rounded-lg text-text-primary text-xs focus:outline-none focus:ring-1 focus:ring-primary\"><option value=\"\">All Users</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -198,7 +198,7 @@ func PaymentDues(props PaymentDuesProps) templ.Component {
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", user.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 122, Col: 50}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 123, Col: 50}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
@@ -221,7 +221,7 @@ func PaymentDues(props PaymentDuesProps) templ.Component {
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(user.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 123, Col: 20}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 124, Col: 20}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
@@ -232,7 +232,7 @@ func PaymentDues(props PaymentDuesProps) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</select></div><!-- Sort by --><div><label class=\"block text-xs font-bold text-text-secondary uppercase tracking-wider mb-2 ml-1\">Sort By</label> <select name=\"sort_by\" class=\"w-full px-4 py-2.5 bg-bg-body border border-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all\"><option value=\"created_at\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</select></div><!-- Sort by --><div><label class=\"block text-xs font-semibold text-text-secondary uppercase tracking-wider mb-1.5\">Sort By</label> <select name=\"sort_by\" class=\"w-full px-3 py-1.5 bg-bg-body border border-border rounded-lg text-text-primary text-xs focus:outline-none focus:ring-1 focus:ring-primary\"><option value=\"created_at\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -272,7 +272,7 @@ func PaymentDues(props PaymentDuesProps) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, ">Due Date</option></select></div><!-- Sort order --><div><label class=\"block text-xs font-bold text-text-secondary uppercase tracking-wider mb-2 ml-1\">Order</label> <select name=\"sort_order\" class=\"w-full px-4 py-2.5 bg-bg-body border border-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all\"><option value=\"asc\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, ">Due Date</option></select></div><!-- Sort order --><div><label class=\"block text-xs font-semibold text-text-secondary uppercase tracking-wider mb-1.5\">Order</label> <select name=\"sort_order\" class=\"w-full px-3 py-1.5 bg-bg-body border border-border rounded-lg text-text-primary text-xs focus:outline-none focus:ring-1 focus:ring-primary\"><option value=\"asc\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -292,20 +292,20 @@ func PaymentDues(props PaymentDuesProps) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, ">Descending</option></select></div><!-- Actions --><div class=\"flex gap-2\"><button type=\"submit\" class=\"flex-1 px-4 py-2.5 bg-primary text-white rounded-xl font-bold hover:bg-primary-hover transition-all shadow-sm\">Apply</button> <a href=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, ">Descending</option></select></div><!-- Actions --><div class=\"flex gap-2\"><button type=\"submit\" class=\"flex-1 px-4 py-1.5 bg-primary text-white rounded-lg text-xs font-semibold hover:bg-primary-hover transition-colors shadow-xs\">Apply</button> <a href=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var8 templ.SafeURL
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/payment-dues?view=%s", props.ViewMode)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 151, Col: 83}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 152, Col: 83}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\" class=\"px-4 py-2.5 bg-bg-body text-text-secondary border border-border rounded-xl font-bold hover:bg-bg-hover transition-all\"><i data-lucide=\"rotate-ccw\" class=\"w-5 h-5\"></i></a></div></form></div></div><!-- Content --> <div id=\"view-content-container\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\" class=\"p-1.5 bg-bg-card text-text-secondary border border-border rounded-lg hover:bg-bg-hover hover:text-text-primary transition-colors flex items-center justify-center\" title=\"Reset Filters\"><i data-lucide=\"rotate-ccw\" class=\"w-4 h-4\"></i></a></div></form></div></div><!-- Content --> <div id=\"view-content-container\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -377,9 +377,9 @@ func ViewToggle(props PaymentDuesProps) templ.Component {
 			{"periods", "By Period", "calendar-range"},
 			{"users", "By User", "users"},
 		} {
-			var templ_7745c5c3_Var10 = []any{"flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 whitespace-nowrap",
-				templ.KV("bg-primary text-white shadow-md", props.ViewMode == mode.Value),
-				templ.KV("text-text-secondary hover:bg-bg-hover hover:text-text-primary", props.ViewMode != mode.Value),
+			var templ_7745c5c3_Var10 = []any{"flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150 whitespace-nowrap",
+				templ.KV("bg-primary text-white shadow-xs", props.ViewMode == mode.Value),
+				templ.KV("text-text-secondary hover:bg-bg-card hover:text-text-primary", props.ViewMode != mode.Value),
 			}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var10...)
 			if templ_7745c5c3_Err != nil {
@@ -392,7 +392,7 @@ func ViewToggle(props PaymentDuesProps) templ.Component {
 			var templ_7745c5c3_Var11 templ.SafeURL
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildURL("/payment-dues", mode.Value, props.FilterPlan, props.FilterUser, props.SortBy, props.SortOrder)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 181, Col: 129}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 183, Col: 129}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -418,20 +418,20 @@ func ViewToggle(props PaymentDuesProps) templ.Component {
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(mode.Icon)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 188, Col: 29}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 190, Col: 29}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\" class=\"w-4 h-4\"></i> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\" class=\"w-3.5 h-3.5\"></i> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var14 string
 			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(mode.Label)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 189, Col: 15}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 191, Col: 15}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 			if templ_7745c5c3_Err != nil {
@@ -475,13 +475,13 @@ func PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uin
 		var templ_7745c5c3_Var16 string
 		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("payment-due-%d", due.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 197, Col: 44}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 199, Col: 44}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\" class=\"p-5 hover:bg-bg-hover/30 transition-colors flex flex-col sm:flex-row justify-between items-center gap-4\"><div class=\"flex items-center gap-4 w-full sm:w-auto\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\" class=\"p-4 hover:bg-bg-hover/60 transition-colors flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3\"><div class=\"flex items-center gap-3.5 w-full sm:w-auto\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -489,32 +489,32 @@ func PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uin
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<div class=\"flex-1\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<div class=\"flex-1 min-w-0\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if displayMode == "user" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<p class=\"font-bold text-text-primary leading-tight\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<p class=\"text-sm font-bold text-text-primary leading-tight truncate\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var17 string
 			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(due.User.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 204, Col: 73}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 206, Col: 90}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</p><p class=\"text-xs text-text-secondary mt-0.5\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</p><p class=\"text-xs text-text-secondary mt-0.5 truncate\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var18 string
 			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(due.User.Email)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 205, Col: 67}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 207, Col: 76}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 			if templ_7745c5c3_Err != nil {
@@ -525,27 +525,27 @@ func PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uin
 				return templ_7745c5c3_Err
 			}
 		} else if displayMode == "plan" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<p class=\"font-bold text-text-primary leading-tight\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<p class=\"text-sm font-bold text-text-primary leading-tight truncate\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var19 string
 			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(due.Plan.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 207, Col: 73}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 209, Col: 90}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</p><p class=\"text-xs text-text-secondary mt-0.5\">Plan ID: ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</p><p class=\"text-xs text-text-secondary mt-0.5\">Plan #")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var20 string
 			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", due.PlanID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 208, Col: 91}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 210, Col: 88}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 			if templ_7745c5c3_Err != nil {
@@ -556,90 +556,90 @@ func PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uin
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<div class=\"flex flex-col\"><p class=\"font-bold text-text-primary leading-tight\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<div class=\"flex flex-col\"><p class=\"text-sm font-bold text-text-primary leading-tight truncate\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var21 string
 			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(due.Plan.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 211, Col: 74}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 213, Col: 91}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</p><p class=\"text-xs text-text-secondary mt-0.5\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</p><p class=\"text-xs text-text-secondary mt-0.5 truncate\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var22 string
 			templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(due.User.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 212, Col: 67}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 214, Col: 76}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, " (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, " <span class=\"text-text-muted font-mono\">(")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var23 string
 			templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(due.User.Email)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 212, Col: 87}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 214, Col: 136}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, ")</p></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, ")</span></p></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</div></div><div class=\"flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto\"><div class=\"text-right\"><p class=\"text-lg font-black text-text-primary\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</div></div><div class=\"flex items-center justify-between sm:justify-end gap-5 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-border/60\"><div class=\"text-left sm:text-right\"><p class=\"text-sm sm:text-base font-bold text-text-primary font-mono\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var24 string
 		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(formatRupiah(due.CalculatedPayAmount))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 220, Col: 91}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 222, Col: 113}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</p><p class=\"text-[10px] font-bold text-text-secondary uppercase tracking-wider\">Due ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</p><p class=\"text-[10px] font-semibold text-text-secondary uppercase tracking-wider\">Due ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var25 string
 		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(due.DueDate.Format("02 Jan 2006"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 221, Col: 121}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 223, Col: 125}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "</p></div><div class=\"flex gap-2\"><div x-data=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "</p></div><div class=\"flex items-center gap-1.5\"><div x-data=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var26 string
 		templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("{ copied: false, url: window.location.origin + '/p/%s' }", due.UUID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 225, Col: 99}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 227, Col: 99}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "\" class=\"relative flex items-center\"><button @click=\"if (navigator.clipboard) { navigator.clipboard.writeText(url); } else { const el = document.createElement('textarea'); el.value = url; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el); }; copied = true; setTimeout(() => copied = false, 2000)\" class=\"p-2 bg-white text-text-primary border border-border rounded-lg hover:bg-bg-hover transition-all shadow-sm flex items-center justify-center\" title=\"Copy Payment Link\"><i data-lucide=\"copy\" class=\"w-5 h-5\"></i></button><div x-show=\"copied\" x-transition:enter=\"transition ease-out duration-200\" x-transition:enter-start=\"opacity-0 translate-y-1\" x-transition:enter-end=\"opacity-100 translate-y-0\" x-transition:leave=\"transition ease-in duration-150\" x-transition:leave-start=\"opacity-100 translate-y-0\" x-transition:leave-end=\"opacity-0 translate-y-1\" class=\"absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2.5 py-1 bg-slate-800 text-white text-[10px] font-bold rounded-lg shadow-md whitespace-nowrap z-10\" style=\"display: none;\">Copied!<div class=\"absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-slate-800\"></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "\" class=\"relative flex items-center\"><button @click=\"if (navigator.clipboard) { navigator.clipboard.writeText(url); } else { const el = document.createElement('textarea'); el.value = url; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el); }; copied = true; setTimeout(() => copied = false, 2000)\" class=\"p-1 rounded-md text-text-muted hover:text-text-primary hover:bg-bg-hover transition-colors cursor-pointer\" title=\"Copy Payment Link\"><i data-lucide=\"copy\" class=\"w-3.5 h-3.5\"></i></button><div x-show=\"copied\" x-transition:enter=\"transition ease-out duration-200\" x-transition:enter-start=\"opacity-0 translate-y-1\" x-transition:enter-end=\"opacity-100 translate-y-0\" x-transition:leave=\"transition ease-in duration-150\" x-transition:leave-start=\"opacity-100 translate-y-0\" x-transition:leave-end=\"opacity-0 translate-y-1\" class=\"absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1.5 px-2 py-0.5 bg-zinc-800 text-white text-[10px] font-semibold rounded-md shadow-md whitespace-nowrap z-10\" style=\"display: none;\">Copied!<div class=\"absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-zinc-800\"></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -651,20 +651,20 @@ func PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uin
 			var templ_7745c5c3_Var27 templ.SafeURL
 			templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/p/%s", due.UUID)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 250, Col: 58}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 252, Col: 58}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "\" target=\"_blank\" class=\"p-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-all shadow-sm\" title=\"Pay Now\"><i data-lucide=\"external-link\" class=\"w-5 h-5\"></i></a> <button hx-get=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "\" target=\"_blank\" class=\"p-1.5 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors shadow-xs\" title=\"Pay Now\"><i data-lucide=\"external-link\" class=\"w-4 h-4\"></i></a> <button hx-get=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var28 string
 			templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/payments/%d/status?display_mode=%s", due.ID, displayMode))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 258, Col: 86}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 260, Col: 86}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 			if templ_7745c5c3_Err != nil {
@@ -677,13 +677,13 @@ func PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uin
 			var templ_7745c5c3_Var29 string
 			templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#payment-due-%d", due.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 259, Col: 56}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 261, Col: 56}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "\" hx-swap=\"outerHTML\" class=\"p-2 bg-white text-text-primary border border-border rounded-lg hover:bg-bg-hover transition-all shadow-sm\" title=\"Refresh Status\"><i data-lucide=\"refresh-cw\" class=\"w-5 h-5\"></i></button> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "\" hx-swap=\"outerHTML\" class=\"p-1.5 bg-bg-card text-text-secondary hover:text-text-primary border border-border rounded-lg hover:bg-bg-hover transition-colors shadow-xs\" title=\"Refresh Status\"><i data-lucide=\"refresh-cw\" class=\"w-4 h-4\"></i></button> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -696,7 +696,7 @@ func PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uin
 			var templ_7745c5c3_Var30 string
 			templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/payments/%d/mark-complete?display_mode=%s", due.ID, displayMode))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 269, Col: 94}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 271, Col: 94}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 			if templ_7745c5c3_Err != nil {
@@ -709,13 +709,13 @@ func PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uin
 			var templ_7745c5c3_Var31 string
 			templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#payment-due-%d", due.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 270, Col: 56}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 272, Col: 56}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "\" hx-swap=\"outerHTML\" hx-confirm=\"Are you sure you want to mark this payment as complete?\" class=\"p-2 bg-success text-white rounded-lg hover:opacity-90 transition-all shadow-sm\" title=\"Mark as Paid\"><i data-lucide=\"check\" class=\"w-5 h-5\"></i></button>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "\" hx-swap=\"outerHTML\" hx-confirm=\"Are you sure you want to mark this payment as complete?\" class=\"p-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors shadow-xs\" title=\"Mark as Paid\"><i data-lucide=\"check\" class=\"w-4 h-4\"></i></button>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -750,11 +750,11 @@ func PaymentStatusIcon(status string) templ.Component {
 			templ_7745c5c3_Var32 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		var templ_7745c5c3_Var33 = []any{"w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm transition-all duration-300",
-			templ.KV("bg-green-50 border-green-100 text-green-600", status == "paid"),
-			templ.KV("bg-yellow-50 border-yellow-100 text-yellow-600", status == "pending"),
-			templ.KV("bg-red-50 border-red-100 text-red-600", status == "overdue"),
-			templ.KV("bg-gray-50 border-gray-100 text-gray-600", status == "canceled"),
+		var templ_7745c5c3_Var33 = []any{"w-8 h-8 rounded-lg flex items-center justify-center border shadow-xs flex-shrink-0",
+			templ.KV("bg-emerald-50 border-emerald-200 text-emerald-700", status == "paid"),
+			templ.KV("bg-amber-50 border-amber-200 text-amber-800", status == "pending"),
+			templ.KV("bg-rose-50 border-rose-200 text-rose-700", status == "overdue"),
+			templ.KV("bg-zinc-100 border-zinc-200 text-zinc-600", status == "canceled"),
 		}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var33...)
 		if templ_7745c5c3_Err != nil {
@@ -780,7 +780,7 @@ func PaymentStatusIcon(status string) templ.Component {
 		var templ_7745c5c3_Var35 string
 		templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("Status: %s", status))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 294, Col: 43}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/modules/payment/pages/payment_dues.templ`, Line: 296, Col: 43}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 		if templ_7745c5c3_Err != nil {
@@ -791,22 +791,22 @@ func PaymentStatusIcon(status string) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if status == "paid" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "<i data-lucide=\"check-circle-2\" class=\"w-6 h-6\"></i>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "<i data-lucide=\"check-circle-2\" class=\"w-4 h-4\"></i>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else if status == "overdue" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "<i data-lucide=\"alert-circle\" class=\"w-6 h-6\"></i>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "<i data-lucide=\"alert-circle\" class=\"w-4 h-4\"></i>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else if status == "canceled" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "<i data-lucide=\"x-circle\" class=\"w-6 h-6\"></i>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "<i data-lucide=\"x-circle\" class=\"w-4 h-4\"></i>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "<i data-lucide=\"clock\" class=\"w-6 h-6\"></i>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "<i data-lucide=\"clock\" class=\"w-4 h-4\"></i>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -842,22 +842,22 @@ func PaymentStatusBadge(status string) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		if status == "paid" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "<span class=\"px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-tighter bg-success/10 text-success border border-success/20\">Paid</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "<span class=\"px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-800 border border-emerald-200\">Paid</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else if status == "overdue" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "<span class=\"px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-tighter bg-red-500/10 text-red-500 border border-red-500/20\">Overdue</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "<span class=\"px-2 py-0.5 rounded-full text-[11px] font-medium bg-rose-50 text-rose-800 border border-rose-200\">Overdue</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else if status == "canceled" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "<span class=\"px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-tighter bg-gray-500/10 text-gray-500 border border-gray-500/20\">Canceled</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "<span class=\"px-2 py-0.5 rounded-full text-[11px] font-medium bg-bg-subtle text-text-muted border border-border\">Canceled</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "<span class=\"px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-tighter bg-yellow-500/10 text-yellow-500 border border-yellow-500/20\">Pending</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "<span class=\"px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-800 border border-amber-200\">Pending</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

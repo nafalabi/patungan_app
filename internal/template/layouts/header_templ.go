@@ -32,13 +32,13 @@ func Header(breadcrumbs []types.Breadcrumb, userEmail string) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<header class=\"bg-bg-card border-b border-border h-16 px-8 hidden md:flex justify-between items-center sticky top-0 z-40\"><div class=\"flex items-center gap-2 text-sm text-text-secondary\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<header class=\"bg-bg-card border-b border-border h-14 px-8 hidden md:flex justify-between items-center sticky top-0 z-40\"><div class=\"flex items-center gap-2 text-xs font-medium text-text-secondary\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		for i, crumb := range breadcrumbs {
 			if i > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span class=\"text-text-secondary/50 text-xs\">/</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span class=\"text-border text-xs\">/</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -61,14 +61,14 @@ func Header(breadcrumbs []types.Breadcrumb, userEmail string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" class=\"text-text-secondary hover:text-primary no-underline\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" class=\"text-text-secondary hover:text-text-primary transition-colors no-underline\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(crumb.Title)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/template/layouts/header.templ`, Line: 15, Col: 116}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/template/layouts/header.templ`, Line: 15, Col: 139}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
@@ -79,14 +79,14 @@ func Header(breadcrumbs []types.Breadcrumb, userEmail string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span class=\"text-text-primary font-medium\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span class=\"text-text-primary font-semibold\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(crumb.Title)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/template/layouts/header.templ`, Line: 17, Col: 63}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/template/layouts/header.templ`, Line: 17, Col: 65}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -107,20 +107,20 @@ func Header(breadcrumbs []types.Breadcrumb, userEmail string) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if userEmail != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div class=\"flex items-center gap-4\"><span class=\"text-text-secondary text-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div class=\"flex items-center gap-3\"><div class=\"flex items-center gap-2 px-2.5 py-1 rounded-md bg-bg-subtle border border-border/60\"><span class=\"w-2 h-2 rounded-full bg-emerald-500\"></span> <span class=\"text-text-primary text-xs font-medium\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(userEmail)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/template/layouts/header.templ`, Line: 25, Col: 58}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/template/layouts/header.templ`, Line: 27, Col: 69}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</span> <button class=\"px-4 py-2 bg-transparent text-text-secondary border border-border rounded-md text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-bg-hover hover:text-text-primary hover:border-text-secondary flex items-center logout-btn\"><i data-lucide=\"log-out\" style=\"width: 16px; height: 16px; margin-right: 4px;\"></i> Logout</button></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</span></div><button class=\"px-3 py-1.5 bg-bg-card text-text-secondary border border-border rounded-lg text-xs font-medium cursor-pointer transition-all duration-150 hover:bg-bg-hover hover:text-text-primary flex items-center gap-1.5 logout-btn shadow-xs\"><i data-lucide=\"log-out\" class=\"w-3.5 h-3.5\"></i> Logout</button></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
