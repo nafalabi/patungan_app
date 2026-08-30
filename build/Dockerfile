@@ -17,7 +17,7 @@ COPY internal/ ./internal/
 RUN npx tailwindcss -i ./web/static/css/input.css -o ./web/static/css/tailwind.css --minify
 
 # --- Stage 2: Build Go binaries ---
-FROM golang:1.24-alpine AS go-builder
+FROM golang:1.25-alpine AS go-builder
 
 WORKDIR /app
 
