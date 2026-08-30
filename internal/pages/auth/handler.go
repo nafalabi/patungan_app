@@ -1,40 +1,50 @@
 package auth
 
 import (
+	"context"
+	"errors"
 	"net/http"
 	"os"
-	"patungan_app_echo/internal/models"
-	auth_pages "patungan_app_echo/internal/modules/auth/pages"
 
 	fbauth "firebase.google.com/go/v4/auth"
 	"github.com/labstack/echo/v4"
-	"gorm.io/gorm"
+
+	auth "patungan_app_echo/internal/modules/auth"
 )
 
-// AuthHandler handles authentication endpoints
-type AuthHandler struct {
-	authClient *fbauth.Client
-	db         *gorm.DB
+// firebaseVerifier adapts the Firebase auth client to the auth module's
+// TokenVerifier port.
+type firebaseVerifier struct{ c *fbauth.Client }
+
+func (f firebaseVerifier) VerifyIDToken(ctx context.Context, token string) (*fbauth.Token, error) {
+	return f.c.VerifyIDToken(ctx, token)
 }
 
-// NewAuthHandler creates a new AuthHandler
-func NewAuthHandler(authClient *fbauth.Client, db *gorm.DB) *AuthHandler {
-	return &AuthHandler{authClient: authClient, db: db}
+// Handler handles authentication endpoints
+type Handler struct {
+	svc    *auth.Service
+	client *fbauth.Client
+}
+
+// NewHandler creates a new auth page handler. client may be nil when
+// Firebase initialization failed; login endpoints then respond with 500.
+func NewHandler(svc *auth.Service, client *fbauth.Client) *Handler {
+	return &Handler{svc: svc, client: client}
 }
 
 // LoginPage renders the login page
-func (h *AuthHandler) LoginPage(c echo.Context) error {
-	props := auth_pages.LoginProps{
+func (h *Handler) LoginPage(c echo.Context) error {
+	props := LoginProps{
 		FirebaseAPIKey:     os.Getenv("FIREBASE_API_KEY"),
 		FirebaseAuthDomain: os.Getenv("FIREBASE_AUTH_DOMAIN"),
 		FirebaseProjectID:  os.Getenv("FIREBASE_PROJECT_ID"),
 	}
-	return auth_pages.Login(props).Render(c.Request().Context(), c.Response())
+	return Login(props).Render(c.Request().Context(), c.Response())
 }
 
 // HandleLogin verifies the Firebase ID token and creates a session cookie
-func (h *AuthHandler) HandleLogin(c echo.Context) error {
-	if h.authClient == nil {
+func (h *Handler) HandleLogin(c echo.Context) error {
+	if h.client == nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			"error": "Firebase not initialized",
 		})
@@ -57,26 +67,22 @@ func (h *AuthHandler) HandleLogin(c echo.Context) error {
 		})
 	}
 
-	// Verify ID Token
-	decodedToken, err := h.authClient.VerifyIDToken(c.Request().Context(), tokenString)
-	if err != nil {
-		return c.JSON(http.StatusUnauthorized, map[string]string{
-			"error": "Invalid token",
-		})
-	}
-
-	// Check if user exists in database
-	email, _ := decodedToken.Claims["email"].(string)
-	var user models.User
-	if err := h.db.Where("email = ?", email).First(&user).Error; err != nil {
+	// Resolve the registered user for the ID token
+	if _, err := h.svc.ResolveUser(c.Request().Context(), tokenString, firebaseVerifier{h.client}); err != nil {
+		if errors.Is(err, auth.ErrInvalidToken) {
+			return c.JSON(http.StatusUnauthorized, map[string]string{
+				"error": "Invalid token",
+			})
+		}
+		// Unregistered users and lookup failures share the old 403 response
 		return c.JSON(http.StatusForbidden, map[string]string{
 			"error": "User not registered in the system",
 		})
 	}
 
 	// Create Session Cookie (valid for 5 days)
-	expiresIn := 5 * 24 * 60 * 60 * 1000                                                                      // 5 days in milliseconds for cookie
-	cookieValue, err := h.authClient.SessionCookie(c.Request().Context(), tokenString, 5*24*60*60*1000000000) // 5 days in nanoseconds
+	expiresIn := 5 * 24 * 60 * 60 * 1000                                                                  // 5 days in milliseconds for cookie
+	cookieValue, err := h.client.SessionCookie(c.Request().Context(), tokenString, 5*24*60*60*1000000000) // 5 days in nanoseconds
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			"error": "Failed to create session",
@@ -101,7 +107,7 @@ func (h *AuthHandler) HandleLogin(c echo.Context) error {
 }
 
 // HandleLogout clears the session cookie
-func (h *AuthHandler) HandleLogout(c echo.Context) error {
+func (h *Handler) HandleLogout(c echo.Context) error {
 	cookie := &http.Cookie{
 		Name:     "session",
 		Value:    "",

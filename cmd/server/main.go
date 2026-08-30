@@ -14,13 +14,14 @@ import (
 
 	"patungan_app_echo/internal/services/payment_gateway"
 
-	auth_mod "patungan_app_echo/internal/modules/auth"
+	auth "patungan_app_echo/internal/modules/auth"
 
 	payment "patungan_app_echo/internal/modules/payment"
 	plan "patungan_app_echo/internal/modules/plan"
 	settings "patungan_app_echo/internal/modules/settings"
 	user "patungan_app_echo/internal/modules/user"
 	admin_pages "patungan_app_echo/internal/pages/admin"
+	authpages "patungan_app_echo/internal/pages/auth"
 	member_pages "patungan_app_echo/internal/pages/member"
 	public_payment "patungan_app_echo/internal/pages/public/payment"
 
@@ -163,12 +164,11 @@ func main() {
 	settingsSvc := settings.NewService(settings.NewGormSettingsRepo(db))
 
 	// Initialize handlers
-	authHandler := auth_mod.NewAuthHandler(authClient, db)
+	authSvc := auth.NewService(auth.NewGormUserRepo(db))
+	authHandler := authpages.NewHandler(authSvc, authClient)
 
 	// Public routes
-	e.GET("/login", authHandler.LoginPage)
-	e.POST("/auth/login", authHandler.HandleLogin)
-	e.POST("/auth/logout", authHandler.HandleLogout)
+	authpages.RegisterRoutes(e, authHandler)
 
 	publicHandler := public_payment.NewPublicHandler(paymentSvc)
 	e.GET("/p/:uuid", publicHandler.ShowPaymentDue)
