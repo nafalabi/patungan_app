@@ -5,9 +5,7 @@ templ Sidebar(activeNav string, role string) {
 	<aside class="w-16 bg-bg-card border-r border-border h-screen fixed left-0 top-0 hidden md:flex flex-col items-center py-5 z-50 justify-between">
 		<div class="flex flex-col items-center w-full">
 			<a href={ templ.SafeURL(getHomeURL(role)) } class="mb-8 group">
-				<div class="w-9 h-9 rounded-xl bg-primary text-white flex items-center justify-center font-black text-base shadow-sm transition-transform duration-150 group-hover:scale-105">
-					P
-				</div>
+				<img src="/static/logo-mark.svg" alt="Patungan App" class="w-9 h-9 rounded-xl shadow-sm transition-transform duration-150 group-hover:scale-105"/>
 			</a>
 			<nav class="flex flex-col items-center gap-2 w-full px-2">
 				if role == "member" {

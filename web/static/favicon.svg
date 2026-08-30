@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <title>Patungan App</title>
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2a2a2e" />
+      <stop offset="100%" stop-color="#18181b" />
+    </linearGradient>
+  </defs>
+  <rect x="1" y="1" width="98" height="98" rx="22" fill="url(#bgGrad)" />
+  <path d="M25 26 V74 H40 V58 H44 A16 16 0 1 0 44 26 H25 Z" fill="#ffffff" stroke="#ffffff" stroke-width="2" stroke-linejoin="round" />
+  <circle cx="44" cy="42" r="7" fill="#18181b" />
+</svg>
