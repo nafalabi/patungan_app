@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"net/http"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -23,6 +22,7 @@ import (
 	admin_pages "patungan_app_echo/internal/pages/admin"
 	authpages "patungan_app_echo/internal/pages/auth"
 	member_pages "patungan_app_echo/internal/pages/member"
+	publicpages "patungan_app_echo/internal/pages/public"
 	public_payment "patungan_app_echo/internal/pages/public/payment"
 
 	"patungan_app_echo/internal/models"
@@ -167,18 +167,18 @@ func main() {
 	authSvc := auth.NewService(auth.NewGormUserRepo(db))
 	authHandler := authpages.NewHandler(authSvc, authClient)
 
-	// Public routes
+	// Shared auth middleware for role groups and the root redirect
+	requireAuth := authMiddleware.RequireAuth(authClient, db, redisCache)
+
+	// Auth routes
 	authpages.RegisterRoutes(e, authHandler)
 
-	publicHandler := public_payment.NewPublicHandler(paymentSvc)
-	e.GET("/p/:uuid", publicHandler.ShowPaymentDue)
-	e.POST("/p/:uuid/initiate", publicHandler.InitiatePayment)
-	e.GET("/p/:uuid/active-session", publicHandler.CheckActiveSession)
-	e.GET("/p/:uuid/status", publicHandler.CheckStatus)
+	// Public routes (payment-due pages + root role-based redirect)
+	publicpages.RegisterRoutes(e, public_payment.NewPublicHandler(paymentSvc), requireAuth)
 
 	// Admin routes
 	adminGroup := e.Group("/admin")
-	adminGroup.Use(authMiddleware.RequireAuth(authClient, db, redisCache))
+	adminGroup.Use(requireAuth)
 	adminGroup.Use(authMiddleware.RequireAdmin())
 
 	// Admin Dashboard + Payment + Plan + User + Settings routes (also registers the two gateway webhook callbacks on the root router)
@@ -186,19 +186,10 @@ func main() {
 
 	// Member routes
 	memberGroup := e.Group("/member")
-	memberGroup.Use(authMiddleware.RequireAuth(authClient, db, redisCache))
+	memberGroup.Use(requireAuth)
 
 	// Member Dashboard + Payment + Plan routes
 	member_pages.RegisterRoutes(memberGroup, member_pages.Deps{Payments: paymentSvc, Plans: planSvc})
-
-	// Redirect root to role-based dashboard
-	e.GET("/", func(c echo.Context) error {
-		userType, ok := c.Get("userType").(models.UserType)
-		if ok && userType == models.UserTypeAdmin {
-			return c.Redirect(http.StatusTemporaryRedirect, "/admin/dashboard")
-		}
-		return c.Redirect(http.StatusTemporaryRedirect, "/member/dashboard")
-	}, authMiddleware.RequireAuth(authClient, db, redisCache))
 
 	// Start server
 	port := os.Getenv("PORT")

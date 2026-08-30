@@ -25,7 +25,8 @@ type ProcessPlanScheduleTaskDef struct {
 }
 
 // NewProcessScheduleTask builds the task definition bound to a Service. The
-// composition root (cmd/worker) assigns the result to ProcessPlanScheduleTask.
+// composition root (cmd/worker) registers its HandleExecution with the
+// scheduler registry.
 func NewProcessScheduleTask(svc *Service) *ProcessPlanScheduleTaskDef {
 	return &ProcessPlanScheduleTaskDef{svc: svc}
 }
@@ -58,7 +59,3 @@ func (t *ProcessPlanScheduleTaskDef) HandleExecution(ctx context.Context, db *go
 
 	return t.svc.ProcessSchedule(parsedArgs.PlanID, task.Due)
 }
-
-// ProcessPlanScheduleTask is assigned at the composition root (cmd/worker)
-// once the plan Service is constructed.
-var ProcessPlanScheduleTask *ProcessPlanScheduleTaskDef
