@@ -1,44 +1,15 @@
-package payment_pages
+package payment
 
 import (
 	"fmt"
 	"patungan_app_echo/internal/models"
+	payment "patungan_app_echo/internal/modules/payment"
 	"patungan_app_echo/internal/template/layouts"
 	types "patungan_app_echo/internal/template/types"
 
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 )
-
-// PeriodWithDues groups a billing period with its payment dues
-type PeriodWithDues struct {
-	Period models.PaymentBillingPeriod
-	Dues   []models.PaymentDue
-}
-
-// PlanWithDues groups a plan with its billing periods
-type PlanWithDues struct {
-	Plan    models.Plan
-	Periods []PeriodWithDues
-}
-
-// PlanWithDuesInPeriod groups a plan and its dues within a specific period
-type PlanWithDuesInPeriod struct {
-	Plan models.Plan
-	Dues []models.PaymentDue
-}
-
-// PeriodWithPlans groups a billing period with its plans and their dues
-type PeriodWithPlans struct {
-	Period models.PaymentBillingPeriod
-	Plans  []PlanWithDuesInPeriod
-}
-
-// UserWithDues groups a user with their payment dues
-type UserWithDues struct {
-	User models.User
-	Dues []models.PaymentDue
-}
 
 // PaymentDuesProps contains props for the payment dues page
 type PaymentDuesProps struct {
@@ -52,10 +23,10 @@ type PaymentDuesProps struct {
 	MidtransClientKey string
 
 	// Data
-	PlanWithDues    []PlanWithDues
-	PeriodWithPlans []PeriodWithPlans
-	UserWithDues    []UserWithDues
-	FlatDues        []models.PaymentDue
+	PlanDues    []payment.PlanDuesGroup
+	PeriodPlans []payment.PeriodPlansGroup
+	UserDues    []payment.UserDuesGroup
+	FlatDues    []payment.DueItem
 
 	// Pagination/Offsets
 	CurrentPage int
@@ -73,8 +44,8 @@ type PaymentDuesProps struct {
 	SortOrder    string
 
 	// For dropdowns
-	AllPlans []models.Plan
-	AllUsers []models.User
+	AllPlans []payment.PlanOption
+	AllUsers []payment.UserOption
 }
 
 // PaymentDues renders the payment dues page
@@ -160,11 +131,11 @@ templ PaymentDues(props PaymentDuesProps) {
 		<!-- Content -->
 		<div id="view-content-container">
 			if props.ViewMode == "plans" {
-				@ViewByPlans(props.PlanWithDues, props.CurrentUserID, props.CurrentUserType, props.NextOffset)
+				@ViewByPlans(props.PlanDues, props.CurrentUserID, props.CurrentUserType, props.NextOffset)
 			} else if props.ViewMode == "periods" {
-				@ViewByPeriods(props.PeriodWithPlans, props.CurrentUserID, props.CurrentUserType, props.NextOffset)
+				@ViewByPeriods(props.PeriodPlans, props.CurrentUserID, props.CurrentUserType, props.NextOffset)
 			} else if props.ViewMode == "users" {
-				@ViewByUsers(props.UserWithDues, props.CurrentUserID, props.CurrentUserType, props.NextOffset)
+				@ViewByUsers(props.UserDues, props.CurrentUserID, props.CurrentUserType, props.NextOffset)
 			} else {
 				@ViewAll(props.FlatDues, props.CurrentUserID, props.CurrentUserType, props.CurrentPage, props.TotalPages, props.TotalCount, props.PageSize, props.ViewMode, props.FilterPlan, props.FilterUser, props.SortBy, props.SortOrder)
 			}
@@ -194,24 +165,24 @@ templ ViewToggle(props PaymentDuesProps) {
 }
 
 // PaymentDueItem renders a single payment due
-templ PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID uint, currentUserType models.UserType) {
+templ PaymentDueItem(due payment.DueItem, displayMode string, currentUserID uint, currentUserType models.UserType) {
 	<div 
 		id={ fmt.Sprintf("payment-due-%d", due.ID) }
 		class="p-4 hover:bg-bg-hover/60 transition-colors flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3"
 	>
 		<div class="flex items-center gap-3.5 w-full sm:w-auto">
-			@PaymentStatusIcon(due.PaymentStatus)
+			@PaymentStatusIcon(due.Status)
 			<div class="flex-1 min-w-0">
 				if displayMode == "user" {
-					<p class="text-sm font-bold text-text-primary leading-tight truncate">{ due.User.Name }</p>
-					<p class="text-xs text-text-secondary mt-0.5 truncate">{ due.User.Email }</p>
+					<p class="text-sm font-bold text-text-primary leading-tight truncate">{ due.UserName }</p>
+					<p class="text-xs text-text-secondary mt-0.5 truncate">{ due.UserEmail }</p>
 				} else if displayMode == "plan" {
-					<p class="text-sm font-bold text-text-primary leading-tight truncate">{ due.Plan.Name }</p>
+					<p class="text-sm font-bold text-text-primary leading-tight truncate">{ due.PlanName }</p>
 					<p class="text-xs text-text-secondary mt-0.5">Plan #{ fmt.Sprintf("%d", due.PlanID) }</p>
 				} else {
 					<div class="flex flex-col">
-						<p class="text-sm font-bold text-text-primary leading-tight truncate">{ due.Plan.Name }</p>
-						<p class="text-xs text-text-secondary mt-0.5 truncate">{ due.User.Name } <span class="text-text-muted font-mono">({ due.User.Email })</span></p>
+						<p class="text-sm font-bold text-text-primary leading-tight truncate">{ due.PlanName }</p>
+						<p class="text-xs text-text-secondary mt-0.5 truncate">{ due.UserName } <span class="text-text-muted font-mono">({ due.UserEmail })</span></p>
 					</div>
 				}
 			</div>
@@ -219,7 +190,7 @@ templ PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID ui
 
 		<div class="flex items-center justify-between sm:justify-end gap-5 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-border/60">
 			<div class="text-left sm:text-right">
-				<p class="text-sm sm:text-base font-bold text-text-primary font-mono">{ formatRupiah(due.CalculatedPayAmount) }</p>
+				<p class="text-sm sm:text-base font-bold text-text-primary font-mono">{ formatRupiah(due.Amount) }</p>
 				<p class="text-[10px] font-semibold text-text-secondary uppercase tracking-wider">Due { due.DueDate.Format("02 Jan 2006") }</p>
 			</div>
 			
@@ -247,7 +218,7 @@ templ PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID ui
 						<div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-zinc-800"></div>
 					</div>
 				</div>
-				if due.UserID == currentUserID && due.PaymentStatus != models.PaymentStatusPaid && due.PaymentStatus != models.PaymentStatusCanceled {
+				if due.UserID == currentUserID && due.Status != models.PaymentStatusPaid && due.Status != models.PaymentStatusCanceled {
 					<a
 						href={ templ.SafeURL(fmt.Sprintf("/p/%s", due.UUID)) }
 						target="_blank"
@@ -266,7 +237,7 @@ templ PaymentDueItem(due models.PaymentDue, displayMode string, currentUserID ui
 				>
 					<i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
 				</button>
-				if currentUserType == "Admin" && due.PaymentStatus != models.PaymentStatusPaid {
+				if currentUserType == "Admin" && due.Status != models.PaymentStatusPaid {
 					<button
 						hx-post={ fmt.Sprintf("/admin/payments/%d/mark-complete?display_mode=%s", due.ID, displayMode) }
 						hx-target={ fmt.Sprintf("#status-container-%d", due.ID) }

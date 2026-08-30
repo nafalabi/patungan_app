@@ -16,21 +16,22 @@ import (
 
 	auth_mod "patungan_app_echo/internal/modules/auth"
 	admin_dashboard "patungan_app_echo/internal/modules/admin/dashboard"
-	admin_payment "patungan_app_echo/internal/modules/admin/payment"
 	admin_plan "patungan_app_echo/internal/modules/admin/plan"
 	admin_settings "patungan_app_echo/internal/modules/admin/settings"
 	admin_user "patungan_app_echo/internal/modules/admin/user"
 	member_dashboard "patungan_app_echo/internal/modules/members/dashboard"
-	member_payment "patungan_app_echo/internal/modules/members/payment"
 	member_plan "patungan_app_echo/internal/modules/members/plan"
-	public_payment "patungan_app_echo/internal/modules/payment"
+
+	payment "patungan_app_echo/internal/modules/payment"
+	admin_pages "patungan_app_echo/internal/pages/admin"
+	member_payment_pages "patungan_app_echo/internal/pages/member/payment"
+	public_payment "patungan_app_echo/internal/pages/public/payment"
 
 	"patungan_app_echo/internal/models"
 	"patungan_app_echo/internal/services/cache"
 	"patungan_app_echo/internal/services/database"
 	"patungan_app_echo/internal/services/email"
 	"patungan_app_echo/internal/services/firebase"
-	"patungan_app_echo/internal/services/payment_service"
 	"patungan_app_echo/internal/services/waha"
 )
 
@@ -149,27 +150,29 @@ func main() {
 
 	// Initialize PaymentService
 	gatewayManager := payment_gateway.NewGatewayManager(db)
-	paymentService := payment_service.NewPaymentService(db, gatewayManager)
+	paymentSvc := payment.NewService(
+		payment.NewGormDueRepo(db),
+		payment.NewGormSessionRepo(db),
+		payment.NewGatewayClient(gatewayManager),
+	)
 
 	// Initialize handlers
 	authHandler := auth_mod.NewAuthHandler(authClient, db)
 	adminDashboardHandler := admin_dashboard.NewDashboardHandler(db)
 	adminPlanHandler := admin_plan.NewPlanHandler(db, redisCache)
 	adminUserHandler := admin_user.NewUserHandler(db, redisCache)
-	adminPaymentDueHandler := admin_payment.NewPaymentDueHandler(db, redisCache, paymentService)
 	adminUserPrefHandler := admin_user.NewUserPreferenceHandler(db)
 	adminSettingsHandler := admin_settings.NewSettingsHandler(db, gatewayManager)
 
 	memberDashboardHandler := member_dashboard.NewMemberDashboardHandler(db)
 	memberPlanHandler := member_plan.NewMemberPlanHandler(db)
-	memberPaymentHandler := member_payment.NewMemberPaymentHandler(db, paymentService)
 
 	// Public routes
 	e.GET("/login", authHandler.LoginPage)
 	e.POST("/auth/login", authHandler.HandleLogin)
 	e.POST("/auth/logout", authHandler.HandleLogout)
 
-	publicHandler := public_payment.NewPublicHandler(db, redisCache, paymentService)
+	publicHandler := public_payment.NewPublicHandler(paymentSvc)
 	e.GET("/p/:uuid", publicHandler.ShowPaymentDue)
 	e.POST("/p/:uuid/initiate", publicHandler.InitiatePayment)
 	e.GET("/p/:uuid/active-session", publicHandler.CheckActiveSession)
@@ -205,10 +208,8 @@ func main() {
 	adminGroup.GET("/users/:id/preference", adminUserPrefHandler.GetUserPreference)
 	adminGroup.PUT("/users/:id/preference", adminUserPrefHandler.UpdateUserPreference)
 
-	// Admin Payment dues routes
-	adminGroup.GET("/payment-dues", adminPaymentDueHandler.ListPaymentDues)
-	adminGroup.GET("/payments/:id/status", adminPaymentDueHandler.CheckPaymentStatus)
-	adminGroup.POST("/payments/:id/mark-complete", adminPaymentDueHandler.HandleMarkAsComplete)
+	// Admin Payment routes (also registers the two gateway webhook callbacks on the root router)
+	admin_pages.RegisterRoutes(e, adminGroup, admin_pages.Deps{Payments: paymentSvc})
 
 	// Admin Settings routes
 	adminGroup.GET("/settings", adminSettingsHandler.GetSettings)
@@ -221,11 +222,7 @@ func main() {
 	memberGroup.GET("/dashboard", memberDashboardHandler.Dashboard)
 	memberGroup.GET("/plans", memberPlanHandler.ListPlans)
 	memberGroup.GET("/plans/:id", memberPlanHandler.ShowPlan)
-	memberGroup.GET("/payments", memberPaymentHandler.ListPayments)
-
-	// Webhooks
-	e.POST("/payments/callback/midtrans", adminPaymentDueHandler.MidtransCallback)
-	e.POST("/payments/callback/mayar", adminPaymentDueHandler.MayarCallback)
+	memberGroup.GET("/payments", member_payment_pages.NewMemberPaymentHandler(paymentSvc).ListPayments)
 
 	// Redirect root to role-based dashboard
 	e.GET("/", func(c echo.Context) error {

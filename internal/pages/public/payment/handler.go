@@ -1,25 +1,23 @@
 package payment
 
 import (
-	"github.com/labstack/echo/v4"
-	"gorm.io/gorm"
+	"errors"
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/labstack/echo/v4"
+
 	"patungan_app_echo/internal/models"
-	payment_pages "patungan_app_echo/internal/modules/payment/pages"
-	"patungan_app_echo/internal/services/cache"
-	"patungan_app_echo/internal/services/payment_service"
+	payment "patungan_app_echo/internal/modules/payment"
 )
 
 type PublicHandler struct {
-	db             *gorm.DB
-	cache          *cache.RedisCache
-	paymentService *payment_service.PaymentService
+	payments *payment.Service
 }
 
-func NewPublicHandler(db *gorm.DB, cache *cache.RedisCache, paymentService *payment_service.PaymentService) *PublicHandler {
-	return &PublicHandler{db: db, cache: cache, paymentService: paymentService}
+func NewPublicHandler(payments *payment.Service) *PublicHandler {
+	return &PublicHandler{payments: payments}
 }
 
 // ShowPaymentDue renders the public payment due page
@@ -29,19 +27,19 @@ func (h *PublicHandler) ShowPaymentDue(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid payment due UUID")
 	}
 
-	var due models.PaymentDue
-	if err := h.db.Preload("Plan").Preload("User").Where("uuid = ?", uuid).First(&due).Error; err != nil {
+	due, err := h.payments.GetDueByUUID(uuid)
+	if err != nil || due == nil {
 		log.Printf("Failed to find payment due with UUID %s: %v", uuid, err)
 		return echo.NewHTTPError(http.StatusNotFound, "Payment due not found")
 	}
 
-	props := payment_pages.PublicPaymentDueProps{
+	props := PublicPaymentDueProps{
 		Title:             "Payment Due Details",
-		Due:               due,
+		Due:               *due,
 		MidtransClientKey: os.Getenv("MIDTRANS_CLIENT_KEY"),
 	}
 
-	return payment_pages.PublicPaymentDue(props).Render(c.Request().Context(), c.Response())
+	return PublicPaymentDue(props).Render(c.Request().Context(), c.Response())
 }
 
 // InitiatePayment handles the creation of a Snap transaction for public access
@@ -51,8 +49,8 @@ func (h *PublicHandler) InitiatePayment(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid payment due UUID")
 	}
 
-	var due models.PaymentDue
-	if err := h.db.Preload("Plan").Preload("User").Where("uuid = ?", uuid).First(&due).Error; err != nil {
+	due, err := h.payments.GetDueModelByUUID(uuid)
+	if err != nil || due == nil {
 		return echo.NewHTTPError(http.StatusNotFound, "Payment due not found")
 	}
 
@@ -63,17 +61,17 @@ func (h *PublicHandler) InitiatePayment(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Payment due has been canceled")
 	}
 
-	// Initiate Payment using PaymentService
+	// Initiate Payment
 	forceNew := c.QueryParam("force_new") == "true"
 	callbackURL := getEnv("APP_URL", "http://localhost:8080") + "/p/" + uuid
 
-	result, err := h.paymentService.InitiatePayment(payment_service.InitiatePaymentRequest{
-		Due:         &due,
+	result, err := h.payments.InitiatePayment(payment.InitiatePaymentRequest{
+		Due:         due,
 		ForceNew:    forceNew,
 		CallbackURL: callbackURL,
 	})
 	if err != nil {
-		if err.Error() == "payment already made" {
+		if errors.Is(err, payment.ErrAlreadyPaid) {
 			return c.JSON(http.StatusBadRequest, map[string]string{"message": "Payment is already made. Please check the status."})
 		}
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to initiate payment: "+err.Error())
@@ -93,24 +91,19 @@ func (h *PublicHandler) CheckActiveSession(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid payment due UUID")
 	}
 
-	var due models.PaymentDue
-	if err := h.db.Where("uuid = ?", uuid).First(&due).Error; err != nil {
+	due, err := h.payments.GetDueByUUID(uuid)
+	if err != nil || due == nil {
 		return echo.NewHTTPError(http.StatusNotFound, "Payment due not found")
 	}
 
-	session, err := h.paymentService.CheckActiveSession(due.ID)
+	session, err := h.payments.CheckActiveSession(due.ID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to check session: "+err.Error())
 	}
 
-	if session != nil {
-		return c.JSON(http.StatusOK, map[string]interface{}{
-			"active": true,
-		})
-	}
-
+	active := session != nil
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"active": false,
+		"active": active,
 	})
 }
 
@@ -121,25 +114,25 @@ func (h *PublicHandler) CheckStatus(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid payment due UUID")
 	}
 
-	var due models.PaymentDue
-	if err := h.db.Where("uuid = ?", uuid).First(&due).Error; err != nil {
+	due, err := h.payments.GetDueByUUID(uuid)
+	if err != nil || due == nil {
 		return echo.NewHTTPError(http.StatusNotFound, "Payment due not found")
 	}
 
-	// Verify status with PaymentService
-	if err := h.paymentService.VerifyPaymentStatus(due.ID); err != nil {
-		// Log error but proceed to return current status from DB
+	// Verify status; proceed to return current status from DB on failure
+	if err := h.payments.VerifyPaymentStatus(due.ID); err != nil {
 		log.Printf("Failed to verify payment status for due %d: %v", due.ID, err)
 	}
 
 	// Re-fetch to get latest status
-	if err := h.db.First(&due, due.ID).Error; err != nil {
+	latest, err := h.payments.GetDueByUUID(uuid)
+	if err != nil || latest == nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to fetch payment due")
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status":         due.PaymentStatus,
-		"payment_status": due.PaymentStatus, // redundancy for frontend convenience
+		"status":         latest.Status,
+		"payment_status": latest.Status, // redundancy for frontend convenience
 	})
 }
 

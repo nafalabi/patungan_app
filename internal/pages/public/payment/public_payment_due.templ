@@ -1,15 +1,16 @@
-package payment_pages
+package payment
 import (
 	"fmt"
 	"os"
 	"patungan_app_echo/internal/models"
+	payment "patungan_app_echo/internal/modules/payment"
 	"patungan_app_echo/internal/template/layouts"
 	"patungan_app_echo/internal/template/utils"
 )
 
 type PublicPaymentDueProps struct {
 	Title             string
-	Due               models.PaymentDue
+	Due               payment.DueItem
 	MidtransClientKey string
 }
 
@@ -136,10 +137,10 @@ templ PublicPaymentDue(props PublicPaymentDueProps) {
 				<div class="p-6 text-center border-b border-border bg-bg-card">
 					<p class="text-[11px] font-semibold text-text-secondary uppercase tracking-wider mb-1">Total Amount Due</p>
 					<div class="text-3xl font-extrabold text-text-primary tracking-tight font-mono">
-						{ utils.FormatRupiah(props.Due.CalculatedPayAmount) }
+						{ utils.FormatRupiah(props.Due.Amount) }
 					</div>
 					<div class="mt-3 flex justify-center">
-						@PaymentStatusBadge(props.Due.PaymentStatus)
+						@PaymentStatusBadge(props.Due.Status)
 					</div>
 				</div>
 
@@ -147,15 +148,15 @@ templ PublicPaymentDue(props PublicPaymentDueProps) {
 				<div class="p-6 space-y-3 text-xs">
 					<div class="flex justify-between items-center py-1.5 border-b border-border/50">
 						<span class="text-text-secondary">Subscription Plan</span>
-						<span class="font-bold text-text-primary">{ props.Due.Plan.Name }</span>
+						<span class="font-bold text-text-primary">{ props.Due.PlanName }</span>
 					</div>
 					<div class="flex justify-between items-center py-1.5 border-b border-border/50">
 						<span class="text-text-secondary">Member Name</span>
-						<span class="font-semibold text-text-primary">{ props.Due.User.Name }</span>
+						<span class="font-semibold text-text-primary">{ props.Due.UserName }</span>
 					</div>
 					<div class="flex justify-between items-center py-1.5 border-b border-border/50">
 						<span class="text-text-secondary">Email</span>
-						<span class="font-medium text-text-secondary font-mono">{ props.Due.User.Email }</span>
+						<span class="font-medium text-text-secondary font-mono">{ props.Due.UserEmail }</span>
 					</div>
 					<div class="flex justify-between items-center py-1.5 border-b border-border/50">
 						<span class="text-text-secondary">Due Date</span>
@@ -169,8 +170,8 @@ templ PublicPaymentDue(props PublicPaymentDueProps) {
 					}
 				</div>
 
-				<!-- Action Section -->
-				if props.Due.PaymentStatus != models.PaymentStatusPaid && props.Due.PaymentStatus != models.PaymentStatusCanceled {
+			<!-- Action Section -->
+			if props.Due.Status != models.PaymentStatusPaid && props.Due.Status != models.PaymentStatusCanceled {
 					<div class="p-6 bg-bg-subtle/40 border-t border-border space-y-2.5">
 						<button
 							@click={ fmt.Sprintf("initiatePayment('%s')", props.Due.UUID) }
@@ -187,7 +188,7 @@ templ PublicPaymentDue(props PublicPaymentDueProps) {
 							Check Status
 						</button>
 					</div>
-				} else if props.Due.PaymentStatus == models.PaymentStatusPaid {
+				} else if props.Due.Status == models.PaymentStatusPaid {
 					<div class="p-6 bg-emerald-50/60 border-t border-emerald-100 text-center">
 						<div class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 mb-2">
 							<i data-lucide="check" class="w-5 h-5"></i>

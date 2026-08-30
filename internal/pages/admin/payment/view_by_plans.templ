@@ -1,19 +1,20 @@
-package payment_pages
+package payment
 
 import (
 	"fmt"
 	"patungan_app_echo/internal/models"
+	payment "patungan_app_echo/internal/modules/payment"
 )
 
 // ViewByPlans renders payment dues grouped by plans, showing only the latest period per plan
-templ ViewByPlans(planWithDues []PlanWithDues, currentUserID uint, currentUserType models.UserType, nextOffset int) {
-	if len(planWithDues) == 0 {
+templ ViewByPlans(planDues []payment.PlanDuesGroup, currentUserID uint, currentUserType models.UserType, nextOffset int) {
+	if len(planDues) == 0 {
 		<div class="bg-bg-card rounded-xl border border-border p-8 text-center text-text-secondary shadow-card">
 			No plans with payment dues found.
 		</div>
 	} else {
 		<div id="plans-container" class="space-y-5">
-			@PlanListItems(planWithDues, currentUserID, currentUserType)
+			@PlanListItems(planDues, currentUserID, currentUserType)
 		</div>
 		
 		@LoadMorePlansButton(nextOffset)
@@ -21,8 +22,8 @@ templ ViewByPlans(planWithDues []PlanWithDues, currentUserID uint, currentUserTy
 }
 
 // PlanListItems renders just the plan cards (useful for HTMX partial updates)
-templ PlanListItems(planWithDues []PlanWithDues, currentUserID uint, currentUserType models.UserType) {
-	for _, pwd := range planWithDues {
+templ PlanListItems(planDues []payment.PlanDuesGroup, currentUserID uint, currentUserType models.UserType) {
+	for _, pwd := range planDues {
 		<div class="bg-bg-card rounded-xl border border-border overflow-hidden shadow-card hover:shadow-card-hover transition-all">
 			<!-- Plan header -->
 			<div class="bg-bg-subtle/50 border-b border-border p-4">

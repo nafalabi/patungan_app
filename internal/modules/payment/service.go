@@ -14,6 +14,9 @@ import (
 
 var ErrAlreadyPaid = errors.New("payment already made")
 
+// ErrNotFound is returned by MarkDueComplete when the due does not exist.
+var ErrNotFound = errors.New("payment due not found")
+
 type Service struct {
 	dues     DueRepo
 	sessions SessionRepo
@@ -223,4 +226,242 @@ func (s *Service) MarkAsPaid(due *models.PaymentDue, payload map[string]interfac
 		PaymentDate:    time.Now(),
 	}
 	s.dues.CreatePaymentRecord(&userPayment)
+}
+
+// ListDuesFlat returns a paginated flat list of dues (canceled excluded).
+func (s *Service) ListDuesFlat(p ListFlatParams) (FlatDuesResult, error) {
+	if p.Page < 1 {
+		p.Page = 1
+	}
+	if p.PageSize <= 0 {
+		p.PageSize = 20
+	}
+
+	dues, totalCount, err := s.dues.ListFlat(p)
+	if err != nil {
+		return FlatDuesResult{}, err
+	}
+
+	totalPages := int((totalCount + int64(p.PageSize) - 1) / int64(p.PageSize))
+	return FlatDuesResult{
+		Dues:        mapDues(dues),
+		CurrentPage: p.Page,
+		TotalPages:  totalPages,
+		TotalCount:  int(totalCount),
+		PageSize:    p.PageSize,
+	}, nil
+}
+
+// ListDuesByPlans groups dues by plan, showing only the latest period per plan.
+// Returns the groups and the next offset (0 when exhausted).
+func (s *Service) ListDuesByPlans(limit, offset int) ([]PlanDuesGroup, int, error) {
+	plans, err := s.dues.ListPlansWithLatestDues(limit, offset)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	groups := make([]PlanDuesGroup, 0, len(plans))
+	for _, plan := range plans {
+		period, dues, err := s.dues.ListByPlanLatestPeriod(plan.ID)
+		if err != nil {
+			return nil, 0, err
+		}
+		if period != nil {
+			groups = append(groups, PlanDuesGroup{
+				Plan:    mapPlan(plan),
+				Periods: []PeriodDues{{Period: mapPeriod(*period), Dues: mapDues(dues)}},
+			})
+			continue
+		}
+
+		// Handle dues without period
+		orphans, err := s.dues.ListOrphanDuesByPlan(plan.ID)
+		if err != nil {
+			return nil, 0, err
+		}
+		if len(orphans) > 0 {
+			groups = append(groups, PlanDuesGroup{
+				Plan:    mapPlan(plan),
+				Periods: []PeriodDues{{Period: PeriodOption{ID: 0}, Dues: mapDues(orphans)}},
+			})
+		}
+	}
+
+	nextOffset := offset + limit
+	if len(plans) < limit {
+		nextOffset = 0 // No more
+	}
+	return groups, nextOffset, nil
+}
+
+// ListDuesByPeriods groups dues by billing period, then plans.
+func (s *Service) ListDuesByPeriods(limit, offset int) ([]PeriodPlansGroup, int, error) {
+	periods, err := s.dues.ListPeriods(limit, offset)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	groups := make([]PeriodPlansGroup, 0, len(periods))
+	for _, period := range periods {
+		// Get top 3 plans for this period
+		plans, err := s.dues.ListTopPlansInPeriod(period.ID, 3)
+		if err != nil {
+			return nil, 0, err
+		}
+
+		group := PeriodPlansGroup{Period: mapPeriod(period)}
+		for _, plan := range plans {
+			dues, err := s.dues.ListByPeriodAndPlan(period.ID, plan.ID)
+			if err != nil {
+				return nil, 0, err
+			}
+			group.Plans = append(group.Plans, PlanDuesInPeriod{Plan: mapPlan(plan), Dues: mapDues(dues)})
+		}
+		groups = append(groups, group)
+	}
+
+	nextOffset := offset + limit
+	if len(periods) < limit {
+		nextOffset = 0
+	}
+	return groups, nextOffset, nil
+}
+
+// ListDuesByUsers groups dues by user with their latest dues.
+func (s *Service) ListDuesByUsers(limit, offset int) ([]UserDuesGroup, int, error) {
+	users, err := s.dues.ListUsersWithLatestDues(limit, offset)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	groups := make([]UserDuesGroup, 0, len(users))
+	for _, user := range users {
+		// Show 3 latest dues per user
+		dues, err := s.dues.ListLatestByUser(user.ID, 3)
+		if err != nil {
+			return nil, 0, err
+		}
+		groups = append(groups, UserDuesGroup{User: mapUser(user), Dues: mapDues(dues)})
+	}
+
+	nextOffset := offset + limit
+	if len(users) < limit {
+		nextOffset = 0
+	}
+	return groups, nextOffset, nil
+}
+
+// FilterOptions returns all plans and users for the filter dropdowns.
+func (s *Service) FilterOptions() (FilterOptions, error) {
+	plans, err := s.dues.ListPlans()
+	if err != nil {
+		return FilterOptions{}, err
+	}
+	users, err := s.dues.ListUsers()
+	if err != nil {
+		return FilterOptions{}, err
+	}
+
+	opts := FilterOptions{
+		Plans: make([]PlanOption, 0, len(plans)),
+		Users: make([]UserOption, 0, len(users)),
+	}
+	for _, p := range plans {
+		opts.Plans = append(opts.Plans, mapPlan(p))
+	}
+	for _, u := range users {
+		opts.Users = append(opts.Users, mapUser(u))
+	}
+	return opts, nil
+}
+
+// GetDueByUUID returns nil when no due matches the UUID.
+func (s *Service) GetDueByUUID(uuid string) (*DueItem, error) {
+	due, err := s.dues.FindByUUID(uuid)
+	if err != nil || due == nil {
+		return nil, err
+	}
+	item := mapDue(*due)
+	return &item, nil
+}
+
+// GetDueModelByUUID returns the raw due (with Plan and User preloaded) for
+// flows that need model-level access, e.g. initiating a payment.
+func (s *Service) GetDueModelByUUID(uuid string) (*models.PaymentDue, error) {
+	return s.dues.FindByUUID(uuid)
+}
+
+// GetDueModelByID returns the raw due (with Plan and User preloaded) for
+// flows that need model-level access, e.g. gateway callbacks.
+func (s *Service) GetDueModelByID(id uint) (*models.PaymentDue, error) {
+	return s.dues.FindByID(id)
+}
+
+// GetDueForRender returns nil when the due is missing.
+func (s *Service) GetDueForRender(id uint) (*DueItem, error) {
+	due, err := s.dues.FindByID(id)
+	if err != nil || due == nil {
+		return nil, err
+	}
+	item := mapDue(*due)
+	return &item, nil
+}
+
+// MarkDueComplete marks a due paid manually; authorization is the caller's
+// responsibility. It is a no-op when the due is already paid.
+func (s *Service) MarkDueComplete(id uint) error {
+	due, err := s.dues.FindByID(id)
+	if err != nil {
+		return err
+	}
+	if due == nil {
+		return ErrNotFound
+	}
+	if due.PaymentStatus == models.PaymentStatusPaid {
+		return nil
+	}
+
+	s.MarkAsPaid(due, map[string]interface{}{
+		"payment_type":    "manual",
+		"gross_amount":    due.CalculatedPayAmount,
+		"payment_gateway": string(models.PaymentGatewayManual), // Pass as string, helper converts back
+	})
+	return nil
+}
+
+// MemberDuesSummary returns the member's dues plus pending/paid totals.
+func (s *Service) MemberDuesSummary(userID uint, statusFilter string) ([]DueItem, float64, float64, error) {
+	var statuses []string
+	switch statusFilter {
+	case "pending":
+		statuses = []string{models.PaymentStatusPending, models.PaymentStatusOverdue}
+	case "paid":
+		statuses = []string{models.PaymentStatusPaid}
+	}
+
+	dues, err := s.dues.ListForUser(userID, statuses)
+	if err != nil {
+		return nil, 0, 0, err
+	}
+
+	totalPending, err := s.dues.SumForUserByStatus(userID, []string{models.PaymentStatusPending, models.PaymentStatusOverdue})
+	if err != nil {
+		return nil, 0, 0, err
+	}
+	totalPaid, err := s.dues.SumForUserByStatus(userID, []string{models.PaymentStatusPaid})
+	if err != nil {
+		return nil, 0, 0, err
+	}
+
+	return mapDues(dues), totalPending, totalPaid, nil
+}
+
+// CreateCallbackHistory persists a gateway callback payload for auditing.
+func (s *Service) CreateCallbackHistory(h *models.PaymentCallbackHistory) error {
+	return s.dues.CreateCallbackHistory(h)
+}
+
+// FindLatestByGatewayMetadata returns (nil, nil) when no session matches.
+func (s *Service) FindLatestByGatewayMetadata(gateway models.PaymentGateway, metadataSubstring string) (*models.PaymentSession, error) {
+	return s.sessions.FindLatestByGatewayMetadata(gateway, metadataSubstring)
 }

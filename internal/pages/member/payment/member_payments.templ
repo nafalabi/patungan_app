@@ -1,8 +1,9 @@
-package payment_pages
+package payment
 
 import (
 	"fmt"
 	"patungan_app_echo/internal/models"
+	payment "patungan_app_echo/internal/modules/payment"
 	"patungan_app_echo/internal/template/layouts"
 	types "patungan_app_echo/internal/template/types"
 	"patungan_app_echo/internal/template/utils"
@@ -15,7 +16,7 @@ type MemberPaymentsProps struct {
 	UserEmail    string
 	UserUID      string
 	StatusFilter string
-	PaymentDues  []models.PaymentDue
+	PaymentDues  []payment.DueItem
 	TotalPending float64
 	TotalPaid    float64
 }
@@ -113,45 +114,45 @@ templ MemberPayments(props MemberPaymentsProps) {
 									<tr class="hover:bg-bg-hover/50 transition-colors">
 										<td class="py-3.5 px-5">
 											<div class="flex items-center gap-2.5">
-												<div class="w-7 h-7 rounded-md bg-bg-subtle border border-border flex items-center justify-center text-xs font-bold text-text-primary">
-													{ utils.SafeInitial(due.Plan.Name, "P") }
-												</div>
-												<div>
-													<p class="text-xs font-bold text-text-primary">{ due.Plan.Name }</p>
-													<p class="text-[10px] text-text-muted capitalize">{ string(due.Plan.PaymentType) }</p>
-												</div>
+										<div class="w-7 h-7 rounded-md bg-bg-subtle border border-border flex items-center justify-center text-xs font-bold text-text-primary">
+												{ utils.SafeInitial(due.PlanName, "P") }
 											</div>
-										</td>
-										<td class="py-3.5 px-5 text-xs text-text-secondary font-mono">
-											{ due.DueDate.Format("02 Jan 2006") }
-										</td>
-										<td class="py-3.5 px-5 text-xs font-bold text-text-primary text-right font-mono">
-											{ utils.FormatRupiah(due.CalculatedPayAmount) }
-										</td>
-										<td class="py-3.5 px-5 text-center">
-											if due.PaymentStatus == models.PaymentStatusPaid {
+											<div>
+												<p class="text-xs font-bold text-text-primary">{ due.PlanName }</p>
+												<p class="text-[10px] text-text-muted capitalize">{ due.PlanPaymentType }</p>
+											</div>
+										</div>
+									</td>
+									<td class="py-3.5 px-5 text-xs text-text-secondary font-mono">
+										{ due.DueDate.Format("02 Jan 2006") }
+									</td>
+									<td class="py-3.5 px-5 text-xs font-bold text-text-primary text-right font-mono">
+										{ utils.FormatRupiah(due.Amount) }
+									</td>
+									<td class="py-3.5 px-5 text-center">
+										if due.Status == models.PaymentStatusPaid {
 												<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
 													<i data-lucide="check-circle" class="w-3 h-3 text-emerald-600"></i>
 													Paid
 												</span>
-											} else if due.PaymentStatus == models.PaymentStatusOverdue {
+											} else if due.Status == models.PaymentStatusOverdue {
 												<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-800 border border-rose-200">
 													<i data-lucide="alert-circle" class="w-3 h-3 text-rose-600"></i>
 													Overdue
 												</span>
-											} else if due.PaymentStatus == models.PaymentStatusPending {
+											} else if due.Status == models.PaymentStatusPending {
 												<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
 													<i data-lucide="clock" class="w-3 h-3 text-amber-600"></i>
 													Pending
 												</span>
 											} else {
 												<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-bg-subtle text-text-muted border border-border">
-													{ string(due.PaymentStatus) }
+													{ due.Status }
 												</span>
 											}
 										</td>
 										<td class="py-3.5 px-5 text-right">
-											if due.PaymentStatus == models.PaymentStatusPending || due.PaymentStatus == models.PaymentStatusOverdue {
+											if due.Status == models.PaymentStatusPending || due.Status == models.PaymentStatusOverdue {
 												<a 
 													href={ templ.SafeURL(fmt.Sprintf("/p/%s", due.UUID)) }
 													class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold text-xs bg-primary text-white hover:bg-primary-hover transition-colors shadow-xs"

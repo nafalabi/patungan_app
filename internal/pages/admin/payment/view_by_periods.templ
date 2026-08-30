@@ -1,19 +1,20 @@
-package payment_pages
+package payment
 
 import (
 	"fmt"
 	"patungan_app_echo/internal/models"
+	payment "patungan_app_echo/internal/modules/payment"
 )
 
 // ViewByPeriods renders payment dues grouped by billing periods
-templ ViewByPeriods(periodWithPlans []PeriodWithPlans, currentUserID uint, currentUserType models.UserType, nextOffset int) {
-	if len(periodWithPlans) == 0 {
+templ ViewByPeriods(periodPlans []payment.PeriodPlansGroup, currentUserID uint, currentUserType models.UserType, nextOffset int) {
+	if len(periodPlans) == 0 {
 		<div class="bg-bg-card rounded-xl border border-border p-8 text-center text-text-secondary shadow-card">
 			No billing periods found.
 		</div>
 	} else {
 		<div id="periods-container" class="space-y-6">
-			@PeriodListItems(periodWithPlans, currentUserID, currentUserType)
+			@PeriodListItems(periodPlans, currentUserID, currentUserType)
 		</div>
 		
 		@LoadMorePeriodsButton(nextOffset)
@@ -21,8 +22,8 @@ templ ViewByPeriods(periodWithPlans []PeriodWithPlans, currentUserID uint, curre
 }
 
 // PeriodListItems renders period groups
-templ PeriodListItems(periodWithPlans []PeriodWithPlans, currentUserID uint, currentUserType models.UserType) {
-	for _, pwp := range periodWithPlans {
+templ PeriodListItems(periodPlans []payment.PeriodPlansGroup, currentUserID uint, currentUserType models.UserType) {
+	for _, pwp := range periodPlans {
 		<div class="bg-bg-card rounded-xl border border-border overflow-hidden shadow-card">
 			<!-- Period header -->
 			<div class="bg-bg-subtle/50 border-b border-border p-4">
@@ -73,7 +74,7 @@ templ LoadMorePeriodsButton(nextOffset int) {
 }
 
 // PeriodPlanItems renders plans within a period
-templ PeriodPlanItems(periodID uint, plans []PlanWithDuesInPeriod, currentUserID uint, currentUserType models.UserType) {
+templ PeriodPlanItems(periodID uint, plans []payment.PlanDuesInPeriod, currentUserID uint, currentUserType models.UserType) {
 	for _, plan_dues := range plans {
 		<div class="border border-border/80 rounded-lg overflow-hidden bg-bg-card">
 			<div class="bg-bg-subtle/60 px-4 py-2 border-b border-border/80 flex justify-between items-center">

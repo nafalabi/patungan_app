@@ -1,12 +1,13 @@
-package payment_pages
+package payment
 
 import (
 	"fmt"
 	"patungan_app_echo/internal/models"
+	payment "patungan_app_echo/internal/modules/payment"
 )
 
 // ViewAll renders a flat list of payment dues with classic pagination
-templ ViewAll(dues []models.PaymentDue, currentUserID uint, currentUserType models.UserType, currentPage, totalPages, totalCount, pageSize int, viewMode string, filterPlan, filterUser uint, sortBy, sortOrder string) {
+templ ViewAll(dues []payment.DueItem, currentUserID uint, currentUserType models.UserType, currentPage, totalPages, totalCount, pageSize int, viewMode string, filterPlan, filterUser uint, sortBy, sortOrder string) {
 	if len(dues) == 0 {
 		<div class="bg-bg-card rounded-xl border border-border p-12 text-center text-text-secondary shadow-card">
 			<div class="w-12 h-12 rounded-full bg-bg-subtle border border-border flex items-center justify-center text-text-secondary mx-auto mb-3">

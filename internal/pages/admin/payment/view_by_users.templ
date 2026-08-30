@@ -1,20 +1,21 @@
-package payment_pages
+package payment
 
 import (
 	"fmt"
 	"patungan_app_echo/internal/models"
+	payment "patungan_app_echo/internal/modules/payment"
 	"patungan_app_echo/internal/template/utils"
 )
 
 // ViewByUsers renders payment dues grouped by users
-templ ViewByUsers(userWithDues []UserWithDues, currentUserID uint, currentUserType models.UserType, nextOffset int) {
-	if len(userWithDues) == 0 {
+templ ViewByUsers(userDues []payment.UserDuesGroup, currentUserID uint, currentUserType models.UserType, nextOffset int) {
+	if len(userDues) == 0 {
 		<div class="bg-bg-card rounded-xl border border-border p-8 text-center text-text-secondary shadow-card">
 			No users with payment dues found.
 		</div>
 	} else {
 		<div id="users-container" class="space-y-6">
-			@UserListItems(userWithDues, currentUserID, currentUserType)
+			@UserListItems(userDues, currentUserID, currentUserType)
 		</div>
 		
 		@LoadMoreUsersButton(nextOffset)
@@ -22,8 +23,8 @@ templ ViewByUsers(userWithDues []UserWithDues, currentUserID uint, currentUserTy
 }
 
 // UserListItems renders user groups
-templ UserListItems(userWithDues []UserWithDues, currentUserID uint, currentUserType models.UserType) {
-	for _, uwd := range userWithDues {
+templ UserListItems(userDues []payment.UserDuesGroup, currentUserID uint, currentUserType models.UserType) {
+	for _, uwd := range userDues {
 		<div class="bg-bg-card rounded-xl border border-border overflow-hidden shadow-card">
 			<!-- User header -->
 			<div class="bg-bg-subtle/50 border-b border-border p-4">
@@ -55,21 +56,21 @@ templ UserListItems(userWithDues []UserWithDues, currentUserID uint, currentUser
 									<div class="w-6 h-6 rounded-md bg-bg-subtle border border-border flex items-center justify-center text-text-primary text-xs">
 										<i data-lucide="layers" class="w-3.5 h-3.5"></i>
 									</div>
-									<h4 class="font-bold text-xs text-text-primary truncate max-w-[140px]">{ due.Plan.Name }</h4>
+									<h4 class="font-bold text-xs text-text-primary truncate max-w-[140px]">{ due.PlanName }</h4>
 								</div>
-								@PaymentStatusIcon(due.PaymentStatus)
+								@PaymentStatusIcon(due.Status)
 							</div>
 							
 							<div class="flex justify-between items-end mt-2 pt-2 border-t border-border/60">
 								<div class="text-xs text-text-secondary">
 									<p>Due: <span class="font-semibold text-text-primary font-mono">{ due.DueDate.Format("02 Jan 2006") }</span></p>
-									if due.BillingPeriod.ID != 0 {
-										<p class="text-[11px] text-text-muted mt-0.5">{ due.BillingPeriod.Name }</p>
+									if due.PeriodID != 0 {
+										<p class="text-[11px] text-text-muted mt-0.5">{ due.PeriodName }</p>
 									}
 								</div>
 								<div class="text-right">
-									<p class="text-xs font-bold text-text-primary font-mono">{ formatRupiah(due.CalculatedPayAmount) }</p>
-									if due.UserID == currentUserID && due.PaymentStatus != models.PaymentStatusPaid {
+									<p class="text-xs font-bold text-text-primary font-mono">{ formatRupiah(due.Amount) }</p>
+									if due.UserID == currentUserID && due.Status != models.PaymentStatusPaid {
 										<a href={ templ.SafeURL(fmt.Sprintf("/p/%s", due.UUID)) } class="text-[11px] text-primary font-semibold hover:underline mt-0.5 inline-block">Pay Now →</a>
 									}
 								</div>
