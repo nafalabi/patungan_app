@@ -84,7 +84,7 @@ func Dashboard(props DashboardProps) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			if props.CurrentUserType == "Admin" || props.CurrentUserType == "PlanCreator" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<a href=\"/plans/create\" class=\"w-full sm:w-auto inline-flex justify-center items-center gap-2 px-4 py-2 rounded-lg bg-primary text-white text-xs font-semibold hover:bg-primary-hover transition-colors shadow-sm\"><i data-lucide=\"plus\" class=\"w-4 h-4\"></i> Create Plan</a>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<a href=\"/admin/plans/create\" class=\"w-full sm:w-auto inline-flex justify-center items-center gap-2 px-4 py-2 rounded-lg bg-primary text-white text-xs font-semibold hover:bg-primary-hover transition-colors shadow-sm\"><i data-lucide=\"plus\" class=\"w-4 h-4\"></i> Create Plan</a>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

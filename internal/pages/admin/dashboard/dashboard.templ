@@ -41,7 +41,7 @@ templ Dashboard(props DashboardProps) {
 					<p class="text-xs md:text-sm text-text-secondary mt-0.5">Welcome back, { props.UserEmail }</p>
 				</div>
 				if props.CurrentUserType == "Admin" || props.CurrentUserType == "PlanCreator" {
-					<a href="/plans/create" class="w-full sm:w-auto inline-flex justify-center items-center gap-2 px-4 py-2 rounded-lg bg-primary text-white text-xs font-semibold hover:bg-primary-hover transition-colors shadow-sm">
+					<a href="/admin/plans/create" class="w-full sm:w-auto inline-flex justify-center items-center gap-2 px-4 py-2 rounded-lg bg-primary text-white text-xs font-semibold hover:bg-primary-hover transition-colors shadow-sm">
 						<i data-lucide="plus" class="w-4 h-4"></i>
 						Create Plan
 					</a>
