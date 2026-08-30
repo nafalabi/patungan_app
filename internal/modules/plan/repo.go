@@ -23,8 +23,9 @@ type PlanRepo interface {
 	ReplaceParticipants(planID uint, participants []models.PlanParticipant) error
 	SaveTask(task *models.ScheduledTask) error
 	CreateTask(task *models.ScheduledTask) error
-	FindUser(id uint) (*models.User, error) // for Update admin check; (nil, nil) when missing
-	ListUsers() ([]models.User, error)      // for form dropdowns
+	FindUser(id uint) (*models.User, error)              // for Update admin check; (nil, nil) when missing
+	ListUsers() ([]models.User, error)                   // for form dropdowns
+	ParticipantExists(planID, userID uint) (bool, error) // enrollment check without loading the plan
 	CountActiveForUser(userID uint) (int64, error)
 	CountAll() (int64, error)
 }
@@ -220,6 +221,14 @@ func (r *gormPlanRepo) ListUsers() ([]models.User, error) {
 	var users []models.User
 	err := r.db.Find(&users).Error
 	return users, err
+}
+
+func (r *gormPlanRepo) ParticipantExists(planID, userID uint) (bool, error) {
+	var count int64
+	err := r.db.Model(&models.PlanParticipant{}).
+		Where("plan_id = ? AND user_id = ?", planID, userID).
+		Count(&count).Error
+	return count > 0, err
 }
 
 func (r *gormPlanRepo) CountActiveForUser(userID uint) (int64, error) {

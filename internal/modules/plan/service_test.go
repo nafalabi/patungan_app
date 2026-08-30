@@ -126,6 +126,18 @@ func (f *fakePlanRepo) ListUsers() ([]models.User, error) {
 	return users, nil
 }
 
+func (f *fakePlanRepo) ParticipantExists(planID, userID uint) (bool, error) {
+	if f.plan.ID != planID {
+		return false, nil
+	}
+	for _, p := range f.plan.Participants {
+		if p.UserID == userID {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
 func (f *fakePlanRepo) CountActiveForUser(userID uint) (int64, error) {
 	return f.total, nil
 }
@@ -384,6 +396,50 @@ func TestUpdate_NotFound(t *testing.T) {
 	err := svc.Update(99, 1, plan.UpdateInput{Name: "X"})
 	if !errors.Is(err, plan.ErrNotFound) {
 		t.Fatalf("want ErrNotFound, got %v", err)
+	}
+}
+
+func TestDetailForUser(t *testing.T) {
+	plans := &fakePlanRepo{
+		plan: models.Plan{
+			ID: 1, Name: "Netflix", OwnerID: 5, TotalPrice: 90000, PaymentType: "recurring",
+			Participants: []models.PlanParticipant{
+				{UserID: 10, Portion: 1, User: models.User{ID: 10, Name: "A", Email: "a@x.com"}},
+				{UserID: 11, Portion: 2, User: models.User{ID: 11, Name: "B", Email: "b@x.com"}},
+			},
+		},
+	}
+	dues := &fakeDueCreator{periods: map[string]uint{}}
+	svc := plan.NewService(plans, dues)
+
+	detail, _, err := svc.DetailForUser(1, 10, false)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if detail.Plan.PaymentType != "recurring" {
+		t.Fatalf("want payment type recurring, got %q", detail.Plan.PaymentType)
+	}
+	if detail.Plan.ParticipantCount != 2 {
+		t.Fatalf("want participant count 2, got %d", detail.Plan.ParticipantCount)
+	}
+	if len(detail.Participants) != 2 || detail.Participants[0].Name != "A" {
+		t.Fatalf("want 2 participant views, got %+v", detail.Participants)
+	}
+
+	// Non-admin requesting a missing plan: enrollment is checked before plan
+	// existence (old handler returned 403 in this case).
+	if _, _, err := svc.DetailForUser(99, 10, false); !errors.Is(err, plan.ErrForbidden) {
+		t.Fatalf("want ErrForbidden for non-admin on missing plan, got %v", err)
+	}
+
+	// Admin requesting a missing plan still gets ErrNotFound.
+	if _, _, err := svc.DetailForUser(99, 1, true); !errors.Is(err, plan.ErrNotFound) {
+		t.Fatalf("want ErrNotFound for admin on missing plan, got %v", err)
+	}
+
+	// Non-admin not enrolled in an existing plan gets ErrForbidden.
+	if _, _, err := svc.DetailForUser(1, 99, false); !errors.Is(err, plan.ErrForbidden) {
+		t.Fatalf("want ErrForbidden for non-enrolled user, got %v", err)
 	}
 }
 

@@ -258,9 +258,22 @@ func (s *Service) DisableSchedule(id uint) error {
 }
 
 // DetailForUser returns the plan detail and billing periods for a viewer.
-// Non-admin viewers must be enrolled; otherwise ErrForbidden. Missing plans
-// yield ErrNotFound.
+// For non-admins the enrollment check runs before the plan lookup, so a
+// non-member requesting a missing plan gets ErrForbidden (matching the old
+// handler's 403 precedence); admins get ErrNotFound for missing plans.
 func (s *Service) DetailForUser(planID, userID uint, isAdmin bool) (*PlanDetail, []PeriodView, error) {
+	if !isAdmin {
+		// Verify enrollment first to preserve the old handler's status
+		// precedence (non-member + nonexistent plan -> ErrForbidden).
+		enrolled, err := s.plans.ParticipantExists(planID, userID)
+		if err != nil {
+			return nil, nil, err
+		}
+		if !enrolled {
+			return nil, nil, ErrForbidden
+		}
+	}
+
 	p, err := s.plans.FindByIDWithParticipants(planID)
 	if err != nil {
 		return nil, nil, err
@@ -269,27 +282,16 @@ func (s *Service) DetailForUser(planID, userID uint, isAdmin bool) (*PlanDetail,
 		return nil, nil, ErrNotFound
 	}
 
-	if !isAdmin {
-		enrolled := false
-		for _, participant := range p.Participants {
-			if participant.UserID == userID {
-				enrolled = true
-				break
-			}
-		}
-		if !enrolled {
-			return nil, nil, ErrForbidden
-		}
-	}
-
 	detail := &PlanDetail{
 		Plan: PlanSummary{
-			ID:         p.ID,
-			Name:       p.Name,
-			OwnerID:    p.OwnerID,
-			OwnerName:  p.Owner.Name,
-			TotalPrice: p.TotalPrice,
-			StartDate:  p.PlanStartDate,
+			ID:               p.ID,
+			Name:             p.Name,
+			OwnerID:          p.OwnerID,
+			OwnerName:        p.Owner.Name,
+			TotalPrice:       p.TotalPrice,
+			StartDate:        p.PlanStartDate,
+			PaymentType:      p.PaymentType,
+			ParticipantCount: len(p.Participants),
 		},
 		Participants: make([]ParticipantView, 0, len(p.Participants)),
 	}
