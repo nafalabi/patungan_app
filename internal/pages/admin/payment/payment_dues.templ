@@ -230,7 +230,7 @@ templ PaymentDueItem(due payment.DueItem, displayMode string, currentUserID uint
 				}
 				<button
 					hx-get={ fmt.Sprintf("/admin/payments/%d/status?display_mode=%s", due.ID, displayMode) }
-					hx-target={ fmt.Sprintf("#status-container-%d", due.ID) }
+					hx-target={ fmt.Sprintf("#payment-due-%d", due.ID) }
 					hx-swap="outerHTML"
 					class="p-1 rounded-md text-text-muted hover:text-text-primary hover:bg-bg-hover transition-colors"
 					title="Check Payment Gateway Status"
@@ -240,7 +240,7 @@ templ PaymentDueItem(due payment.DueItem, displayMode string, currentUserID uint
 				if currentUserType == "Admin" && due.Status != models.PaymentStatusPaid {
 					<button
 						hx-post={ fmt.Sprintf("/admin/payments/%d/mark-complete?display_mode=%s", due.ID, displayMode) }
-						hx-target={ fmt.Sprintf("#status-container-%d", due.ID) }
+						hx-target={ fmt.Sprintf("#payment-due-%d", due.ID) }
 						hx-swap="outerHTML"
 						hx-confirm="Are you sure you want to mark this payment as complete manually?"
 						class="p-1 rounded-md text-text-muted hover:text-emerald-700 hover:bg-emerald-50 transition-colors"
