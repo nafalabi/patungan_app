@@ -257,7 +257,7 @@ func MemberPlanDetail(props MemberPlanDetailProps) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</span></div></div><!-- Dues Table inside this period --><div class=\"bg-bg-body rounded-lg border border-border/60 overflow-hidden\"><table class=\"w-full border-collapse text-xs\"><thead><tr class=\"border-b border-border/60 bg-bg-subtle/50 text-left text-text-secondary text-[11px]\"><th class=\"py-2 px-3 font-semibold\">Member</th><th class=\"py-2 px-3 font-semibold text-right\">Amount</th><th class=\"py-2 px-3 font-semibold text-center\">Status</th><th class=\"py-2 px-3 font-semibold text-right\">Action</th></tr></thead> <tbody class=\"divide-y divide-border/40\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</span></div></div><!-- Dues Table inside this period --><div class=\"bg-bg-body rounded-lg border border-border/60 overflow-x-auto\"><table class=\"w-full border-collapse text-xs min-w-[600px]\"><thead><tr class=\"border-b border-border/60 bg-bg-subtle/50 text-left text-text-secondary text-[11px]\"><th class=\"py-2 px-3 font-semibold\">Member</th><th class=\"py-2 px-3 font-semibold text-right\">Amount</th><th class=\"py-2 px-3 font-semibold text-center\">Status</th><th class=\"py-2 px-3 font-semibold text-right\">Action</th></tr></thead> <tbody class=\"divide-y divide-border/40\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
